@@ -1,0 +1,47 @@
+.gmap3{
+  margin: 10px auto;
+  border: 1px solid #C0C0C0;
+  width: 600px;
+  height: 400px;
+  font-size:12px;
+}
+#r-directions{
+	margin: 10px auto;
+	padding:5px;
+	overflow:auto;
+	font-size:12px;
+	display:none;
+}
+.sizedirection{
+	width:600px;
+	height:300px;
+	display:block;
+}
+.map_loader {
+  position:relative;
+  margin-top:25%;
+  left: 48%;
+  margin-left: -16px;
+}
+.getdirections{font-size:12px;}
+.subdirection{font-size:14px;}
+#map_microformat{}
+.vcard{font-size:12px;}
+.vcard a{font-size:12px;}
+.clearright{clear:right;}
+label{font-weight:600;min-width:50px;}
+/**
+ * jQuery UI autocomplete
+ */
+.ui-autocomplete {
+	background-color: white;
+	max-height: 250px;
+	overflow-y: auto;
+	/* prevent horizontal scrollbar */
+	overflow-x: hidden;
+	/* add padding to account for vertical scrollbar */
+	padding-right: 20px;
+	z-index:1003 !important;
+	z-index:1003;
+}
+.ui-autocomplete-loading { background: white url(/framework/img/small_loading.gif) right center no-repeat; }

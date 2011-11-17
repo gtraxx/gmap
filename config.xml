@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- /*
+ * MAGIX CMS Copyright (c) 2011 Gerits Aurelien, 
+ * http://www.magix-dev.be
+ * Dual licensed under the MIT AND GPL Version 3 licenses.
+ *
+ * Date: August 5 15:00 2011
+ */-->
+<config>
+	<acl>
+		<admin>
+			<authorized>
+				<allow_access>*</allow_access>
+			</authorized>
+			<infos>
+				<authors>
+					<author>
+						<name>Aurélien Gérits</name>
+						<link>
+							<website href="http://www.magix-cms.com" />
+							<blog href="http://www.magix-cjquery.com" />
+						</link>
+					</author>
+					<author>
+						<name>Jean-baptiste Demonte</name>
+						<link>
+							<website href="http://gmap3.net" />
+						</link>
+					</author>
+				</authors>
+			</infos>
+		</admin>
+	</acl>
+</config>

@@ -1,0 +1,63 @@
+Version 1.5
+* Ajout du mode multi adresse
+	- Réadaptation de la base de données pour le mode multi adresse
+	- Modification de la structure du fichier index.phtml
+* Ajout de la possibilité de définir des métas avec rewrite métas
+	
+Version 1.4
+* Compatiblilité avec magix 2.3.5
+* Nouveau logo pour le plugin (magix cms + gmap3)
+* Fichier SQL 1.4
+* Réadaptation du skin public pour la prise en charge de la réécriture des métas + nouveau squelette (nouveau thème par defaut)
+* Intégration des classes du framework CSS pour la construction de la Vcard 
+
+Version 1.3
+* Fix bug IE7 (nom du singleton réservé)
+* Réorganisation de la taille de r-direction pour modifier la taille via CSS
+* Ajout du fichier de version XML
+* Modification de la requête de mise à jour pour les prochaines versions.
+* Suppression du fichier public.0.1.js
+* Ajout du fichier public.0.2.js
+* Ajout du fichier anglais pour le système de traduction
+* Upgrade gmap3 version 3.3 => 3.4
+* Ajout du fichier sql 1.3
+
+version 1.2
+* Système d'upgrade vers la version 1.2 (SQL)
+* Upgrade gmap3 version 3.2 => 3.3
+* Restructuration du fichier phtml pour un visuel plus flexible
+* Suppression du champs texte "région" pour la création d'un itinéraire
+* Ajout de l'autocomplete google + jquery ui pour le système d'itinéraire
+* Suppression du fichier upgrade.sql
+* Ajout du fichier SQL pour le passage 1.0=>1.1, ensuite 1.2
+* Ajout du changelog
+
+version 1.1
+* Envoi du logo officiel de gmap3
+* Ajout des fichiers de traduction
+* Upgrade gmap3 version 3.0 => 3.2
+* Ajout de la longitude et latitude dans les paramètres
+* Ajout du nouveau logo gmap3 dans l'admin
+* Récupération automatique de la longitude et latitude dans le formulaire de configuration.
+* Ajout du système de mise à jour automatique
+* Correction des labels de la configuration
+* Ajout de la suppression de carte
+
+version 1.0
+* Fix bug pour la génération de l'itinéraire
+* Modification de la présentation de la carte
+* Fix bug carte itinéraire dans IE
+* Modification des fonctions en dur en méthode
+* Modification de la table sql pour l'ajout des cartes par langue
+* Ajout des formulaires pour la création des cartes
+* Modification des tables SQL de gmap
+* Ajout du formulaire de l'insertion de nouvelle carte
+* Ajout des marqueurs + mise à jour des champs de configuration via ajax
+* Ajout des conditions et chargement JSON des données du plugin
+* Ajout d'une condition pour la configuration du plugin (frontend)
+version alpha
+
+* Ajout du plugin gmap (utilisant gmap3)
+* Ajout de l'icône
+* Ajout du logo (modifié) du plugin gmap3
+* Ajout des fichiers pour la construction de l'admin de gmap

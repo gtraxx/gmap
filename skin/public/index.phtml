@@ -1,0 +1,114 @@
+{include file="common/header.phtml" section="prepend"}
+{headmeta meta="description" content={seo_rewrite config_param=['level'=>'0','idmetas'=>'2','default'=>{$name_map|firststring}]}}
+    <title>{seo_rewrite config_param=['level'=>'0','idmetas'=>'1','default'=>{$name_map|firststring}]}</title>
+<script src="http://maps.google.com/maps/api/js?sensor=false&amp;language={getlang}" type="text/javascript"></script>
+{include file="common/css.phtml"}
+{headlink rel="stylesheet" href="/min/?f=plugins/gmap/css/public.css" media="screen"}
+</head>
+<body>
+	<div id="header" class="full">
+		<div class="container">
+			{include file="common/top.phtml"}
+		</div>
+	</div>
+	<div id="content" class="full">
+		<div id="contentContener" class="container">
+			<div class="bg-top w16-16"></div>
+				<div class="bg-repeat w16-16">	
+					<div id="contentCol" class="block w11-16 lfloat">
+					{if $plugin_status != 0}
+						{if $name_map != null}
+							<h1>{$name_map|firststring}</h1>
+							<div id="map_microformat" {if $content_map != null}style="float:right;"{/if} class="block w5-16">
+							<p class="title bg light">{#pgmap_adress#}</p>
+							<div class="bg-repeat w5-16 light">
+								<div class="vcard">
+								  	<div class="org fn">{$society_map}</div>
+									<div class="adr">
+										<div class="street-address">{$adress_map}</div>
+										<span class="locality">{$city_map}</span>
+										<div class="country-name">{$country_map}</div>
+									</div>
+									<span class="geo">
+										<span class="latitude">
+											<span class="value-title" title="{$lat_map}"></span>
+										</span>
+										<span class="longitude">
+											<span class="value-title" title="{$lng_map}"></span>
+										</span>
+									</span>
+			   						<a href="{geturl}" class="url">{geturl}</a> 
+								</div>
+								</div>
+							<div class="bg-bottom w5-16 light"></div>
+							</div>
+							{if $content_map != null}
+								{$content_map}
+								<hr class="clearright" />
+							{/if}
+							{if $multi_marker eq '1'}
+								<input type="hidden" name="getLanguage" id="getLanguage" value="{getlang}" />
+								<div id="map_adress" class="gmap3 ui-corner ui-corner-all"></div>
+							{else}
+								{if $route_map eq '1'}
+									<table class="getdirections ui-widget-content ui-corner-all">
+									<tr>
+										<td>
+											<label>{#pgmap_adress#}:</label>
+										</td>
+										<td>
+											<input type="text" size="45" name="getadress" id="getadress" class="inputtext ui-widget-content ui-corner-all" value="" />
+											<button class="subdirection">ok</button>
+										</td>
+									</tr>
+									</table>
+									<div id="map_adress" class="gmap3 ui-corner ui-corner-all"></div>
+									<div id="r-directions" class="ui-widget-content ui-corner-all"></div>
+								{else}
+									<div id="map_adress" class="gmap3 ui-corner ui-corner-all"></div>
+								{/if}
+							{/if}
+						{else}
+						<div style="padding:5px;width:90%;" class="ui-state-highlight ui-corner-all">
+							<span class="lfloat notify-32-icon notify-32-icon-warning"></span>
+							<p style="font-size:14px;margin:8px 0 2px 5px;">Le plugin n'est pas configuré</p>
+							<p><img src="/plugins/gmap/img/gmap3.png" alt="Plugin gmap" /></p>
+						</div>
+						{/if}
+					{else}
+						<div style="padding:5px;width:90%;" class="ui-state-highlight ui-corner-all">
+							<span class="lfloat notify-32-icon notify-32-icon-warning"></span>
+							<p style="font-size:14px;margin:8px 0 2px 5px;">Le plugin n'est pas installé</p>
+							<p><img src="/plugins/gmap/img/gmap3.png" alt="Plugin gmap" /></p>
+						</div>
+					{/if}
+					</div>
+					<div id="rightCol" class="block w5-16 lfloat last">
+						{include file="common/colright.phtml"}
+					</div>
+				</div>
+				<div class="bg-bottom w16-16"></div>
+		</div>
+	</div>
+{include file="common/footer.phtml"}
+{script src="/min/?f=plugins/gmap/js/gmap3.min.js" type="javascript"}
+{if $plugin_status != 0}
+	<script type="text/javascript">
+	$(function(){
+		$.getScript('/plugins/gmap/js/public.0.2.js',function(){
+			if (typeof gmapping == "undefined") 
+			{
+			  console.log("gmapping is not defined");
+			}else{
+				if($("#getLanguage").length != 0){
+					gmapping.runMultiMarker($("#getLanguage").val());
+				}else{
+					gmapping.run();
+				}
+			}
+		});
+	});
+	</script>
+{/if}
+</body>
+</html>
