@@ -1,3 +1,10 @@
+Version 1.6
+* Upgrade gmap3 4.0 => 4.1
+* Réadaptation au nouveau framework CSS
+	- Modification de la structure du fichier index.phtml
+* Modification du mode multi adresse pour la récupération des données venant de google
+* Amélioration des messages d'erreurs public
+
 Version 1.5
 * Ajout du mode multi adresse
 	- Réadaptation de la base de données pour le mode multi adresse

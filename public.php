@@ -39,14 +39,17 @@ class plugins_gmap_public extends database_plugins_gmap{
 	 * paramètre pour la requête JSON
 	 * @var uniqp
 	 */
-	public $uniqp;
+	public $jsondata,$json_multi_data;
 	/**
 	 * @access public
 	 * Constructor
 	 */
 	function __construct(){
-		if(magixcjquery_filter_request::isGet('uniqp')){
-			$this->uniqp = (string) magixcjquery_form_helpersforms::inputClean($_GET['uniqp']);
+		if(magixcjquery_filter_request::isGet('jsondata')){
+			$this->jsondata = (string) magixcjquery_form_helpersforms::inputClean($_GET['jsondata']);
+		}
+		if(magixcjquery_filter_request::isGet('json_multi_data')){
+			$this->json_multi_data = (string) magixcjquery_form_helpersforms::inputClean($_GET['json_multi_data']);
 		}
 	}
 	/**
@@ -115,9 +118,9 @@ class plugins_gmap_public extends database_plugins_gmap{
 		$this->_loadConfigVars();
 		if(parent::c_show_table() != 0){
 			$loaddata = parent::s_map($create->getLanguage());
-			if($this->uniqp == 'jsondata'){
+			if($this->jsondata){
 				$this->json_map_record();
-			}elseif($this->uniqp == 'json_multi_data'){
+			}elseif($this->json_multi_data){
 				$this->json_related_adress($loaddata);
 			}else{
 				$this->data_map($loaddata);

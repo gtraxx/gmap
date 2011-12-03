@@ -43,6 +43,3 @@ Depuis la version 2.3.5, le dossier public du plugin peut être utilisé directe
 Faites comme suit :
 Copier le dossier public de gmap à la racine de votre skin.
 renommé le dossier public en gmap, ensuite vous pouvez éditer les fichiers phtml comme bon vous semble.
-
-Important
-- Ce plugin est compatible a partir de magix cms 2.3.42 RC5

@@ -53,7 +53,14 @@ var gmapping = {
 		            map:{
 		                center: true,
 		                zoom: 15,
-		                mapTypeId: google.maps.MapTypeId.ROADMAP
+		                mapTypeId: google.maps.MapTypeId.ROADMAP,
+					    mapTypeControl: true,
+					    mapTypeControlOptions: {
+					      style: google.maps.MapTypeControlStyle.DROPDOWN_MENU
+					    },
+					    navigationControl: true,
+					    scrollwheel: true,
+					    streetViewControl: true
 		            },marker:{
 		            	options:{
 		            		draggable: false,
@@ -116,8 +123,8 @@ var gmapping = {
 						{ 
 					    action:'getRoute',
 					    options:{
-					    	origin:item.adress+' '+item.city+','+item.country,
-					        destination:$('#getadress').val(),
+					    	origin:$('#getadress').val(),
+					        destination:item.adress+' '+item.city+','+item.country,
 					        travelMode: google.maps.DirectionsTravelMode.DRIVING
 					    },
 					    callback: function(results){
@@ -136,12 +143,12 @@ var gmapping = {
 			});
 		}
 	},
-	_jsondata:function(){
+	_jsondata:function(iso){
 		if($(".subdirection:button").length !=0){
 			$(".subdirection:button").button();
 		}
 		$.ajax({
-			url: '/magixmod/gmap/jsondata/',
+			url: '/plugins.php?strLangue='+iso+'&magixmod=gmap&jsondata=true',
 			dataType: 'json',
 			type: "get",
 			statusCode: {
@@ -193,7 +200,7 @@ var gmapping = {
 		 * Requête AJAX pour le mode muti adresse
 		 */
         $.ajax({
-          url: '/'+iso+'/magixmod/gmap/json_multi_data',
+          url: '/plugins.php?strLangue='+iso+'&magixmod=gmap&json_multi_data=true',
           dataType: 'json',
 		  type: "get",
 		  statusCode: {
@@ -234,88 +241,125 @@ var gmapping = {
           }
         });
      },
-    _multiMarker_Init:function(multiadress){
-    	/**
-    	 * Initialize les données pour le mode multi adresse
-    	 */
-		var pos = [$('.vcard .latitude .value-title').attr('title'),$('.vcard .longitude .value-title').attr('title')];
-		$('#map_adress').gmap3(
-			/*{action: 'init',
-			      options:{
-			    	center:pos,
-			        zoom: 7,
-			        mapTypeId: google.maps.MapTypeId.ROADMAP
-				}
-			},*/
-			{action: 'addMarker',
-			  latLng: pos,
-			  map:{
-			    center: true,
-			    zoom: 7,
-			    mapTypeId: google.maps.MapTypeId.ROADMAP
-			    },
-			    marker:{
-			        options:{
-			          icon: new google.maps.MarkerImage("/plugins/gmap/markers/blue-dot.png"),
-			          draggable:false
-			        },
-			    	events:{ 
-			    		click:function(marker){
-			    			$(this).gmap3({
-		    		          action:'getAddress',
-		    		          latLng:marker.getPosition(),
-		    		          callback:function(results){
-		    		            var map = $(this).gmap3('get'),
-		    		                infowindow = $(this).gmap3({action:'get', name:'infowindow'}),
-		    		                //content = results && results[2] ? results && results[2].formatted_address : 'no address';
-		    		                content = $('.vcard .fn').text()+'<br />';
-		    		            	content += results && results[2] ? results && results[2].formatted_address : 'no address';
-		    		            if (infowindow){
-		    		              infowindow.open(map, marker);
-		    		              infowindow.setContent(content);
-		    		            } else {
-		    		              $(this).gmap3({action:'addinfowindow', anchor:marker, options:{content: content}});
-		    		            }
-		    		          }
-			    			});
-			            }
-			    	}
-			    }
-			},
-			{action: 'addMarkers',
-            markers: multiadress,
-            marker: {
-            	options: {
-                    draggable: false
-                  },
-              events:{  
-                mouseover: function(marker, event, data){
-                	var map = $(this).gmap3('get'),
-                    infowindow = $(this).gmap3({action:'get', name:'infowindow'});
-                	var society = data.society ? data.society+'<br />' : '',
-                	adress = data.adress ? data.adress+'<br />' : '',
-                	city = data.city ? data.city+'<br />' : '',
-                	country = data.country ? data.country : '';
-	                if (infowindow){
-	                  infowindow.open(map, marker);
-	                  infowindow.setContent(society+adress+city+country);
-	                } else {
-	                  $(this).gmap3({action:'addinfowindow', anchor:marker, options:{content: society+adress+city+country}});
-	                }
-                },
-                mouseout: function(){
-                    var infowindow = $(this).gmap3({action:'get', name:'infowindow'});
-                    if (infowindow){
-                      infowindow.close();
-                    }
-                  }
-              }
-            }
-          }
-		);
-	},
-	run:function(){
-		this._jsondata();
+     _multiMarker_Init:function(multiadress){
+         /**
+          * Initialize les données pour le mode multi adresse
+          */
+         var pos = [$('.vcard .latitude .value-title').attr('title'),$('.vcard .longitude .value-title').attr('title')];
+         $('#map_adress').gmap3(
+             /*{action: 'init',
+                   options:{
+                     center:pos,
+                     zoom: 7,
+                     mapTypeId: google.maps.MapTypeId.ROADMAP
+                 }
+             },*/
+             {action: 'addMarker',
+               latLng: pos,
+               map:{
+                 center: true,
+                 zoom: 7,
+                 mapTypeId: google.maps.MapTypeId.ROADMAP,
+				    mapTypeControl: true,
+				    mapTypeControlOptions: {
+				      style: google.maps.MapTypeControlStyle.DROPDOWN_MENU
+				    },
+				    navigationControl: true,
+				    scrollwheel: true,
+				    streetViewControl: true
+                 },
+                 marker:{
+                     options:{
+                       icon: new google.maps.MarkerImage("/plugins/gmap/markers/blue-dot.png"),
+                       draggable:false
+                     },
+                     events:{ 
+                         click:function(marker){
+                             $(this).gmap3({
+                               action:'getAddress',
+                               latLng:marker.getPosition(),
+                               callback:function(results){
+                                 var map = $(this).gmap3('get'),
+                                     infowindow = $(this).gmap3({action:'get', name:'infowindow'}),
+                                     //content = results && results[2] ? results && results[2].formatted_address : 'no address';
+                                     content = $('.vcard .fn').text()+'<br />';
+                                     //content += results && results[2] ? results && results[2].formatted_address : 'no address';
+                                     content += $('.vcard .adr .street-address').text()+'<br />';
+                                     content += $('.vcard .adr .locality').text()+'<br />';
+                                     var elt= results[0].address_components;
+                                     for(i in elt){
+                                         if(elt[i].types[0] == 'postal_code')
+                                             var postcode =(elt[i].long_name)+'&nbsp;';
+                                         if(elt[i].types[0] == 'country')
+                                             var country =(elt[i].long_name);
+                                         /*if(elt[i].types[0] == 'locality')
+                                             content +=(elt[i].long_name);
+                                         if(elt[i].types[0] == 'adress')
+                                             content +=(elt[i].long_name);*/
+                                     }
+                                     content += postcode+country;
+                                     //console.log(results);
+                                 if (infowindow){
+                                   infowindow.open(map, marker);
+                                   infowindow.setContent('<div id="content-map" class="block w3-16" style="overflow:hidden;min-height:50px;">'+content+'</div>');
+                                 } else {
+                                   $(this).gmap3({action:'addinfowindow', anchor:marker, options:{
+                                       content: '<div id="content-map" class="block w3-16" style="overflow:hidden;min-height:50px;">'+content+'</div>'}});
+                                 }
+                               }
+                             });
+                         }
+                     }
+                 }
+             },
+             {action: 'addMarkers',
+             markers: multiadress,
+             marker: {
+                 options: {
+                     draggable: false
+                   },
+               events:{  
+                 /*mouseover: function(marker, event, data){
+                     var map = $(this).gmap3('get'),
+                     infowindow = $(this).gmap3({action:'get', name:'infowindow'});
+                     var society = data.society ? data.society+'<br />' : '',
+                     adress = data.adress ? data.adress+'<br />' : '',
+                     city = data.city ? data.city+'<br />' : '',
+                     country = data.country ? data.country : '';
+                     if (infowindow){
+                       infowindow.open(map, marker);
+                       infowindow.setContent(society+adress+city+country);
+                     } else {
+                       $(this).gmap3({action:'addinfowindow', anchor:marker, options:{content: society+adress+city+country}});
+                     }
+                 },
+                 mouseout: function(){
+                     var infowindow = $(this).gmap3({action:'get', name:'infowindow'});
+                     if (infowindow){
+                       infowindow.close();
+                     }
+                   }*/
+	        	   click: function(marker, event, data){
+	                   var map = $(this).gmap3('get'),
+	                   infowindow = $(this).gmap3({action:'get', name:'infowindow'});
+	                   var society = data.society ? data.society+'<br />' : '',
+	                   adress = data.adress ? data.adress+'<br />' : '',
+	                   city = data.city ? data.city+'<br />' : '',
+	                   country = data.country ? data.country : '';
+	                   if (infowindow){
+	                     infowindow.open(map, marker);
+	                     infowindow.setContent(society+adress+city+country);
+	                   } else {
+	                     $(this).gmap3({action:'addinfowindow', anchor:marker, options:{content: society+adress+city+country}});
+	                   }
+	               } 
+               }
+             }
+           }
+         );
+     },
+	run:function(iso){
+		this._jsondata(iso);
 	},
 	runMultiMarker:function(iso){
 		this._loadDataMultiMarker(iso);

@@ -5,49 +5,50 @@
 {include file="common/css.phtml"}
 {headlink rel="stylesheet" href="/min/?f=plugins/gmap/css/public.css" media="screen"}
 </head>
-<body>
-	<div id="header" class="full">
-		<div class="container">
-			{include file="common/top.phtml"}
-		</div>
-	</div>
+<body class="gmap">
+	{include file="common/top.phtml"}
 	<div id="content" class="full">
-		<div id="contentContener" class="container">
-			<div class="bg-top w16-16"></div>
-				<div class="bg-repeat w16-16">	
-					<div id="contentCol" class="block w11-16 lfloat">
+		<div class="full-top"></div>
+		<div class="full-repeat">
+			<div class="container">
+				<div id="contentCol" class="block w10-16 lfloat">
+					<ol class="ariane">
+				   		<li class="first"><a href="{geturl}/{getlang}/" title="{#topmenu_home_t#|firststring}">{#topmenu_home_t#|firststring}</a></li>
+						<li>></li>
+						<li>{$name_map|firststring}</li>
+					</ol>
 					{if $plugin_status != 0}
 						{if $name_map != null}
 							<h1>{$name_map|firststring}</h1>
-							<div id="map_microformat" {if $content_map != null}style="float:right;"{/if} class="block w5-16">
-							<p class="title bg light">{#pgmap_adress#}</p>
-							<div class="bg-repeat w5-16 light">
-								<div class="vcard">
-								  	<div class="org fn">{$society_map}</div>
-									<div class="adr">
-										<div class="street-address">{$adress_map}</div>
-										<span class="locality">{$city_map}</span>
-										<div class="country-name">{$country_map}</div>
+							<div class="user-content">
+								<div id="map_microformat" class="block w5-16{if $content_map != null} rfloat{/if}">
+								<div class="block w5-16 bg-light">
+								<p class="title">{#pgmap_adress#}</p>
+									<div class="vcard">
+									  	<div class="org fn">{$society_map}</div>
+										<div class="adr">
+											<div class="street-address">{$adress_map}</div>
+											<span class="locality">{$city_map}</span>
+											<div class="country-name">{$country_map}</div>
+										</div>
+										<span class="geo">
+											<span class="latitude">
+												<span class="value-title" title="{$lat_map}"></span>
+											</span>
+											<span class="longitude">
+												<span class="value-title" title="{$lng_map}"></span>
+											</span>
+										</span>
+				   						<a href="{geturl}" class="url">{geturl}</a> 
 									</div>
-									<span class="geo">
-										<span class="latitude">
-											<span class="value-title" title="{$lat_map}"></span>
-										</span>
-										<span class="longitude">
-											<span class="value-title" title="{$lng_map}"></span>
-										</span>
-									</span>
-			   						<a href="{geturl}" class="url">{geturl}</a> 
+									</div>
 								</div>
-								</div>
-							<div class="bg-bottom w5-16 light"></div>
+								{if $content_map != null}
+									{$content_map}
+								<div class="clearright"></div>
+								{/if}
 							</div>
-							{if $content_map != null}
-								{$content_map}
-								<hr class="clearright" />
-							{/if}
 							{if $multi_marker eq '1'}
-								<input type="hidden" name="getLanguage" id="getLanguage" value="{getlang}" />
 								<div id="map_adress" class="gmap3 ui-corner ui-corner-all"></div>
 							{else}
 								{if $route_map eq '1'}
@@ -69,26 +70,45 @@
 								{/if}
 							{/if}
 						{else}
-						<div style="padding:5px;width:90%;" class="ui-state-highlight ui-corner-all">
-							<span class="lfloat notify-32-icon notify-32-icon-warning"></span>
-							<p style="font-size:14px;margin:8px 0 2px 5px;">Le plugin n'est pas configuré</p>
-							<p><img src="/plugins/gmap/img/gmap3.png" alt="Plugin gmap" /></p>
+						<div class="block w5-16 bg-light">
+							<div class="child">
+								<div class="rfloat img">
+									<img src="/plugins/gmap/img/gmap3.png" alt="Plugin gmap Magix CMS" />
+								</div>
+								<p class="name">
+									<img src="/plugins/gmap/img/exclamation.png" alt="{#gmap_plugin_configured#}" />
+									{#gmap_plugin_error#}
+								</p>
+								<span class="descr">
+									{#gmap_plugin_configured#}
+								</span>
+							</div>
 						</div>
 						{/if}
 					{else}
-						<div style="padding:5px;width:90%;" class="ui-state-highlight ui-corner-all">
-							<span class="lfloat notify-32-icon notify-32-icon-warning"></span>
-							<p style="font-size:14px;margin:8px 0 2px 5px;">Le plugin n'est pas installé</p>
-							<p><img src="/plugins/gmap/img/gmap3.png" alt="Plugin gmap" /></p>
+						<div class="block w5-16 bg-light">
+							<div class="child">
+								<div class="rfloat img">
+									<img src="/plugins/gmap/img/gmap3.png" alt="Plugin gmap Magix CMS" />
+								</div>
+								<p class="name">
+									<img src="/plugins/gmap/img/exclamation.png" alt="{#gmap_plugin_installed#}" />
+									{#gmap_plugin_error#}
+								</p>
+								<span class="descr">
+									{#gmap_plugin_installed#}
+								</span>
+							</div>
 						</div>
 					{/if}
 					</div>
-					<div id="rightCol" class="block w5-16 lfloat last">
-						{include file="common/colright.phtml"}
-					</div>
+				<div id="rightCol" class="block w6-16 lfloat last">
+					{include file="common/colright.phtml"}	
 				</div>
-				<div class="bg-bottom w16-16"></div>
+				<div class="clear"></div>
+			</div>
 		</div>
+		<div class="full-bottom"></div>
 	</div>
 {include file="common/footer.phtml"}
 {script src="/min/?f=plugins/gmap/js/gmap3.min.js" type="javascript"}
@@ -100,11 +120,11 @@
 			{
 			  console.log("gmapping is not defined");
 			}else{
-				if($("#getLanguage").length != 0){
-					gmapping.runMultiMarker($("#getLanguage").val());
-				}else{
-					gmapping.run();
-				}
+				{if $multi_marker eq '1'}
+					gmapping.runMultiMarker(iso);
+				{else}
+					gmapping.run(iso);
+				{/if}
 			}
 		});
 	});
