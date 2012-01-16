@@ -1,7 +1,7 @@
 /**
  * MAGIX CMS
  * @copyright  MAGIX CMS Copyright (c) 2010 Gerits Aurelien, 
- * http://www.magix-cms.com, http://www.logiciel-referencement-professionnel.com http://www.magix-cjquery.com
+ * http://www.magix-cms.com, magix-cms.com http://www.magix-cjquery.com
  * @license    Dual licensed under the MIT or GPL Version 3 licenses.
  * @version    1.0
  * @author Gérits Aurélien <aurelien@magix-cms.com>
@@ -139,30 +139,30 @@ var adminMap = {
 	_updateMap:function(){
 		$("#forms-plugin-updateGmap").submit(function(){
 			var idgmap = $('#idgmap').val();
-			$.notice({
-				ntype: "ajaxsubmit",
-	    		delay: 2800,
-	    		dom: this,
-	    		uri: '/admin/plugins.php?name=gmap&editmap='+idgmap,
-	    		typesend: 'post',
-	    		resetform:false,
-	    		time:2,
-	    		reloadhtml:false
+			$.nicenotify({
+				ntype: "submit",
+				uri: '/admin/plugins.php?name=gmap&editmap='+idgmap,
+				typesend: 'post',
+				idforms: $(this),
+				beforeParams:function(){},
+				successParams:function(e){
+					$.nicenotify.initbox(e);
+				}
 			});
 			return false; 
 		});
 	},
 	_updateConfig:function(){
 		$("#forms-plugin-configGmap").submit(function(){
-			$.notice({
-				ntype: "ajaxsubmit",
-	    		delay: 2800,
-	    		dom: this,
-	    		uri: '/admin/plugins.php?name=gmap&updateconfig=1',
-	    		typesend: 'post',
-	    		resetform:false,
-	    		time:2,
-	    		reloadhtml:false
+			$.nicenotify({
+				ntype: "submit",
+				uri: '/admin/plugins.php?name=gmap&updateconfig=1',
+				typesend: 'post',
+				idforms: $(this),
+				beforeParams:function(){},
+				successParams:function(e){
+					$.nicenotify.initbox(e);
+				}
 			});
 			return false; 
 		});
@@ -270,19 +270,18 @@ var adminMap = {
 	},
 	_addNewRelativeMap:function(idgmap){
 		$("#forms-plugin-gmap-add-rel-adress").submit(function(){
-			$(this).ajaxSubmit({
-	    		url: '/admin/plugins.php?name=gmap&editmap='+idgmap,
-	    		type:"post",
-	    		resetForm: true,
-	    		success:function(request) {
-	    			$.notice({
-						ntype: "simple",
-						time:2
-					});
-	    			$(".mc-head-request").html(request);
-	    			adminMap._load_relative_gmap(idgmap);
-	    		}
-	    	});
+			$.nicenotify({
+				ntype: "submit",
+				uri: '/admin/plugins.php?name=gmap&editmap='+idgmap,
+				typesend: 'post',
+				idforms: $(this),
+				resetform: true,
+				beforeParams:function(){},
+				successParams:function(e){
+					$.nicenotify.initbox(e);
+					adminMap._load_relative_gmap(idgmap);
+				}
+			});
 			return false;
 		});
 	},
