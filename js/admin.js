@@ -12,37 +12,19 @@
  */
 var adminMap = {
 	_load_plugin_gmap:function(){
-		$.ajax({
-			url: '/admin/plugins.php?name=gmap&json_map_record=true',
-			dataType: 'json',
-			type: "get",
-			statusCode: {
-				0: function() {
-					console.error("jQuery Error");
-				},
-				401: function() {
-					console.warn("access denied");
-				},
-				404: function() {
-					console.warn("object not found");
-				},
-				403: function() {
-					console.warn("request forbidden");
-				},
-				408: function() {
-					console.warn("server timed out waiting for request");
-				},
-				500: function() {
-					console.error("Internal Server Error");
-				}
-			},
-			async: true,
-			cache:false,
-			beforeSend: function(){
+		$.nicenotify({
+			ntype: "ajax",
+			uri: '/admin/plugins.php?name=gmap&json_map_record=true',
+			typesend: 'get',
+			datatype: 'json',
+			beforeParams:function(){
 				$('#load_plugin_gmap').html('<img class="loader-block" src="/framework/img/square-circle.gif" />');
 			},
-			success: function(j) {
+			successParams:function(j){
 				$('#load_plugin_gmap').empty();
+				$.nicenotify.initbox(j,{
+					display:false
+				});
 				var tablecat = '<table id="table_plugin_gmap" class="table-plugin-author">'
 					+'<thead><tr style="padding:3px;" class="ui-widget ui-widget-header">'
 					+'<th style="width:1%;">ID</th>'
@@ -118,19 +100,18 @@ var adminMap = {
 				}
 			},
 			submitHandler: function(form) {
-				$(form).ajaxSubmit({
-		    		url:'/admin/plugins.php?name=gmap&postassign=1',
-		    		type:"post",
-		    		resetForm: true,
-		    		success:function(request) {
-						$.notice({
-							ntype: "simple",
-							time:2
-						});
-		    			$(".mc-head-request").html(request);
-		    			adminMap._load_plugin_gmap();
-		    		}
-		    	});
+				$.nicenotify({
+					ntype: "submit",
+					uri: '/admin/plugins.php?name=gmap&postassign=1',
+					typesend: 'post',
+					idforms: $(this),
+					resetform: true,
+					beforeParams:function(){},
+					successParams:function(e){
+						$.nicenotify.initbox(e);
+						adminMap._load_plugin_gmap();
+					}
+				});
 				return false; 
 			}
 		});
@@ -298,13 +279,20 @@ var adminMap = {
 				buttons: {
 					'Delete item': function() {
 						$(this).dialog('close');
-						$.ajax({
-							url: "/admin/plugins.php?name=gmap",
-							type: "post",
-							data: {deletemap:lg},
-							success:function() {
+						$.nicenotify({
+							ntype: "ajax",
+							uri: "/admin/plugins.php?name=gmap",
+							typesend: 'post',
+							idforms: $(this),
+							resetform: true,
+							noticedata : {deletemap:lg},
+							beforeParams:function(){},
+							successParams:function(e){
+								$.nicenotify.initbox(e,{
+									display:false
+								});
 								adminMap._load_plugin_gmap();
-				    		}
+							}
 						});
 					},
 					Cancel: function() {
@@ -315,37 +303,19 @@ var adminMap = {
 		});
 	},
 	_load_relative_gmap:function(idgmap){
-		$.ajax({
-			url: '/admin/plugins.php?name=gmap&editmap='+idgmap+'&json_rel_map=true',
-			dataType: 'json',
-			type: "get",
-			statusCode: {
-				0: function() {
-					console.error("jQuery Error");
-				},
-				401: function() {
-					console.warn("access denied");
-				},
-				404: function() {
-					console.warn("object not found");
-				},
-				403: function() {
-					console.warn("request forbidden");
-				},
-				408: function() {
-					console.warn("server timed out waiting for request");
-				},
-				500: function() {
-					console.error("Internal Server Error");
-				}
-			},
-			async: true,
-			cache:false,
-			beforeSend: function(){
+		$.nicenotify({
+			ntype: "ajax",
+			uri: '/admin/plugins.php?name=gmap&editmap='+idgmap+'&json_rel_map=true',
+			typesend: 'get',
+			datatype: 'json',
+			beforeParams:function(){
 				$('#load_rel_gmap').html('<img class="loader-block" src="/framework/img/square-circle.gif" />');
 			},
-			success: function(j) {
+			successParams:function(j){
 				$('#load_rel_gmap').empty();
+				$.nicenotify.initbox(j,{
+					display:false
+				});
 				var tablecat = '<table id="table_plugin_gmap_rel" class="table-plugin-author">'
 					+'<thead><tr style="padding:3px;" class="ui-widget ui-widget-header">'
 					+'<th style="width:1%;">ID</th>'
@@ -380,7 +350,6 @@ var adminMap = {
 					+'<td><span class="lfloat ui-icon ui-icon-minus"></span></td>'
 					+'<td><span class="lfloat ui-icon ui-icon-minus"></span></td>'
 					+'<td><span class="lfloat ui-icon ui-icon-minus"></span></td>'
-					+'<td><span class="lfloat ui-icon ui-icon-minus"></span></td>'
 					+'</tr>').appendTo('#table_plugin_gmap_rel tbody');
 				}
 			}
@@ -400,13 +369,20 @@ var adminMap = {
 				buttons: {
 					'Delete item': function() {
 						$(this).dialog('close');
-						$.ajax({
-							url: "/admin/plugins.php?name=gmap",
-							type: "post",
-							data: {delete_rel_map:lg},
-							success:function() {
+						$.nicenotify({
+							ntype: "ajax",
+							uri: "/admin/plugins.php?name=gmap",
+							typesend: 'post',
+							idforms: $(this),
+							resetform: true,
+							noticedata : {delete_rel_map:lg},
+							beforeParams:function(){},
+							successParams:function(e){
+								$.nicenotify.initbox(e,{
+									display:false
+								});
 								adminMap._load_relative_gmap($('#idgmap').val());
-				    		}
+							}
 						});
 					},
 					Cancel: function() {

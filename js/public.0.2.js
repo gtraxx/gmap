@@ -114,7 +114,7 @@ var gmapping = {
 	},
 	_getDirection:function(item){
 		if(item.route == '1'){
-			$('.subdirection:button').live('click',function(event){
+			$('.subdirection:button').on('click',function(event){
 				gmapping._stopEvent(event);
 		    	if($('#getadress').val().length != 0){
 		    		$('#r-directions').addClass('sizedirection').show(800);
@@ -146,6 +146,16 @@ var gmapping = {
 	_jsondata:function(iso){
 		if($(".subdirection:button").length !=0){
 			$(".subdirection:button").button();
+			/*$('.subdirection:button').on('click',function (event){
+				$("#r-directions").dialog({
+					bgiframe: false,
+					resizable: false,
+					position: 'center',
+					height:450,
+					width:600,
+					modal: false
+				});
+			});*/
 		}
 		$.ajax({
 			url: '/plugins.php?strLangue='+iso+'&magixmod=gmap&jsondata=true',
