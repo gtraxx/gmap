@@ -22,12 +22,10 @@
  * MAGIX CMS
  * @category   gmap 
  * @package    plugins
- * @copyright  MAGIX CMS Copyright (c) 2010 Gerits Aurelien, 
- * http://www.magix-cms.com,http://www.magix-cjquery.com
+ * @copyright  MAGIX CMS Copyright (c) 2012 Gerits Aurelien, 
+ * http://www.magix-cms.com, http://www.magix-cjquery.com, http://www.magix-dev.be
  * @license    Dual licensed under the MIT or GPL Version 3 licenses.
- * @version    1.5
- * @id  $Id: public.php 32 2011-08-10 15:10:00Z aurelien $  
- * @rev $Rev: 32 $ 
+ * @version    1.6
  * @author Gérits Aurélien <aurelien@magix-cms.com>|<contact@magix-dev.be> , jean-baptiste demonte (http://gmap3.net/)
  * @name gmap
  * La géolocalisation avec Googlemap (gmap3)

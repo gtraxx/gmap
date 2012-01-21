@@ -20,13 +20,16 @@
 # -- END LICENSE BLOCK -----------------------------------
 */
 /**
- * MAGIX DEV
- * @copyright  MAGIX DEV Copyright (c) 2010 - 2011 Gerits Aurelien, 
- * http://www.magix-dev.be, http://www.magix-cjquery.com
+ * MAGIX CMS
+ * @category   gmap 
+ * @package    plugins
+ * @copyright  MAGIX CMS Copyright (c) 2012 Gerits Aurelien, 
+ * http://www.magix-cms.com, http://www.magix-cjquery.com, http://www.magix-dev.be
  * @license    Dual licensed under the MIT or GPL Version 3 licenses.
- * @version    0.1
- * @author Gérits Aurélien <aurelien[at]magix-cms[dot]com>
- * @name gmapping
+ * @version    1.6
+ * @author Gérits Aurélien <aurelien[at]magix-cms.com>|<contact[at]magix-dev.be> , jean-baptiste demonte (http://gmap3.net/)
+ * @name gmap
+ * La géolocalisation avec Googlemap (gmap3)
  *
  */
 var gmapping = {
