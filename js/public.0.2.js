@@ -117,7 +117,7 @@ var gmapping = {
 	},
 	_getDirection:function(item){
 		if(item.route == '1'){
-			$('.subdirection:button').on('click',function(event){
+			$(document).on('click','.subdirection:button',function(event){
 				gmapping._stopEvent(event);
 		    	if($('#getadress').val().length != 0){
 		    		$('#r-directions').addClass('sizedirection').show(800);

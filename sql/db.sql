@@ -33,5 +33,5 @@ INSERT INTO `mc_plugins_gmap_config` VALUES('marker', 'red-dot.png');
 INSERT INTO `mc_plugins_gmap_config` VALUES('route_map', '0');
 INSERT INTO `mc_plugins_gmap_config` VALUES('lat_map', NULL);
 INSERT INTO `mc_plugins_gmap_config` VALUES('lng_map', NULL);
-INSERT INTO `mc_plugins_gmap_config` VALUES('gmap_version', '1.6');
+INSERT INTO `mc_plugins_gmap_config` VALUES('gmap_version', '1.7');
 INSERT INTO `mc_plugins_gmap_config` VALUES('multi_marker', '0');

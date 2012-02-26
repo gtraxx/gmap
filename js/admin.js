@@ -105,7 +105,7 @@ var adminMap = {
 					ntype: "submit",
 					uri: '/admin/plugins.php?name=gmap&postassign=1',
 					typesend: 'post',
-					idforms: $(this),
+					idforms: form,
 					resetform: true,
 					beforeParams:function(){},
 					successParams:function(e){
@@ -268,7 +268,7 @@ var adminMap = {
 		});
 	},
 	_deleteMap:function(){
-		$('.d-plugin-gmap').live('click',function (event){
+		$(document).on('click','.d-plugin-gmap',function (event){
 			event.preventDefault();
 			var lg = $(this).attr("rel");
 			$("#dialog").dialog({
@@ -284,8 +284,6 @@ var adminMap = {
 							ntype: "ajax",
 							uri: "/admin/plugins.php?name=gmap",
 							typesend: 'post',
-							idforms: $(this),
-							resetform: true,
 							noticedata : {deletemap:lg},
 							beforeParams:function(){},
 							successParams:function(e){
@@ -358,7 +356,7 @@ var adminMap = {
 		adminMap._delete_relative_adress();
 	},
 	_delete_relative_adress:function(){
-		$('.d-plugin-gmap-rel').live('click',function (event){
+		$(document).on('click','.d-plugin-gmap-rel',function (event){
 			event.preventDefault();
 			var lg = $(this).attr("rel");
 			$("#dialog").dialog({
@@ -374,8 +372,6 @@ var adminMap = {
 							ntype: "ajax",
 							uri: "/admin/plugins.php?name=gmap",
 							typesend: 'post',
-							idforms: $(this),
-							resetform: true,
 							noticedata : {delete_rel_map:lg},
 							beforeParams:function(){},
 							successParams:function(e){
