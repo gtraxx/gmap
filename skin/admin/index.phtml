@@ -1,13 +1,8 @@
 {include file="common/head.phtml"}
+{headlink rel="stylesheet" href="/min/?f=plugins/{$pluginName}/css/admin.css" media="screen"}
 <meta name="description" content="" />
 <script src="http://maps.googleapis.com/maps/api/js?sensor=false&language=fr" type="text/javascript"></script>
 {$refresh_plugins}
-{literal}
-<style type="text/css">
-	#configmap{font-size:13px;color:black;}
-.gmap3{}
-</style>
-{/literal}
     <title>{widget_titlepage}</title>
 </head>
 <body>
@@ -48,7 +43,7 @@
 														<textarea id="content_map" name="content_map" cols="50" rows="3" class="fulltext mceEditor ui-corner-all"></textarea>
 													</td>
 												</tr>
-											</table>		
+											</table>
 										</fieldset>
 										<div style="margin:5px;"><input type="submit" value="Envoyer" /></div>
 									</form>
@@ -149,7 +144,7 @@
 													</div>
 													</td>
 												</tr>
-											</table>			
+											</table>
 										</fieldset>
 										<div style="margin:5px;"><input type="submit" value="Envoyer" /></div>
 									</form>
@@ -175,7 +170,7 @@
 											</tr>
 											<tr>
 												<td class="small-icon">Tickets:</td>
-												<td><a style="text-decoration:underline;" class="targetblank" href="http://websolutionway.indefero.net/p/mc-plugins-community/issues/"><span class="lfloat magix-icon magix-icon-bug-plus"></span>Signaler un bug</a></td>
+												<td><a style="text-decoration:underline;" class="targetblank" href="http://magixdev.indefero.net/p/magixcms/issues/"><span class="lfloat magix-icon magix-icon-bug-plus"></span>Signaler un bug</a></td>
 											</tr>
 											<tr>
 												<td class="small-icon">SVN:</td>
@@ -183,7 +178,7 @@
 											</tr>
 											<tr>
 												<td class="small-icon">Other:</td>
-												<td>Gmap3 version 4.1</td>
+												<td>Gmap3 version 5</td>
 											</tr>
 										</table>
 										{$pluginInfo}
@@ -191,6 +186,6 @@
 								</div>
 							</div>
 						</div>
-					</div>		
+					</div>
 				</div>
 {include file="cplugin/layout_down.phtml"}

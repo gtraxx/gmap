@@ -63,12 +63,14 @@ class plugins_gmap_public extends database_plugins_gmap{
 	 */
 	private function json_map_record(){
 		$config = parent::s_map_config();
+        $json = new magixglobal_model_json();
 		if($config != null){
-			$map= '{"society":'.json_encode($config[0]['config_value']).',"adress":'.json_encode($config[1]['config_value']).
+			$map[]= '{"society":'.json_encode($config[0]['config_value']).',"adress":'.json_encode($config[1]['config_value']).
 			',"country":'.json_encode($config[2]['config_value']).',"city":'.json_encode($config[3]['config_value']).
 			',"marker":'.json_encode($config[4]['config_value']).',"route":'.json_encode($config[5]['config_value']).
 			',"lat":'.json_encode($config[6]['config_value']).',"lng":'.json_encode($config[7]['config_value']).'}';
-			print '['.$map.']';
+			//print '['.$map.']';
+            $json->encode($map,array('[',']'));
 		}
 	}
 	/**
@@ -94,14 +96,15 @@ class plugins_gmap_public extends database_plugins_gmap{
 	 * Retourne la configuration de gmap avec une requête JSON
 	 */
 	private function json_related_adress($loaddata){
+        $json = new magixglobal_model_json();
 		if(parent::s_relative_map($loaddata['idgmap']) != null){
 			foreach (parent::s_relative_map($loaddata['idgmap']) as $s){
-				$map[]= '{"lat":'.$s['lat_ga'].
-					',"lng":'.$s['lng_ga'].
-					',"data":'.'{'.'"society":'.json_encode($s['society_ga']).
-				',"country":'.json_encode($s['country_ga']).',"city":'.json_encode($s['city_ga']).',"adress":'.json_encode($s['adress_ga']).'}}';
+                $map[]= '{"latLng":['.$s['lat_ga'].','.$s['lng_ga'].']'.
+                    ',"data":'.'{'.'"society":'.json_encode($s['society_ga']).
+                    ',"country":'.json_encode($s['country_ga']).',"city":'.json_encode($s['city_ga']).',"adress":'
+                    .json_encode($s['adress_ga']).'}}';
 			}
-			print '{"multi_adress":['.implode(',',$map).']}';
+			$json->encode($map,array('{"multi_adress":[',']}'));
 		}else{
 			print '[{"lat":null,"lng":null,"data":{"society":null,"country":null,"city":null,"adress":null}}]';
 		}
@@ -112,19 +115,36 @@ class plugins_gmap_public extends database_plugins_gmap{
 	 */
 	public function run(){
 		$create = frontend_controller_plugins::create();
+        $header= new magixglobal_model_header();
 		frontend_controller_plugins::create()->append_assign('plugin_status',parent::c_show_table());
 		$this->_loadConfigVars();
 		if(parent::c_show_table() != 0){
 			$loaddata = parent::s_map($create->getLanguage());
 			if($this->jsondata){
+                $header->head_expires("Mon, 26 Jul 1997 05:00:00 GMT");
+                $header->head_last_modified(gmdate( "D, d M Y H:i:s" ) . "GMT");
+                $header->pragma();
+                $header->cache_control("nocache");
+                $header->getStatus('200');
+                $header->json_header("UTF-8");
 				$this->json_map_record();
 			}elseif($this->json_multi_data){
+                $header->head_expires("Mon, 26 Jul 1997 05:00:00 GMT");
+                $header->head_last_modified(gmdate( "D, d M Y H:i:s" ) . "GMT");
+                $header->pragma();
+                $header->cache_control("nocache");
+                $header->getStatus('200');
+                $header->json_header("UTF-8");
 				$this->json_related_adress($loaddata);
 			}else{
 				$this->data_map($loaddata);
+                $map_data = $create->append_fetch('map.phtml');
+                $create->append_assign('map_data',$map_data);
 				$create->append_display('index.phtml');
 			}
 		}else{
+            $map_data = $create->append_fetch('map.phtml');
+            $create->append_assign('map_data',$map_data);
 			$create->append_display('index.phtml');
 		}
     }

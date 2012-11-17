@@ -17,90 +17,7 @@
 						<li>></li>
 						<li>{$name_map|firststring}</li>
 					</ol>
-					{if $plugin_status != 0}
-						{if $name_map != null}
-							<h1>{$name_map|firststring}</h1>
-							<div class="user-content">
-								<div id="map_microformat" class="block w5-16{if $content_map != null} rfloat{/if}">
-								<div class="block w5-16 bg-light">
-								<p class="title">{#pgmap_adress#}</p>
-									<div class="vcard">
-									  	<div class="org fn">{$society_map}</div>
-										<div class="adr">
-											<div class="street-address">{$adress_map}</div>
-											<span class="locality">{$city_map}</span>
-											<div class="country-name">{$country_map}</div>
-										</div>
-										<span class="geo">
-											<span class="latitude">
-												<span class="value-title" title="{$lat_map}"></span>
-											</span>
-											<span class="longitude">
-												<span class="value-title" title="{$lng_map}"></span>
-											</span>
-										</span>
-				   						<a href="{geturl}" class="url">{geturl}</a> 
-									</div>
-									</div>
-								</div>
-								{if $content_map != null}
-									{$content_map}
-								<div class="clearright"></div>
-								{/if}
-							</div>
-							{if $multi_marker eq '1'}
-								<div id="map_adress" class="gmap3 ui-corner ui-corner-all"></div>
-							{else}
-								{if $route_map eq '1'}
-									<table class="getdirections ui-widget-content ui-corner-all">
-									<tr>
-										<td>
-											<label>{#pgmap_adress#}:</label>
-										</td>
-										<td>
-											<input type="text" size="45" name="getadress" id="getadress" class="inputtext ui-widget-content ui-corner-all" value="" />
-											<button class="subdirection">ok</button>
-										</td>
-									</tr>
-									</table>
-									<div id="map_adress" class="gmap3 ui-corner ui-corner-all"></div>
-									<div id="r-directions" class="ui-widget-content ui-corner-all"></div>
-								{else}
-									<div id="map_adress" class="gmap3 ui-corner ui-corner-all"></div>
-								{/if}
-							{/if}
-						{else}
-						<div class="block w5-16 bg-light">
-							<div class="child">
-								<div class="rfloat img">
-									<img src="/plugins/gmap/img/gmap3.png" alt="Plugin gmap Magix CMS" />
-								</div>
-								<p class="name">
-									<img src="/plugins/gmap/img/exclamation.png" alt="{#gmap_plugin_configured#}" />
-									{#gmap_plugin_error#}
-								</p>
-								<span class="descr">
-									{#gmap_plugin_configured#}
-								</span>
-							</div>
-						</div>
-						{/if}
-					{else}
-						<div class="block w5-16 bg-light">
-							<div class="child">
-								<div class="rfloat img">
-									<img src="/plugins/gmap/img/gmap3.png" alt="Plugin gmap Magix CMS" />
-								</div>
-								<p class="name">
-									<img src="/plugins/gmap/img/exclamation.png" alt="{#gmap_plugin_installed#}" />
-									{#gmap_plugin_error#}
-								</p>
-								<span class="descr">
-									{#gmap_plugin_installed#}
-								</span>
-							</div>
-						</div>
-					{/if}
+                    {$map_data}
 					</div>
 				<div id="rightCol" class="block w6-16 lfloat last">
 					{include file="common/colright.phtml"}	
@@ -111,24 +28,21 @@
 		<div class="full-bottom"></div>
 	</div>
 {include file="common/footer.phtml"}
-{script src="/min/?f=plugins/gmap/js/gmap3.min.js" type="javascript"}
+{script src="/min/?f=plugins/gmap/js/gmap3.min.js,plugins/gmap/js/public.0.3.js" type="javascript"}
 {if $plugin_status != 0}
-	<script type="text/javascript">
-	$(function(){
-		$.getScript('/plugins/gmap/js/public.0.2.js',function(){
-			if (typeof gmapping == "undefined") 
-			{
-			  console.log("gmapping is not defined");
-			}else{
-				{if $multi_marker eq '1'}
-					gmapping.runMultiMarker(iso);
-				{else}
-					gmapping.run(iso);
-				{/if}
-			}
-		});
-	});
-	</script>
+<script type="text/javascript">
+$(function(){
+    if (typeof gmap == "undefined"){
+        console.log("gmap is not defined");
+    }else{
+        {if $multi_marker eq '1'}
+            gmap.runMultiMarker(iso);
+        {else}
+            gmap.run(iso);
+        {/if}
+    }
+});
+</script>
 {/if}
 </body>
 </html>

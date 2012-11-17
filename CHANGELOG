@@ -1,3 +1,7 @@
+Version 1.8
+* Upgrade de gmap3 v4.1 => V5
+* Refonte des fichiers JS pour une adaptation avec gmap3 v5
+
 Version 1.7
 * Fix bug avec l'ajout d'une nouvelle carte (admin)
 * Remplacement de la fonction live par on (voir jquery 1.7)

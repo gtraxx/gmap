@@ -1,11 +1,20 @@
-<script type="text/javascript" src="/plugins/{$pluginName}/js/admin.js"></script>
+{script src="/min/?f=plugins/{$pluginName}/js/gmap3.min.js,plugins/{$pluginName}/js/admin.js" type="javascript"}
 <script type="text/javascript">
+{if $smarty.get.editmap}
+var edit = "{$smarty.get.editmap}";
+    {else}
+var edit = '';
+{/if}
 $(function(){
 if (typeof adminMap == "undefined") 
 {
   console.log("adminMap is not defined");
 }else{
-	adminMap.run();
+    if(edit != ''){
+        adminMap.runRelated(edit);
+    }else{
+        adminMap.runConfig();
+    }
 }
 });
 </script>

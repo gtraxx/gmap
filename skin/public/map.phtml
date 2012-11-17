@@ -1,0 +1,78 @@
+{if $plugin_status != 0}
+    {if $name_map != null}
+    <h1>{$name_map|firststring}</h1>
+    <div class="user-content">
+        <div id="map_microformat" class="block w5-16{if $content_map != null} rfloat{/if}">
+            <div class="block w5-16 bg-light">
+                <p class="title">{#pgmap_adress#}</p>
+                <div class="vcard">
+                    <div class="org fn">{$society_map}</div>
+                    <div class="adr">
+                        <div class="street-address">{$adress_map}</div>
+                        <span class="locality">{$city_map}</span>
+                        <div class="country-name">{$country_map}</div>
+                    </div>
+                        <span class="geo">
+                            <span class="latitude">
+                                <span class="value-title" title="{$lat_map}"></span>
+                            </span>
+                            <span class="longitude">
+                                <span class="value-title" title="{$lng_map}"></span>
+                            </span>
+                        </span>
+                    <a href="{geturl}" class="url">{geturl}</a>
+                </div>
+            </div>
+        </div>
+        {if $content_map != null}
+            {$content_map}
+            <div class="clearright"></div>
+        {/if}
+    </div>
+        {if $multi_marker eq '0'}
+            {if $route_map eq '1'}
+                <p class="getdirections">
+                    <label>{#pgmap_adress#}:</label>
+                    <input type="text" size="45" name="getadress" id="getadress" class="inputtext" value="" />
+                    <button class="subdirection">ok</button>
+                </p>
+                <div id="map_adress" class="gmap3 w10-16"></div>
+                <div id="r-directions"></div>
+            {else}
+                <div id="map_adress" class="gmap3 w10-16"></div>
+            {/if}
+        {else}
+            <div id="map_adress" class="gmap3 w10-16"></div>
+        {/if}
+    {else}
+    <div class="block w5-16 bg-light">
+        <div class="child">
+            <div class="rfloat img">
+                <img src="/plugins/gmap/img/gmap3.png" alt="Plugin gmap Magix CMS" />
+            </div>
+            <p class="name">
+                <img src="/plugins/gmap/img/exclamation.png" alt="{#gmap_plugin_configured#}" />
+                {#gmap_plugin_error#}
+            </p>
+            <span class="descr">
+                {#gmap_plugin_configured#}
+            </span>
+        </div>
+    </div>
+    {/if}
+{else}
+<div class="block w5-16 bg-light">
+    <div class="child">
+        <div class="rfloat img">
+            <img src="/plugins/gmap/img/gmap3.png" alt="Plugin gmap Magix CMS" />
+        </div>
+        <p class="name">
+            <img src="/plugins/gmap/img/exclamation.png" alt="{#gmap_plugin_installed#}" />
+            {#gmap_plugin_error#}
+        </p>
+        <span class="descr">
+            {#gmap_plugin_installed#}
+        </span>
+    </div>
+</div>
+{/if}
