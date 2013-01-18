@@ -53,7 +53,7 @@ et de se connecter à l'administration de celui-ci pour faire la mise à jour de
 This file is a plugin of Magix CMS.
 Magix CMS, a CMS optimized for SEO
 
-Copyright (C) 2008 - 2012 magix-cms.com support[at]magix-cms[point]com
+Copyright (C) 2008 - 2013 magix-cms.com support[at]magix-cms[point]com | contact[at]magix-dev[point]be
 
 AUTHORS :
 
