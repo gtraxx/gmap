@@ -1,20 +1,27 @@
-{script src="/min/?f=plugins/{$pluginName}/js/gmap3.min.js,plugins/{$pluginName}/js/admin.js" type="javascript"}
+{include file="section/editor.phtml"}
+{script src="/{baseadmin}/min/?g=tinymce" concat={$concat} type="javascript"}
+{script src="/{baseadmin}/min/?f={baseadmin}/template/js/tinymce-config.js,libjs/jimagine/plugins/jquery.jmMap.js,plugins/{$pluginName}/js/gmap3.min.js,plugins/{$pluginName}/js/admin.js" concat={$concat} type="javascript"}
 <script type="text/javascript">
-{if $smarty.get.editmap}
-var edit = "{$smarty.get.editmap}";
-    {else}
-var edit = '';
-{/if}
-$(function(){
-if (typeof adminMap == "undefined") 
-{
-  console.log("adminMap is not defined");
-}else{
-    if(edit != ''){
-        adminMap.runRelated(edit);
-    }else{
-        adminMap.runConfig();
-    }
-}
-});
+    $(function(){
+        if (typeof MC_plugins_gmap == "undefined")
+        {
+            console.log("MC_plugins_gmap is not defined");
+        }else{
+            {if $smarty.get.getlang}
+                {if $smarty.get.tab eq 'config'}
+                    MC_plugins_gmap.runConfig(baseadmin,getlang);
+                {else}
+                    {if $smarty.get.edit}
+                        {if $smarty.get.tab eq 'multimarkers'}
+                        MC_plugins_gmap.runRelated(baseadmin,getlang,iso,edit);
+                        {else}
+                        MC_plugins_gmap.runEdit(baseadmin,getlang,edit);
+                        {/if}
+                    {else}
+                        MC_plugins_gmap.runList(baseadmin,getlang,iso);
+                    {/if}
+                {/if}
+            {/if}
+        }
+    });
 </script>

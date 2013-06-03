@@ -1,191 +1,38 @@
-{include file="common/head.phtml"}
-{headlink rel="stylesheet" href="/min/?f=plugins/{$pluginName}/css/admin.css" media="screen"}
-<meta name="description" content="" />
+{include file="section/head.phtml"}
 <script src="http://maps.googleapis.com/maps/api/js?sensor=false&language=fr" type="text/javascript"></script>
-{$refresh_plugins}
-    <title>{widget_titlepage}</title>
+<title>Magix CMS | Admin</title>
 </head>
-<body>
-<div id="page">
-	{include file="common/top.phtml"}
-		<div id="content">
-			{include file="common/sidebar.phtml"}
-			<div id="main">
-				<div id="mainbar" class="ui-widget-header ui-corner-all">
-					<div class="username ui-widget-content ui-corner-all"><span style="float:left;" class="ui-icon ui-icon-person"></span> {widget_session_identifier}</div>
-					{include file="common/topmicrobar.phtml"}
-					<div class="fariane"><ul>{admin_ariane}</ul></div>
-				</div>
-				<div class="dashboard ui-widget-content ui-corner-all">
-				<div class="dashboard-header ui-widget-header ui-corner-all"><img style="margin:0 5px 0 0;" class="lfloat" src="/{$pluginPath}/icon.png" alt="Gmap 3" width="16" height="16" />{$pluginName}</div>
-					<div class="dashboard-content">
-						<div class="column">
-							<div class="dashboard-widget ui-widget ui-widget-content ui-helper-clearfix ui-corner-all">
-								<div class="dashboard-header ui-widget-header ui-corner-all"><a href="#" class="dashboard-open"><span style="float:left;" class="ui-icon ui-icon-circle-minus"></span>Ajouter des cartes</a></div>
-								<div class="dashboard-widget-content dashboard-hidden">
-									<form id="forms-plugin-addGmap" method="post" action="">
-										<fieldset>
-											<table class="table-tinymce">
-												<tr>
-													<td class="label"><label for="name_map" class="inlinelabel">Titre de la carte :</label></td>
-												</tr>
-												<tr>
-													<td>
-														<input type="text" id="name_map" name="name_map" class="inputtext ui-corner-all" value="" size="40" />
-													</td>
-												</tr>
-												{$selectlang}
-												<tr>
-													<td class="label"><label for="content_map" class="inlinelabel">Description :</label></td>
-												</tr>
-												<tr>
-													<td>
-														<textarea id="content_map" name="content_map" cols="50" rows="3" class="fulltext mceEditor ui-corner-all"></textarea>
-													</td>
-												</tr>
-											</table>
-										</fieldset>
-										<div style="margin:5px;"><input type="submit" value="Envoyer" /></div>
-									</form>
-								</div>
-							</div>
-							<div class="dashboard-widget ui-widget ui-widget-content ui-helper-clearfix ui-corner-all">
-								<div class="dashboard-header ui-widget-header ui-corner-all">Les cartes</div>
-								<div class="dashboard-widget-content">
-									<div id="load_plugin_gmap"></div>
-								</div>
-							</div>
-						</div>
-						<div class="column">
-							<div class="dashboard-widget ui-widget ui-widget-content ui-helper-clearfix ui-corner-all">
-								<div class="dashboard-header ui-widget-header ui-corner-all"><a href="#" class="dashboard-open"><span style="float:left;" class="ui-icon ui-icon-circle-minus"></span>Configuration</a></div>
-								<div class="dashboard-widget-content dashboard-hidden">
-									<form id="forms-plugin-configGmap" method="post" action="" style="margin-left:10px;">
-										<fieldset>
-											<table>
-												<tr>
-													<td class="label"><label for="society_map" class="inlinelabel">Société :</label></td>
-												</tr>
-												<tr>
-													<td>
-														<input type="text" id="society_map" name="society_map" class="inputtext ui-corner-all" value="{$society_map}" size="20" />
-													</td>
-												</tr>
-												<tr>
-													<td class="label"><label for="country_map" class="inlinelabel">Pays :</label></td>
-												</tr>
-												<tr>
-													<td>
-														<input type="text" id="country_map" name="country_map" class="inputtext ui-corner-all" value="{$country_map}" size="20" />
-													</td>
-												</tr>
-												<tr>
-													<td class="label"><label for="city_map" class="inlinelabel">Ville :</label></td>
-												</tr>
-												<tr>
-													<td>
-														<input type="text" id="city_map" name="city_map" class="inputtext ui-corner-all" value="{$city_map}" size="20" />
-													</td>
-												</tr>
-												<tr>
-													<td class="label"><label for="adress_map" class="inlinelabel">Adresse :</label></td>
-												</tr>
-												<tr>
-													<td>
-														<textarea id="adress_map" name="adress_map" cols="50" rows="3" class="fulltext ui-corner-all">{$adress_map}</textarea>
-													</td>
-												</tr>
-												<tr>
-													<td class="label"><label class="inlinelabel">Itinéraire :</label></td>
-												</tr>
-												<tr>
-													<td>
-														<ul>
-														{if $route_map eq '0'}
-															<li style="display:inline-block;"><input type="radio" name="route_map" checked="checked" value="0" /> OFF</li>
-															<li style="display:inline-block;"><input type="radio" name="route_map" value="1" /> ON</li>
-														{else}
-															<li style="display:inline-block;"><input type="radio" name="route_map" value="0" /> OFF</li>
-															<li style="display:inline-block;"><input type="radio" name="route_map" checked="checked" value="1" /> ON</li>
-														{/if}
-														</ul>
-													</td>
-												</tr>
-												<tr>
-													<td class="label"><label class="inlinelabel">Mode multi adresse :</label></td>
-												</tr>
-												<tr>
-													<td>
-														<ul>
-														{if $multi_marker eq '0'}
-															<li style="display:inline-block;"><input type="radio" name="multi_marker" checked="checked" value="0" /> OFF</li>
-															<li style="display:inline-block;"><input type="radio" name="multi_marker" value="1" /> ON</li>
-														{else}
-															<li style="display:inline-block;"><input type="radio" name="multi_marker" value="0" /> OFF</li>
-															<li style="display:inline-block;"><input type="radio" name="multi_marker" checked="checked" value="1" /> ON</li>
-														{/if}
-														</ul>
-													</td>
-												</tr>
-												<tr>
-													<td class="label"><label class="inlinelabel">Marqueur :</label></td>
-												</tr>
-												<tr>
-													<td>
-														{$markers}
-													</td>
-												</tr>
-												<tr>
-													<td>
-													<div id="configmap"></div>
-													<div>
-														<input type="hidden" name="lat_map" id="lat_map" value="{$lat_map}" />
-														<input type="hidden" name="lng_map" id="lng_map" value="{$lng_map}" />
-													</div>
-													</td>
-												</tr>
-											</table>
-										</fieldset>
-										<div style="margin:5px;"><input type="submit" value="Envoyer" /></div>
-									</form>
-								</div>
-							</div>
-							<div class="dashboard-widget ui-widget ui-widget-content ui-helper-clearfix ui-corner-all">
-								<div class="dashboard-widget-header ui-widget-header ui-corner-all"><span style="float:left;margin-right:2px;" class="magix-icon magix-icon-person-shape"></span>About</div>
-								<div class="dashboard-widget-content">
-									<div style="margin-left:10px;padding:5px;display:block;">
-										<table class="table-plugin-info">
-											<tr>
-												<td class="small-icon">Version:</td>
-												<td>{$gmap_version}</td>
-												<td style="width:160px;" rowspan="5">
-													<div style="width:160px;text-align:center;background-color:#000000;">
-														<img style="margin:0 auto;position:relative;" src="/{$pluginPath}/img/plugin_gmap.png" alt="Gmap 3" width="160" height="92" />
-													</div>
-												</td>
-											</tr>
-											<tr>
-												<td class="small-icon">Support:</td>
-												<td><a style="text-decoration:underline;" class="targetblank" href="http://forum.logiciel-referencement-professionnel.com/plugins-f5.html">Forum plugins</a></td>
-											</tr>
-											<tr>
-												<td class="small-icon">Tickets:</td>
-												<td><a style="text-decoration:underline;" class="targetblank" href="http://magixdev.indefero.net/p/magixcms/issues/"><span class="lfloat magix-icon magix-icon-bug-plus"></span>Signaler un bug</a></td>
-											</tr>
-											<tr>
-												<td class="small-icon">SVN:</td>
-												<td><a class="targetblank" href="http://magixdev.indefero.net/p/open-plugins/"><span class="lfloat magix-icon magix-icon-subversion"></span></a></td>
-											</tr>
-											<tr>
-												<td class="small-icon">Other:</td>
-												<td>Gmap3 version 5</td>
-											</tr>
-										</table>
-										{$pluginInfo}
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-{include file="cplugin/layout_down.phtml"}
+<body class="plugins-contact">
+{include file="section/top.phtml"}
+<div class="container-fluid">
+    <div class="row-fluid">
+    {include file="section/colleft.phtml"}
+        <div class="span9">
+            <div class="row-fluid">
+                <div class="span12">
+                    {include file="nav.phtml"}
+                    <h1>Carte googlemap</h1>
+                    <div class="row-fluid">
+                        {foreach $array_lang as $key => $value nocache}
+                            <div class="span3">
+                                <div class="well">
+                                    <h2><span class="icon-flag"></span> {$value|upper}</h2>
+                                    <p>
+                                        <a class="btn btn-primary" href="/{baseadmin}/plugins.php?name=gmap&amp;getlang={$key}&amp;action=list">
+                                            <span class="icon-folder-open"></span> Administrer
+                                        </a>
+                                    </p>
+                                </div>
+                            </div>
+                        {/foreach}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{include file="section/footer.phtml"}
+{include file="section/js.phtml"}
+{*{include file="js.phtml"}*}
+</body>
+</html>

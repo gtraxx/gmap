@@ -13,16 +13,22 @@
  * La géolocalisation avec Googlemap (gmap3)
  *
  */
-var adminMap = (function ($, undefined) {
+var MC_plugins_gmap = (function ($, undefined) {
     //Fonction Private
-    function jsonListIndex(){
+    function jsonListIndex(baseadmin,getlang,iso){
         $.nicenotify({
             ntype: "ajax",
-            uri: '/admin/plugins.php?name=gmap&json_map_record=true',
+            uri: '/'+baseadmin+'/plugins.php?name=gmap&getlang='+getlang+'&json_map_record=true',
             typesend: 'get',
             datatype: 'json',
             beforeParams:function(){
-                $('#load_plugin_gmap').html('<img class="loader-block" src="/framework/img/square-circle.gif" />');
+                var loader = $(document.createElement("span")).addClass("loader offset5").append(
+                    $(document.createElement("img"))
+                        .attr('src','/'+baseadmin+'/template/img/loader/small_loading.gif')
+                        .attr('width','20px')
+                        .attr('height','20px')
+                )
+                $('#load_plugin_gmap').html(loader);
             },
             successParams:function(j){
                 $('#load_plugin_gmap').empty();
@@ -32,37 +38,32 @@ var adminMap = (function ($, undefined) {
                 var tbl = $(document.createElement('table')),
                     tbody = $(document.createElement('tbody'));
                 tbl.attr("id", "table_plugin_gmap")
-                    .addClass('table-plugin-author data-table')
+                    .addClass('table table-bordered table-condensed table-hover')
                     .append(
                     $(document.createElement("thead"))
                         .append(
-                        $(document.createElement("tr")).addClass('ui-widget ui-widget-header')
+                        $(document.createElement("tr"))
                             .append(
                             $(document.createElement("th")).append("ID"),
+                            $(document.createElement("th")).append(Globalize.localize( "heading", iso )),
                             $(document.createElement("th")).append(
-                                $(document.createElement("span"))
-                                    .addClass("lfloat magix-icon magix-icon-h1")
+                                Globalize.localize( "content", iso )
+                            ),
+                            $(document.createElement("th")).append(
+                                Globalize.localize( "nickname", iso )
                             ),
                             $(document.createElement("th")).append(
                                 $(document.createElement("span"))
-                                    .addClass("lfloat magix-icon magix-icon-note")
+                                    .addClass("icon-flag")
                             ),
                             $(document.createElement("th")).append(
                                 $(document.createElement("span"))
-                                    .addClass("lfloat magix-icon magix-icon-person")
-                            ),
-                            $(document.createElement("th")).append(
-                                $(document.createElement("span"))
-                                    .addClass("lfloat magix-icon magix-icon-flag")
-                            ),
-                            $(document.createElement("th")).append(
-                                $(document.createElement("span"))
-                                    .addClass("lfloat ui-icon ui-icon-pencil")
+                                    .addClass("icon-edit")
                             ),
                             $(document.createElement("th"))
                                 .append(
                                 $(document.createElement("span"))
-                                    .addClass("lfloat ui-icon ui-icon-close")
+                                    .addClass("icon-trash")
                             )
                         )
                     ),
@@ -75,56 +76,47 @@ var adminMap = (function ($, undefined) {
                 if(j !== null){
                     $.each(j, function(i,item) {
                         if(item.content_map != 0){
-                            var contentMap = $(document.createElement("td")).append(
-                                $(document.createElement("div")).addClass("ui-state-highlight")
-                                    .css({'border': 'none'})
-                                    .append(
-                                    $(document.createElement("span")).addClass("lfloat ui-icon ui-icon-check")
-                                )
-                            );
+                            var contentMap = $(document.createElement("span")).addClass("icon-check");
                         }else{
-                            var contentMap = $(document.createElement("td")).append(
-                                $(document.createElement("div")).addClass("ui-state-error")
-                                    .css({'border': 'none'})
-                                    .append(
-                                    $(document.createElement("span")).addClass("lfloat ui-icon ui-icon-cancel")
-                                )
-                            );
+                            var contentMap = $(document.createElement("span")).addClass("icon-warning-sign");
                         }
                         if(item.lang != null){
                             var flaglang = item.lang;
                         }else{
-                            var flaglang = $(document.createElement("div")).addClass("ui-state-error")
-                                .css({'border': 'none'})
-                                .append(
-                                $(document.createElement("span")).addClass("lfloat ui-icon ui-icon-cancel")
-                            );
+                            var flaglang = $(document.createElement("span")).addClass("icon-warning-sign");
                         }
                         tbody.append(
                             $(document.createElement("tr"))
                                 .append(
                                 $(document.createElement("td")).append(item.idgmap),
-                                $(document.createElement("td")).append(item.name_map),
-                                contentMap
-                                ,
+                                $(document.createElement("td")).append(
+                                    $(document.createElement("a"))
+                                    .attr("href", '/admin/plugins.php?name=gmap&getlang='+getlang+'&action=edit&edit='+item.idgmap)
+                                    .attr("title", "Edit")
+                                    .append(
+                                        item.name_map
+                                    )
+                                ),
+                                $(document.createElement("td")).append(contentMap),
                                 $(document.createElement("td")).append(item.pseudo),
                                 $(document.createElement("td")).append(flaglang),
                                 $(document.createElement("td")).append(
                                     $(document.createElement("a"))
-                                        .attr("href", '/admin/plugins.php?name=gmap&editmap='+item.idgmap)
+                                        .attr("href", '/admin/plugins.php?name=gmap&getlang='+getlang+'&action=edit&edit='+item.idgmap)
                                         .attr("title", "Edit")
                                         .append(
-                                        $(document.createElement("span")).addClass("lfloat ui-icon ui-icon-pencil")
+                                            $(document.createElement("span"))
+                                                .addClass("icon-edit")
                                     )
                                 ),
                                 $(document.createElement("td")).append(
                                     $(document.createElement("a"))
                                         .addClass("d-plugin-gmap")
                                         .attr("href", "#")
-                                        .attr("rel", item.idgmap)
-                                        .attr("title", "Remove")
+                                        .attr("data-delete", item.idgmap)
+                                        .attr("title", Globalize.localize( "remove", iso )+": "+item.name_map)
                                         .append(
-                                        $(document.createElement("span")).addClass("lfloat ui-icon ui-icon-close")
+                                        $(document.createElement("span")).addClass("icon-trash")
                                     )
                                 )
                             )
@@ -135,25 +127,25 @@ var adminMap = (function ($, undefined) {
                         $(document.createElement("tr"))
                             .append(
                             $(document.createElement("td")).append(
-                                $(document.createElement("span")).addClass("typicn minus")
+                                $(document.createElement("span")).addClass("icon-minus")
                             ),
                             $(document.createElement("td")).append(
-                                $(document.createElement("span")).addClass("typicn minus")
+                                $(document.createElement("span")).addClass("icon-minus")
                             ),
                             $(document.createElement("td")).append(
-                                $(document.createElement("span")).addClass("typicn minus")
+                                $(document.createElement("span")).addClass("icon-minus")
                             ),
                             $(document.createElement("td")).append(
-                                $(document.createElement("span")).addClass("typicn minus")
+                                $(document.createElement("span")).addClass("icon-minus")
                             ),
                             $(document.createElement("td")).append(
-                                $(document.createElement("span")).addClass("typicn minus")
+                                $(document.createElement("span")).addClass("icon-minus")
                             ),
                             $(document.createElement("td")).append(
-                                $(document.createElement("span")).addClass("typicn minus")
+                                $(document.createElement("span")).addClass("icon-minus")
                             ),
                             $(document.createElement("td")).append(
-                                $(document.createElement("span")).addClass("typicn minus")
+                                $(document.createElement("span")).addClass("icon-minus")
                             )
                         )
                     )
@@ -161,53 +153,60 @@ var adminMap = (function ($, undefined) {
             }
         });
     }
-    function addPage(){
-        var formsAddMap = $("#forms-plugin-addGmap").validate({
+    function addPage(baseadmin,getlang,iso){
+        var formsAddMap = $("#forms_plugins_gmap_add").validate({
             onsubmit: true,
             event: 'submit',
             rules: {
                 name_map: {
                     required: true,
                     minlength: 2
-                },
-                idlang: {
-                    required: true
-                }
-            },
-            messages: {
-                name_map: {
-                    required: 'The map title is requiered'
-                },
-                idlang: {
-                    required: "Choose the language"
                 }
             },
             submitHandler: function(form) {
                 $.nicenotify({
                     ntype: "submit",
-                    uri: '/admin/plugins.php?name=gmap&postassign=1',
+                    uri: '/'+baseadmin+'/plugins.php?name=gmap&getlang='+getlang,
                     typesend: 'post',
-                    idforms: form,
+                    idforms: $(form),
                     resetform: true,
                     beforeParams:function(){},
                     successParams:function(e){
                         $.nicenotify.initbox(e,{
                             display:true
                         });
-                        jsonListIndex();
+                        jsonListIndex(baseadmin,getlang,iso);
                     }
                 });
                 return false;
             }
         });
-        $("#forms-plugin-addGmap").formsAddMap;
+        $('#open-add').on('click',function(){
+            $('#forms-add').dialog({
+                modal: true,
+                resizable: true,
+                width: 400,
+                height:'auto',
+                minHeight: 210,
+                buttons: {
+                    'Save': function() {
+                        $("#forms_plugins_gmap_add").submit();
+                    },
+                    Cancel: function() {
+                        $(this).dialog('close');
+                        formsAddMap.resetForm();
+                    }
+                }
+            });
+            return false;
+        });
     }
-    function updatePage(edit){
-        $("#forms-plugin-updateGmap").on('submit',function(){
+    function updatePage(baseadmin,getlang,edit){
+        $("#forms_plugins_gmap_edit").on('submit',function(){
             var idgmap = $('#idgmap').val();
             $.nicenotify({
                 ntype: "submit",
-                uri: '/admin/plugins.php?name=gmap&editmap='+edit,
+                uri: '/'+baseadmin+'/plugins.php?name=gmap&getlang='+getlang+'&action=edit&edit='+edit,
                 typesend: 'post',
                 idforms: $(this),
                 beforeParams:function(){},
@@ -220,11 +219,11 @@ var adminMap = (function ($, undefined) {
             return false;
         });
     }
-    function updateConfig(){
-        $("#forms-plugin-configGmap").on('submit',function(){
+    function updateConfig(baseadmin,getlang){
+        $("#forms_plugins_gmap_config").on('submit',function(){
             $.nicenotify({
                 ntype: "submit",
-                uri: '/admin/plugins.php?name=gmap&updateconfig=1',
+                uri: '/'+baseadmin+'/plugins.php?name=gmap&getlang='+getlang+'&tab=config',
                 typesend: 'post',
                 idforms: $(this),
                 beforeParams:function(){},
@@ -238,10 +237,10 @@ var adminMap = (function ($, undefined) {
         });
     }
     function loadConfig(){
-        $('#configmap').addClass("map-col");
+        $('#contener-map').addClass("map-col");
         var infocontent = $('#adress_map').val()+'<br />'+$('#city_map').val()+' '+$('#country_map').val();
         var adr = $('#adress_map').val()+','+$('#city_map').val()+' '+$('#country_map').val();
-        $('#configmap').gmap3({
+        $('#contener-map').gmap3({
             clear:{name:'marker'},
             map:{
                 address: adr,
@@ -330,8 +329,9 @@ var adminMap = (function ($, undefined) {
                 }
             }
         });
+
     }
-    function remove(){
+    function remove(baseadmin,getlang){
         $(document).on('click','.d-plugin-gmap',function (event){
             event.preventDefault();
             var lg = $(this).attr("rel");
@@ -346,7 +346,7 @@ var adminMap = (function ($, undefined) {
                         $(this).dialog('close');
                         $.nicenotify({
                             ntype: "ajax",
-                            uri: "/admin/plugins.php?name=gmap",
+                            uri: "/admin/plugins.php?name=gmap&getlang="+getlang,
                             typesend: 'post',
                             noticedata : {deletemap:lg},
                             beforeParams:function(){},
@@ -354,7 +354,7 @@ var adminMap = (function ($, undefined) {
                                 $.nicenotify.initbox(e,{
                                     display:false
                                 });
-                                jsonListIndex();
+                                jsonListIndex(baseadmin,getlang,iso);
                             }
                         });
                     },
@@ -365,14 +365,20 @@ var adminMap = (function ($, undefined) {
             });
         });
     }
-    function jsonListRel(edit){
+    function jsonListRel(baseadmin,getlang,iso,edit){
         $.nicenotify({
             ntype: "ajax",
-            uri: '/admin/plugins.php?name=gmap&editmap='+edit+'&json_rel_map=true',
+            uri: '/'+baseadmin+'/plugins.php?name=gmap&getlang='+getlang+'&action=edit&edit='+edit+'&tab=multimarkers&json_map_relative=true',
             typesend: 'get',
             datatype: 'json',
             beforeParams:function(){
-                $('#load_rel_gmap').html('<img class="loader-block" src="/framework/img/square-circle.gif" />');
+                var loader = $(document.createElement("span")).addClass("loader offset5").append(
+                    $(document.createElement("img"))
+                        .attr('src','/'+baseadmin+'/template/img/loader/small_loading.gif')
+                        .attr('width','20px')
+                        .attr('height','20px')
+                )
+                $('#load_rel_gmap').html(loader);
             },
             successParams:function(j){
                 $('#load_rel_gmap').empty();
@@ -382,21 +388,20 @@ var adminMap = (function ($, undefined) {
                 var tbl = $(document.createElement('table')),
                     tbody = $(document.createElement('tbody'));
                 tbl.attr("id", "table-plugin-gmap-rel")
-                    .addClass('table-plugin-author data-table')
+                    .addClass('table table-bordered table-condensed table-hover')
                     .append(
                     $(document.createElement("thead"))
                         .append(
-                        $(document.createElement("tr")).addClass('ui-widget ui-widget-header')
+                        $(document.createElement("tr"))
                             .append(
                             $(document.createElement("th")).append("ID"),
-                            $(document.createElement("th")).append("Titre"),
+                            $(document.createElement("th")).append("Société"),
                             $(document.createElement("th")).append("Pays"),
                             $(document.createElement("th")).append("Ville"),
                             $(document.createElement("th")).append("Adresse"),
                             $(document.createElement("th"))
                                 .append(
-                                $(document.createElement("span"))
-                                    .addClass("lfloat ui-icon ui-icon-close")
+                                    $(document.createElement("span")).addClass("icon-trash")
                             )
                         )
                     ),
@@ -423,7 +428,7 @@ var adminMap = (function ($, undefined) {
                                         .attr("rel", item.id_adress)
                                         .attr("title", "Remove")
                                         .append(
-                                        $(document.createElement("span")).addClass("lfloat ui-icon ui-icon-close")
+                                            $(document.createElement("span")).addClass("icon-trash")
                                     )
                                 )
                             )
@@ -434,25 +439,22 @@ var adminMap = (function ($, undefined) {
                         $(document.createElement("tr"))
                             .append(
                             $(document.createElement("td")).append(
-                                $(document.createElement("span")).addClass("typicn minus")
+                                $(document.createElement("span")).addClass("icon-minus")
                             ),
                             $(document.createElement("td")).append(
-                                $(document.createElement("span")).addClass("typicn minus")
+                                $(document.createElement("span")).addClass("icon-minus")
                             ),
                             $(document.createElement("td")).append(
-                                $(document.createElement("span")).addClass("typicn minus")
+                                $(document.createElement("span")).addClass("icon-minus")
                             ),
                             $(document.createElement("td")).append(
-                                $(document.createElement("span")).addClass("typicn minus")
+                                $(document.createElement("span")).addClass("icon-minus")
                             ),
                             $(document.createElement("td")).append(
-                                $(document.createElement("span")).addClass("typicn minus")
+                                $(document.createElement("span")).addClass("icon-minus")
                             ),
                             $(document.createElement("td")).append(
-                                $(document.createElement("span")).addClass("typicn minus")
-                            ),
-                            $(document.createElement("td")).append(
-                                $(document.createElement("span")).addClass("typicn minus")
+                                $(document.createElement("span")).addClass("icon-minus")
                             )
                         )
                     )
@@ -460,26 +462,45 @@ var adminMap = (function ($, undefined) {
             }
         });
     }
-    function addAdress(idgmap){
-        $("#forms-plugin-gmap-add-rel-adress").on('submit',function(){
-            $.nicenotify({
-                ntype: "submit",
-                uri: '/admin/plugins.php?name=gmap&editmap='+idgmap,
-                typesend: 'post',
-                idforms: $(this),
-                resetform: true,
-                beforeParams:function(){},
-                successParams:function(e){
-                    $.nicenotify.initbox(e,{
-                        display:true
-                    });
-                    jsonListRel(idgmap);
+    function addAdress(baseadmin,getlang,iso,edit){
+        $('#forms_plugins_gmap_related').validate({
+            onsubmit: true,
+            event: 'submit',
+            rules: {
+                society_ga: {
+                    required: true
+                },
+                country_ga: {
+                    required: true
+                },
+                city_ga: {
+                    required: true
+                },
+                adress_ga: {
+                    required: true,
+                    minlength: 2
                 }
-            });
-            return false;
+            },
+            submitHandler: function(form) {
+                $.nicenotify({
+                    ntype: "submit",
+                    uri: '/'+baseadmin+'/plugins.php?name=gmap&getlang='+getlang+'&action=edit&edit='+edit+'&tab=multimarkers',
+                    typesend: 'post',
+                    idforms: $(form),
+                    resetform: true,
+                    beforeParams:function(){},
+                    successParams:function(e){
+                        $.nicenotify.initbox(e,{
+                            display:true
+                        });
+                        jsonListRel(baseadmin,getlang,iso,edit);
+                    }
+                });
+                return false;
+            }
         });
     }
-    function removeAdress(){
+    function removeAdress(baseadmin,getlang,iso){
         $(document).on('click','.d-plugin-gmap-rel',function (event){
             event.preventDefault();
             var lg = $(this).attr("rel");
@@ -488,13 +509,13 @@ var adminMap = (function ($, undefined) {
                 resizable: false,
                 height:140,
                 modal: true,
-                title: 'Supprimé cet enregistrement',
+                title: Globalize.localize( "delete_item", iso ),
                 buttons: {
                     'Delete item': function() {
                         $(this).dialog('close');
                         $.nicenotify({
                             ntype: "ajax",
-                            uri: "/admin/plugins.php?name=gmap",
+                            uri: '/'+baseadmin+'/plugins.php?name=gmap&getlang='+getlang,
                             typesend: 'post',
                             noticedata : {delete_rel_map:lg},
                             beforeParams:function(){},
@@ -502,7 +523,7 @@ var adminMap = (function ($, undefined) {
                                 $.nicenotify.initbox(e,{
                                     display:false
                                 });
-                                jsonListRel($('#idgmap').val());
+                                jsonListRel(baseadmin,getlang,iso,$('#idgmap').val());
                             }
                         });
                     },
@@ -514,10 +535,10 @@ var adminMap = (function ($, undefined) {
         });
     }
     function loadRelated(){
-        $('#related_map').addClass("map-col");
+        $('#contener-map').addClass("map-col");
         var infocontent = $('#adress_ga').val()+'<br />'+$('#city_ga').val()+' '+$('#country_ga').val();
         var adr = $('#adress_ga').val()+','+$('#city_ga').val()+' '+$('#country_ga').val();
-        $('#related_map').gmap3({
+        $('#contener-map').gmap3({
             clear:{name:'marker'},
             map:{
                 address: adr,
@@ -609,41 +630,39 @@ var adminMap = (function ($, undefined) {
     }
     return {
         //Fonction Public
-        updateTimer:function(ts,func){
-            if (this.timer) clearTimeout(this.timer);
-            this.timer = setTimeout(func, ts ? ts : 1000);
+        runList:function(baseadmin,getlang,iso){
+            jsonListIndex(baseadmin,getlang,iso);
+            remove(baseadmin,getlang,iso);
+            addPage(baseadmin,getlang,iso);
         },
         mapConfig:function(){
             loadConfig();
         },
-        runConfig:function () {
-            jsonListIndex();
-            remove();
-            addPage();
-            updateConfig()
-            if($("#configmap").length !=0){
+        runConfig:function (baseadmin,getlang) {
+            updateConfig(baseadmin,getlang);
+            if($("#contener-map").length !=0){
                 $('#adress_map,#city_map').keypress(function(){
-                    adminMap.updateTimer('','adminMap.mapConfig();');
+                    $.mapTimer({ts:'',func:'MC_plugins_gmap.mapConfig();'});
                 }).change(function(){
-                    adminMap.updateTimer(100,'adminMap.mapConfig();');
+                    $.mapTimer({ts:100,func:'MC_plugins_gmap.mapConfig();'});
                 });
             }
         },
-        maRelated:function(){
+        mapRelated:function(){
             loadRelated();
         },
-        runRelated:function(edit){
-            updatePage(edit);
-            jsonListIndex();
-            remove();
-            jsonListRel(edit);
-            removeAdress();
-            addAdress(edit);
-            if($("#related_map").length !=0){
+        runEdit:function(baseadmin,getlang,edit){
+            updatePage(baseadmin,getlang,edit);
+        },
+        runRelated:function(baseadmin,getlang,iso,edit){
+            jsonListRel(baseadmin,getlang,iso,edit);
+            removeAdress(baseadmin,getlang,iso);
+            addAdress(baseadmin,getlang,iso,edit);
+            if($("#contener-map").length !=0){
                 $('#adress_ga,#city_ga').keypress(function(){
-                    adminMap.updateTimer('','adminMap.maRelated();');
+                    $.mapTimer({ts:'',func:'MC_plugins_gmap.mapRelated();'});
                 }).change(function(){
-                    adminMap.updateTimer(100,'adminMap.maRelated();');
+                    $.mapTimer({ts:100,func:'MC_plugins_gmap.mapRelated();'});
                 });
             }
         }

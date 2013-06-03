@@ -2,7 +2,7 @@
 #
 # This file is a plugin of Magix CMS.
 # Magix CMS, a CMS optimized for SEO
-# Copyright (C) 2011 -2012 
+# Copyright (C) 2011 -2013
 # Author and contributor:
 # Aurelien Gerits <aurelien[at]magix-cms[point]com>,<contact[at]magix-dev[point]be>
 # jean-baptiste demonte (http://gmap3.net/)

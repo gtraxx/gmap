@@ -36,7 +36,7 @@ class plugins_gmap_admin extends database_plugins_gmap{
 	/**
 	 * Ajouter ou modifier une carte
 	 */
-	$idlang,
+	$getlang,$action,$edit,$tab,
 	$name_map,
 	$content_map,
 	/**
@@ -50,10 +50,6 @@ class plugins_gmap_admin extends database_plugins_gmap{
 	$route_map,$multi_marker,
 	$lat_map,
 	$lng_map,
-	/**
-	 * Paramètre pour l'édition d'une carte
-	 */
-	$editmap,
 	/**
 	 * Paramètre pour la suppresion d'une carte
 	 */
@@ -73,9 +69,20 @@ class plugins_gmap_admin extends database_plugins_gmap{
 	 * Construct class
 	 */
 	public function __construct(){
-		if(magixcjquery_filter_request::isPost('idlang')){
-			$this->idlang = (integer) magixcjquery_filter_isVar::isPostNumeric($_POST['idlang']);
-		}
+        //Global
+        if(magixcjquery_filter_request::isGet('action')){
+            $this->action = magixcjquery_form_helpersforms::inputClean($_GET['action']);
+        }
+        if(magixcjquery_filter_request::isGet('getlang')){
+            $this->getlang = magixcjquery_filter_isVar::isPostNumeric($_GET['getlang']);
+        }
+        if(magixcjquery_filter_request::isGet('edit')){
+            $this->edit = magixcjquery_filter_isVar::isPostNumeric($_GET['edit']);
+        }
+        if(magixcjquery_filter_request::isGet('tab')){
+            $this->tab = magixcjquery_form_helpersforms::inputClean($_GET['tab']);
+        }
+        //Formulaire
 		if(magixcjquery_filter_request::isPost('name_map')){
 			$this->name_map = (string) magixcjquery_form_helpersforms::inputClean($_POST['name_map']);
 		}
@@ -109,9 +116,7 @@ class plugins_gmap_admin extends database_plugins_gmap{
 		if(magixcjquery_filter_request::isPost('multi_marker')){
 			$this->multi_marker = (integer) magixcjquery_filter_isVar::isPostNumeric($_POST['multi_marker']);
 		}
-		if(magixcjquery_filter_request::isGet('editmap')){
-			$this->editmap = (integer) magixcjquery_filter_isVar::isPostNumeric($_GET['editmap']);
-		}
+
 		if(magixcjquery_filter_request::isPost('deletemap')){
 			$this->deletemap = (integer) magixcjquery_filter_isVar::isPostNumeric($_POST['deletemap']);
 		}
@@ -138,17 +143,20 @@ class plugins_gmap_admin extends database_plugins_gmap{
 			$this->delete_rel_map = (integer) magixcjquery_filter_isVar::isPostNumeric($_POST['delete_rel_map']);
 		}
 	}
-	/**
-	 * @access private
-	 * Installation des tables mysql du plugin
-	 */
-	private function install_table(){
-		if(parent::c_show_table() == 0){
-			backend_controller_plugins::create()->db_install_table('db.sql', 'request/install.phtml');
-		}else{
-			return true;
-		}
-	}
+
+    /**
+     * @access private
+     * Installation des tables mysql du plugin
+     */
+    private function install_table($create){
+        if(parent::c_show_table() == 0){
+            $create->db_install_table('db.sql', 'request/install.phtml');
+        }else{
+            $magixfire = new magixcjquery_debug_magixfire();
+            //$magixfire->magixFireInfo('Les tables mysql sont installés', 'Statut des tables mysql du plugin');
+            return true;
+        }
+    }
 	/**
 	 * @access private
 	 * Retourne le chemin du fichier XML de gmap
@@ -191,64 +199,71 @@ class plugins_gmap_admin extends database_plugins_gmap{
 	 * Retourne les cartes ajoutés sous format JSON
 	 */
 	private function json_map_record(){
-		if(parent::s_map() != null){
-			foreach (parent::s_map() as $s){
-				if($s['content_map'] != ''){
+		if(parent::s_map($this->getlang) != null){
+			foreach (parent::s_map($this->getlang) as $key){
+				if($key['content_map'] != ''){
 					$content = 1;
 				}else{
 					$content = 0;
 				}
-				$map[]= '{"idgmap":'.json_encode($s['idgmap']).',"lang":'.json_encode($s['iso']).
-				',"pseudo":'.json_encode($s['pseudo']).',"name_map":'.json_encode($s['name_map']).',"content_map":'.$content.'}';
+				$json[]= '{"idgmap":'.json_encode($key['idgmap']).',"lang":'.json_encode($key['iso']).
+				',"pseudo":'.json_encode($key['pseudo']).',"name_map":'.json_encode($key['name_map']).
+                ',"content_map":'.$content.'}';
 			}
-			print '['.implode(',',$map).']';
+			print '['.implode(',',$json).']';
 		}
 	}
 	/**
 	 * @access private
 	 * Insertion d'une nouvelle carte
 	 */
-	private function insert_new_map(){
-		if(isset($this->idlang) AND isset($this->name_map)){
-			if(empty($this->idlang) AND empty($this->name_map)){
-				backend_controller_plugins::create()->append_display('request/empty.phtml');
-			}elseif(parent::s_verify_MapLang($this->idlang) != null){
-				backend_controller_plugins::create()->append_display('request/record_exist.phtml');
+	private function add_map(){
+		if(isset($this->name_map)){
+			if(empty($this->name_map)){
+				backend_controller_plugins::create()->display('request/empty.phtml');
+			}elseif(parent::s_verify_lang($this->getlang) != null){
+				backend_controller_plugins::create()->display('request/element_exist.phtml');
 			}else{
 				$this->i_new_map(
 					backend_model_member::s_idadmin(), 
-					$this->idlang,
+					$this->getlang,
 					$this->name_map,
 					$this->content_map
 				);
-				backend_controller_plugins::create()->append_display('request/success_new_map.phtml');
+				backend_controller_plugins::create()->display('request/success_add.phtml');
 			}
 		}
 	}
-	/**
-	 * @access private
-	 * Charge les données d'une carte pour l'édition
-	 * @param integer $editmap
-	 */
-	private function load_updatemap($editmap){
-		$mapedit = parent::s_map_edit($editmap);
-		backend_controller_plugins::create()->append_assign('name_map',$mapedit['name_map']);
-		backend_controller_plugins::create()->append_assign('content_map',$mapedit['content_map']);
+
+    /**
+     * @access private
+     * Charge les données d'une carte pour l'édition
+     * @param $create
+     */
+	private function load_map($create){
+		$data = parent::s_map_data($this->edit);
+        $create->assign('map',
+            array(
+                'name_map'      =>  $data['name_map'],
+                'content_map'   =>  $data['content_map']
+            )
+        );
 	}
-	/**
-	 * @access private
-	 * POST une modification de carte
-	 * @param integer $editmap
-	 */
-	private function post_edit_map($editmap){
-		if(isset($editmap)){
+
+    /**
+     * @access private
+     * POST une modification de carte
+     * @param $create
+     */
+	private function update_map($create){
+		if(isset($this->name_map)){
 			parent::u_map_record(
 				backend_model_member::s_idadmin(), 
 				$this->name_map, 
 				$this->content_map, 
-				$editmap
+				$this->edit
 			);
-			backend_controller_plugins::create()->append_display('request/success_update_map.phtml');
+            $create->display('request/success_update.phtml');
 		}
 	}
 	/**
@@ -258,13 +273,19 @@ class plugins_gmap_admin extends database_plugins_gmap{
 	private function find_marker(){
 		$makefile = new magixcjquery_files_makefiles();
 		$marker = $makefile->scanDir(magixglobal_model_system::base_path().'/plugins/gmap/markers/');
-		$mconfig= parent::s_uniq_map_config('marker');
-		$icon = '<ul>';
+		$mconfig= parent::s_config_data('marker');
+		$icon = '<ul class="inline">';
 		foreach($marker as $m){
 			if($m == $mconfig['config_value']){
-				$icon .= '<li style="display:inline-block;"><input type="radio" name="marker" checked="checked" value="'.$m.'" /><img alt="marker" src="/plugins/gmap/markers/'.$m.'" /></li>';
+				$icon .= '<li>';
+				$icon .= '<input type="radio" name="marker" checked="checked" value="'.$m.'" />';
+				$icon .= '<img alt="marker" src="/plugins/gmap/markers/'.$m.'" />';
+				$icon .= '</li>';
 			}else{
-				$icon .= '<li style="display:inline-block;"><input type="radio" name="marker" value="'.$m.'" /><img alt="marker" src="/plugins/gmap/markers/'.$m.'" /></li>';
+				$icon .= '<li>';
+				$icon .= '<input type="radio" name="marker" value="'.$m.'" />';
+				$icon .= '<img alt="marker" src="/plugins/gmap/markers/'.$m.'" />';
+				$icon .= '</li>';
 			}
 			
 		}
@@ -275,39 +296,46 @@ class plugins_gmap_admin extends database_plugins_gmap{
 	 * @access private
 	 * Charge les données de configuration pour l'édition
 	 */
-	private function load_map_config($create){
+	private function load_config($create){
 		$config = parent::s_map_config();
-		$create->append_assign('society_map',$config[0]['config_value']);
-		$create->append_assign('adress_map',$config[1]['config_value']);
-		$create->append_assign('country_map',$config[2]['config_value']);
-		$create->append_assign('city_map',$config[3]['config_value']);
-		$create->append_assign('route_map',$config[5]['config_value']);
-		$create->append_assign('lat_map',$config[6]['config_value']);
-		$create->append_assign('lng_map',$config[7]['config_value']);
-		$create->append_assign('gmap_version',$config[8]['config_value']);
-		$create->append_assign('multi_marker',$config[9]['config_value']);
+        $create->assign('config',array(
+            'society_map'   =>  $config[0]['config_value'],
+            'adress_map'    =>  $config[1]['config_value'],
+            'country_map'   =>  $config[2]['config_value'],
+            'city_map'      =>  $config[3]['config_value'],
+            'route_map'     =>  $config[5]['config_value'],
+            'lat_map'       =>  $config[6]['config_value'],
+            'lng_map'       =>  $config[7]['config_value'],
+            'gmap_version'  =>  $config[8]['config_value'],
+            'multi_marker'  =>  $config[9]['config_value']
+        ));
 	}
 	/**
 	 * @access private
 	 * Modification des données de configuration du plugin
 	 */
-	private function update_gmap_config($create){
+	private function update_config($create){
 		if(isset($this->lat_map) AND isset($this->lng_map)){
 			if(empty($this->lat_map) AND empty($this->lng_map)){
-				backend_controller_plugins::create()->append_display('request/empty.phtml');
+                $create->display('request/empty.phtml');
 			}else{
+                if(!empty($this->marker)){
+                    $marker = $this->marker;
+                }else{
+                    $marker = null;
+                }
 				parent::u_config_map(
 					$this->society_map, 
 					$this->adress_map, 
 					$this->city_map, 
-					$this->country_map, 
-					$this->marker, 
+					$this->country_map,
+                    $marker,
 					$this->route_map,
 					$this->multi_marker,
 					$this->lat_map,
 					$this->lng_map
 				);
-				$create->append_display('request/success_config.phtml');
+				$create->display('request/success_update.phtml');
 			}
 		}
 	}
@@ -326,21 +354,21 @@ class plugins_gmap_admin extends database_plugins_gmap{
 	 * Insertio d'une adresse relative à une carte
 	 * @param integer $editmap
 	 */
-	private function insert_relative_map($editmap){
-		if(isset($editmap)){
+	private function insert_relative_map($create){
+		if(isset($this->adress_ga)){
 			if(empty($this->lat_ga) AND empty($this->lng_ga)){
-				backend_controller_plugins::create()->append_display('request/empty.phtml');
+                $create->display('request/empty.phtml');
 			}else{
 				parent::i_relative_map(
+                    $this->edit,
 					$this->society_ga, 
 					$this->adress_ga, 
 					$this->city_ga, 
 					$this->country_ga, 
 					$this->lat_ga, 
-					$this->lng_ga, 
-					$editmap
+					$this->lng_ga
 				);
-				backend_controller_plugins::create()->append_display('request/success_new_map.phtml');
+                $create->display('request/success_add.phtml');
 			}
 		}
 	}
@@ -349,19 +377,21 @@ class plugins_gmap_admin extends database_plugins_gmap{
 	 * Retourne les adresses relative ajoutés sous format JSON
 	 */
 	private function json_map_relative(){
-		if(parent::s_relative_map($this->editmap) != null){
-			foreach (parent::s_relative_map($this->editmap) as $s){
-				$map[]= '{"id_adress":'.json_encode($s['id_adress']).',"society_ga":'.json_encode($s['society_ga']).
-				',"country_ga":'.json_encode($s['country_ga']).',"city_ga":'.json_encode($s['city_ga']).',"adress_ga":'.json_encode($s['adress_ga']).'}';
+		if(parent::s_relative_map($this->edit) != null){
+			foreach (parent::s_relative_map($this->edit) as $key){
+				$map[]= '{"id_adress":'.json_encode($key['id_adress']).',"society_ga":'.json_encode($key['society_ga']).
+				',"country_ga":'.json_encode($key['country_ga']).',"city_ga":'.json_encode($key['city_ga']).',"adress_ga":'.json_encode($key['adress_ga']).'}';
 			}
 			print '['.implode(',',$map).']';
 		}
 	}
-	/**
-	 * Suppression d'une adresse relative
-	 * @access private
-	 * @param integer $deletemap
-	 */
+
+    /**
+     * Suppression d'une adresse relative
+     * @access private
+     * @param $delete_rel_map
+     * @internal param int $deletemap
+     */
 	private function delete_relative_adress($delete_rel_map){
 		if(isset($delete_rel_map)){
 			$this->d_rel_adress($delete_rel_map);
@@ -372,10 +402,76 @@ class plugins_gmap_admin extends database_plugins_gmap{
 	 * @access public
 	 */
 	public function run(){
-		$header= new magixglobal_model_header();
-		$create = backend_controller_plugins::create();
+        $header= new magixglobal_model_header();
+        $create = new backend_controller_plugins();
 		//Installation des tables mysql
-		if(self::install_table() == true){
+        if(self::install_table($create) == true){
+            if(magixcjquery_filter_request::isGet('getlang')){
+                if($this->tab == 'config'){
+                    if(isset($this->action)){
+                        if(isset($this->lat_map)){
+                            $this->update_config($create);
+                        }else{
+                            $this->load_config($create);
+                            $create->assign('markers',$this->find_marker());
+                            // Retourne la page index.phtml
+                            $create->display('list.phtml');
+                        }
+                    }
+                }else{
+                    if(magixcjquery_filter_request::isGet('json_map_record')){
+                        $header->head_expires("Mon, 26 Jul 1997 05:00:00 GMT");
+                        $header->head_last_modified(gmdate( "D, d M Y H:i:s" ) . "GMT");
+                        $header->pragma();
+                        $header->cache_control("nocache");
+                        $header->getStatus('200');
+                        $header->json_header("UTF-8");
+                        $this->json_map_record();
+                    }else{
+                        if(isset($this->action)){
+                            if($this->action == 'list'){
+                                // Retourne la page index.phtml
+                                $create->display('list.phtml');
+                            }elseif($this->action == 'add'){
+                                if(isset($this->name_map)){
+                                    $this->add_map();
+                                }
+                            }elseif($this->action == 'edit'){
+                                if(isset($this->edit)){
+                                    if(isset($this->name_map)){
+                                        $this->update_map($create);
+                                    }elseif($this->tab == 'multimarkers'){
+                                        if(magixcjquery_filter_request::isGet('json_map_relative')){
+                                            $header->head_expires("Mon, 26 Jul 1997 05:00:00 GMT");
+                                            $header->head_last_modified(gmdate( "D, d M Y H:i:s" ) . "GMT");
+                                            $header->pragma();
+                                            $header->cache_control("nocache");
+                                            $header->getStatus('200');
+                                            $header->json_header("UTF-8");
+                                            $this->json_map_relative();
+                                        }elseif(isset($this->adress_ga)){
+                                            $this->insert_relative_map($create);
+                                        }else{
+                                            $this->load_map($create);
+                                            $create->display('edit.phtml');
+                                        }
+                                    }else{
+                                        $this->load_map($create);
+                                        $create->display('edit.phtml');
+                                    }
+                                }
+                            }elseif($this->action == 'remove'){
+
+                            }
+                        }
+                    }
+                }
+            }else{
+                // Retourne la page index.phtml
+                $create->display('index.phtml');
+            }
+        }
+		/*if(self::install_table() == true){
 			if(magixcjquery_filter_request::isGet('postassign')){
 				$this->insert_new_map();
 			}elseif(isset($this->editmap)){
@@ -393,7 +489,7 @@ class plugins_gmap_admin extends database_plugins_gmap{
 					$this->json_map_relative();
 				}else{
 					$this->load_updatemap($this->editmap);
-					$create->append_display('editmap.phtml');
+					$create->display('editmap.phtml');
 				}
 			}elseif(magixcjquery_filter_request::isGet('json_map_record')){
 				$header->head_expires("Mon, 26 Jul 1997 05:00:00 GMT");
@@ -412,17 +508,17 @@ class plugins_gmap_admin extends database_plugins_gmap{
 			}else{
 				if(self::upgrade_version() == true){
 					$this->load_map_config($create);
-					$create->append_assign('markers',$this->find_marker());
-					$create->append_assign('selectlang',backend_model_blockDom::select_language());
+					$create->assign('markers',$this->find_marker());
+					$create->assign('selectlang',backend_model_blockDom::select_language());
 				}else{
 					$this->upgrade_version();
 				}
-				$create->append_display('index.phtml');
+				$create->display('index.phtml');
 			}
 		}else{
 			// Retourne la page index.phtml
-			$create->append_display('index.phtml');
-		}
+			$create->display('index.phtml');
+		}*/
 	}
 	/**
 	 * @access public
@@ -433,6 +529,22 @@ class plugins_gmap_admin extends database_plugins_gmap{
 			'plugins'=>true
 		);
 	}
+    //Set icon pour le menu
+    /*public function set_icon(){
+        $icon = array(
+            'type'=>'image',
+            'name'=>'icon.png'
+        );
+        return $icon;
+    }*/
+    public function setConfig(){
+        return array(
+            'url'=> array(
+                'lang'=>'list',
+                'action'=>'list'
+            )
+        );
+    }
 	//SITEMAP
 	private function lastmod_dateFormat(){
 		$dateformat = new magixglobal_model_dateformat();
@@ -450,24 +562,30 @@ class plugins_gmap_admin extends database_plugins_gmap{
 			'records'=>false
 		);
 	}
-	/**
-	 * URL index du module suivant la langue
-	 * @param string $lang
-	 */
-	public function sitemap_uri_index(){
-		$sitemap = new magixcjquery_xml_sitemap();
-       	$db = backend_db_block_lang::s_data_lang(true);
-       	if($db != null){
-       		foreach($db as $data){
-	        	 $sitemap->writeMakeNode(
-	        	 	magixcjquery_html_helpersHtml::getUrl().magixglobal_model_rewrite::filter_plugins_root_url($data['iso'], 'gmap',true),
-		        	$this->lastmod_dateFormat(),
-		        	'always',
-		        	0.7
-	        	 );
-	        }
-       	}
-	}
+
+    /**
+     * URL index du module suivant la langue
+     * @param $idlang
+     */
+    public function sitemap_uri_index($idlang){
+        $sitemap = new magixcjquery_xml_sitemap();
+        // Table des langues
+        $lang = new backend_db_block_lang();
+        // Retourne le code ISO
+        $db = $lang->s_data_iso($idlang);
+        if($db != null){
+            $sitemap->writeMakeNode(
+                magixcjquery_html_helpersHtml::getUrl().magixglobal_model_rewrite::filter_plugins_root_url(
+                    $db['iso'],
+                    'gmap',
+                    true)
+                ,
+                $this->lastmod_dateFormat(),
+                'always',
+                0.7
+            );
+        }
+    }
 }
 class database_plugins_gmap{
 	/**
@@ -481,44 +599,58 @@ class database_plugins_gmap{
 	}
 	/**
 	 * @access protected
-	 * Selectionne les cartes ou record
+	 * Selectionne les cartes dans la langue
 	 */
-	protected function s_map(){
-		$sql ='SELECT map.*,lang.iso,m.pseudo FROM mc_plugins_gmap AS map
-		LEFT JOIN mc_lang AS lang ON ( map.idlang = lang.idlang )
-		JOIN mc_admin_member as m ON ( map.idadmin = m.idadmin )';
-		return magixglobal_model_db::layerDB()->select($sql);
+	protected function s_map($getlang){
+		$sql ='SELECT map.*,lang.iso,m.pseudo
+        FROM mc_plugins_gmap AS map
+		JOIN mc_lang AS lang ON ( map.idlang = lang.idlang )
+		JOIN mc_admin_member as m ON ( map.idadmin = m.idadmin )
+		WHERE map.idlang = :getlang';
+        return magixglobal_model_db::layerDB()->select($sql,array(
+            ':getlang'=>$getlang
+        ));
 	}
-	/**
-	 * @access protected
-	 * Selectionne la carte pour édition
-	 * @param integer $idgmap
-	 */
-	protected function s_map_edit($idgmap){
+
+    /**
+     * @access protected
+     * Selectionne la carte pour édition
+     * @param $edit
+     * @return array
+     */
+	protected function s_map_data($edit){
 		$sql = 'SELECT map.* FROM mc_plugins_gmap AS map
-		WHERE map.idgmap = :idgmap';
-		return magixglobal_model_db::layerDB()->selectOne($sql,array(':idgmap'=>$idgmap));
+		WHERE map.idgmap = :edit';
+		return magixglobal_model_db::layerDB()->selectOne($sql,array(
+            ':edit'=>$edit
+        ));
 	}
 	/**
 	 * @access protected
 	 * Vérifie si la carte existe dans la langue
 	 * @param integer $idlang
-	 */
-	protected function s_verify_MapLang($idlang){
+     * @return array
+     */
+	protected function s_verify_lang($idlang){
 		$sql = 'SELECT map.*,lang.iso FROM mc_plugins_gmap AS map
 		LEFT JOIN mc_lang AS lang ON ( map.idlang = lang.idlang )
 		WHERE map.idlang = :idlang';
-		return magixglobal_model_db::layerDB()->selectOne($sql,array(':idlang'=>$idlang));
+		return magixglobal_model_db::layerDB()->selectOne($sql,array(
+            ':idlang'=>$idlang
+        ));
 	}
 	/**
 	 * @access protected
 	 * Retourne la configuration
 	 * @param string $config_id
-	 */
-	protected function s_uniq_map_config($config_id){
+     * @return array
+     */
+	protected function s_config_data($config_id){
 		$sql ='SELECT conf.* FROM mc_plugins_gmap_config AS conf
 		WHERE config_id = :config_id';
-		return magixglobal_model_db::layerDB()->selectOne($sql,array(':config_id'=>$config_id));
+		return magixglobal_model_db::layerDB()->selectOne($sql,array(
+            ':config_id'=>$config_id
+        ));
 	}
 	/**
 	 * @access protected
@@ -535,7 +667,9 @@ class database_plugins_gmap{
 	protected function s_relative_map($idgmap){
 		$sql ='SELECT addr.* FROM mc_plugins_gmap_adress AS addr
 		WHERE addr.idgmap = :idgmap';
-		return magixglobal_model_db::layerDB()->select($sql,array(':idgmap'=>$idgmap));
+		return magixglobal_model_db::layerDB()->select($sql,array(
+            ':idgmap'=>$idgmap
+        ));
 	}
 	/**
 	 * 
@@ -556,46 +690,48 @@ class database_plugins_gmap{
 			':content_map'	=>	$content_map
 		));
 	}
-	/**
-	 * @access protected
-	 * insertion d'une adresse relative
-	 * @param string $society_ga
-	 * @param string $adress_ga
-	 * @param string $city_ga
-	 * @param string $country_ga
-	 * @param string $lat_ga
-	 * @param string $lng_ga
-	 * @param integer $idgmap
-	 */
-	protected function i_relative_map($society_ga,$adress_ga,$city_ga,$country_ga,$lat_ga,$lng_ga,$idgmap){
-		$sql = 'INSERT INTO mc_plugins_gmap_adress (society_ga,adress_ga,city_ga,country_ga,lat_ga,lng_ga,idgmap) 
-		VALUE(:society_ga,:adress_ga,:city_ga,:country_ga,:lat_ga,:lng_ga,:idgmap)';
+
+    /**
+     * @access protected
+     * insertion d'une adresse relative
+     * @param $edit
+     * @param string $society_ga
+     * @param string $adress_ga
+     * @param string $city_ga
+     * @param string $country_ga
+     * @param string $lat_ga
+     * @param string $lng_ga
+     */
+	protected function i_relative_map($edit,$society_ga,$adress_ga,$city_ga,$country_ga,$lat_ga,$lng_ga){
+		$sql = 'INSERT INTO mc_plugins_gmap_adress (society_ga,adress_ga,city_ga,country_ga,lat_ga,lng_ga,idgmap)
+		VALUE(:society_ga,:adress_ga,:city_ga,:country_ga,:lat_ga,:lng_ga,:edit)';
 		magixglobal_model_db::layerDB()->insert($sql,array(
+            ':edit'		    =>	$edit,
 			':society_ga'	=>	$society_ga,
 			':adress_ga'	=>	$adress_ga,
 			':city_ga'		=>	$city_ga,
 			':country_ga'	=>	$country_ga,
 			':lat_ga'		=>	$lat_ga,
-			':lng_ga'		=>	$lng_ga,
-			':idgmap'		=>	$idgmap
+			':lng_ga'		=>	$lng_ga
 		));
 	}
-	/**
-	 * @access protected
-	 * Mise à jour de la carte
-	 * @param integer $idadmin
-	 * @param string $name_map
-	 * @param string $content_map
-	 * @param integer $idgmap
-	 */
-	protected function u_map_record($idadmin,$name_map,$content_map,$idgmap){
+
+    /**
+     * @access protected
+     * Mise à jour de la carte
+     * @param integer $idadmin
+     * @param string $name_map
+     * @param string $content_map
+     * @param $edit
+     */
+	protected function u_map_record($idadmin,$name_map,$content_map,$edit){
 		$sql = 'UPDATE mc_plugins_gmap SET idadmin=:idadmin,name_map=:name_map,content_map=:content_map
-		WHERE idgmap = :idgmap';
+		WHERE idgmap = :edit';
 		magixglobal_model_db::layerDB()->update($sql,array(
 			':idadmin'		=>	$idadmin,
 			':name_map'		=>	$name_map,
 			':content_map'	=>	$content_map,
-			':idgmap'		=>	$idgmap
+			':edit'		=>	$edit
 		));
 	}
 	/**
