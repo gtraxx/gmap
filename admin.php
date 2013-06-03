@@ -217,12 +217,12 @@ class plugins_gmap_admin extends database_plugins_gmap{
 	 * @access private
 	 * Insertion d'une nouvelle carte
 	 */
-	private function add_map(){
+	private function add_map($create){
 		if(isset($this->name_map)){
 			if(empty($this->name_map)){
-				backend_controller_plugins::create()->display('request/empty.phtml');
+                $create->display('request/empty.phtml');
 			}elseif(parent::s_verify_lang($this->getlang) != null){
-				backend_controller_plugins::create()->display('request/element_exist.phtml');
+                $create->display('request/element_exist.phtml');
 			}else{
 				$this->i_new_map(
 					backend_model_member::s_idadmin(), 
@@ -230,7 +230,7 @@ class plugins_gmap_admin extends database_plugins_gmap{
 					$this->name_map,
 					$this->content_map
 				);
-				backend_controller_plugins::create()->display('request/success_add.phtml');
+                $create->display('request/success_add.phtml');
 			}
 		}
 	}
@@ -434,7 +434,7 @@ class plugins_gmap_admin extends database_plugins_gmap{
                                 $create->display('list.phtml');
                             }elseif($this->action == 'add'){
                                 if(isset($this->name_map)){
-                                    $this->add_map();
+                                    $this->add_map($create);
                                 }
                             }elseif($this->action == 'edit'){
                                 if(isset($this->edit)){
@@ -461,7 +461,11 @@ class plugins_gmap_admin extends database_plugins_gmap{
                                     }
                                 }
                             }elseif($this->action == 'remove'){
-
+                                if(isset($this->deletemap)){
+                                    $this->delete_map($this->deletemap);
+                                }elseif(isset($this->delete_rel_map)){
+                                    $this->delete_relative_adress($this->delete_rel_map);
+                                }
                             }
                         }
                     }

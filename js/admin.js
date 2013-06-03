@@ -166,7 +166,7 @@ var MC_plugins_gmap = (function ($, undefined) {
             submitHandler: function(form) {
                 $.nicenotify({
                     ntype: "submit",
-                    uri: '/'+baseadmin+'/plugins.php?name=gmap&getlang='+getlang,
+                    uri: '/'+baseadmin+'/plugins.php?name=gmap&getlang='+getlang+'&action=add',
                     typesend: 'post',
                     idforms: $(form),
                     resetform: true,
@@ -190,6 +190,7 @@ var MC_plugins_gmap = (function ($, undefined) {
                 minHeight: 210,
                 buttons: {
                     'Save': function() {
+                        $(this).dialog('close');
                         $("#forms_plugins_gmap_add").submit();
                     },
                     Cancel: function() {
@@ -334,21 +335,22 @@ var MC_plugins_gmap = (function ($, undefined) {
     function remove(baseadmin,getlang){
         $(document).on('click','.d-plugin-gmap',function (event){
             event.preventDefault();
-            var lg = $(this).attr("rel");
-            $("#dialog").dialog({
+            var elem = $(this).data("delete");
+            $("#window-dialog:ui-dialog").dialog( "destroy" );
+            $('#window-dialog').dialog({
                 bgiframe: true,
                 resizable: false,
                 height:140,
                 modal: true,
-                title: 'Supprimé cet enregistrement',
+                title: Globalize.localize( "delete_item", iso ),
                 buttons: {
                     'Delete item': function() {
                         $(this).dialog('close');
                         $.nicenotify({
                             ntype: "ajax",
-                            uri: "/admin/plugins.php?name=gmap&getlang="+getlang,
+                            uri: "/admin/plugins.php?name=gmap&getlang="+getlang+'&action=remove',
                             typesend: 'post',
-                            noticedata : {deletemap:lg},
+                            noticedata : {deletemap:elem},
                             beforeParams:function(){},
                             successParams:function(e){
                                 $.nicenotify.initbox(e,{
@@ -425,7 +427,7 @@ var MC_plugins_gmap = (function ($, undefined) {
                                     $(document.createElement("a"))
                                         .addClass("d-plugin-gmap-rel")
                                         .attr("href", "#")
-                                        .attr("rel", item.id_adress)
+                                        .attr("data-delete", item.id_adress)
                                         .attr("title", "Remove")
                                         .append(
                                             $(document.createElement("span")).addClass("icon-trash")
@@ -500,11 +502,12 @@ var MC_plugins_gmap = (function ($, undefined) {
             }
         });
     }
-    function removeAdress(baseadmin,getlang,iso){
+    function removeAdress(baseadmin,getlang,iso,edit){
         $(document).on('click','.d-plugin-gmap-rel',function (event){
             event.preventDefault();
-            var lg = $(this).attr("rel");
-            $("#dialog").dialog({
+            var elem = $(this).data("delete");
+            $("#window-dialog:ui-dialog").dialog( "destroy" );
+            $('#window-dialog').dialog({
                 bgiframe: true,
                 resizable: false,
                 height:140,
@@ -515,15 +518,15 @@ var MC_plugins_gmap = (function ($, undefined) {
                         $(this).dialog('close');
                         $.nicenotify({
                             ntype: "ajax",
-                            uri: '/'+baseadmin+'/plugins.php?name=gmap&getlang='+getlang,
+                            uri: '/'+baseadmin+'/plugins.php?name=gmap&getlang='+getlang+'&action=remove',
                             typesend: 'post',
-                            noticedata : {delete_rel_map:lg},
+                            noticedata : {delete_rel_map:elem},
                             beforeParams:function(){},
                             successParams:function(e){
                                 $.nicenotify.initbox(e,{
                                     display:false
                                 });
-                                jsonListRel(baseadmin,getlang,iso,$('#idgmap').val());
+                                jsonListRel(baseadmin,getlang,iso,edit);
                             }
                         });
                     },
@@ -656,7 +659,7 @@ var MC_plugins_gmap = (function ($, undefined) {
         },
         runRelated:function(baseadmin,getlang,iso,edit){
             jsonListRel(baseadmin,getlang,iso,edit);
-            removeAdress(baseadmin,getlang,iso);
+            removeAdress(baseadmin,getlang,iso,edit);
             addAdress(baseadmin,getlang,iso,edit);
             if($("#contener-map").length !=0){
                 $('#adress_ga,#city_ga').keypress(function(){
