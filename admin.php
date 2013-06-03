@@ -408,15 +408,13 @@ class plugins_gmap_admin extends database_plugins_gmap{
         if(self::install_table($create) == true){
             if(magixcjquery_filter_request::isGet('getlang')){
                 if($this->tab == 'config'){
-                    if(isset($this->action)){
-                        if(isset($this->lat_map)){
-                            $this->update_config($create);
-                        }else{
-                            $this->load_config($create);
-                            $create->assign('markers',$this->find_marker());
-                            // Retourne la page index.phtml
-                            $create->display('list.phtml');
-                        }
+                    if(isset($this->lat_map)){
+                        $this->update_config($create);
+                    }else{
+                        $this->load_config($create);
+                        $create->assign('markers',$this->find_marker());
+                        // Retourne la page index.phtml
+                        $create->display('list.phtml');
                     }
                 }else{
                     if(magixcjquery_filter_request::isGet('json_map_record')){
