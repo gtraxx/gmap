@@ -416,6 +416,8 @@ class plugins_gmap_admin extends database_plugins_gmap{
                         // Retourne la page index.phtml
                         $create->display('list.phtml');
                     }
+                }elseif($this->tab == 'about'){
+                    $create->display('about.phtml');
                 }else{
                     if(magixcjquery_filter_request::isGet('json_map_record')){
                         $header->head_expires("Mon, 26 Jul 1997 05:00:00 GMT");

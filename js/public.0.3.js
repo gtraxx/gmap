@@ -200,7 +200,10 @@ var gmap = (function ($, undefined) {
         /**
          * Initialize les données pour le mode multi adresse
          */
-        var pos = [$('.vcard .latitude .value-title').attr('title'),$('.vcard .longitude .value-title').attr('title')];
+        var latitude = $('meta[itemprop="latitude"]').attr("content");
+        var longitude = $('meta[itemprop="longitude"]').attr("content");
+        var pos = [latitude,longitude];
+
         $('#map_adress').gmap3({
             map:{
                 options:{
@@ -248,7 +251,7 @@ var gmap = (function ($, undefined) {
                                         if (component.types[0] == "country"){
                                             country = component.long_name;
                                         }
-                                        content = $('.vcard .fn').text()+'<br />';
+                                        content = $('span[itemprop="name"]').text()+'<br />';
                                         if(typeof sublocality !== "undefined"){
                                             content += sublocality+'&nbsp;'+postcode+'<br />'+country;
                                         }else{
