@@ -136,12 +136,12 @@ class plugins_gmap_public extends database_plugins_gmap{
 				$this->json_related_adress($loaddata);
 			}else{
 				$this->data_map($create,$loaddata);
-                $map_data = $create->append_fetch('map.tpl');
+                $map_data = $create->fetch('map.tpl');
                 $create->assign('map_data',$map_data);
 				$create->display('index.tpl');
 			}
 		}else{
-            $map_data = $create->append_fetch('map.tpl');
+            $map_data = $create->fetch('map.tpl');
             $create->assign('map_data',$map_data);
 			$create->display('index.tpl');
 		}
