@@ -16,7 +16,7 @@
 
 ## Note
  * Pour avoir une mise en page en rapport avec votre charte graphique, 
-vous pouvez éditer le fichier index.phtml dans le dossier /plugin/gmap/skin/public/
+vous pouvez éditer le fichier index.tpl dans le dossier /plugin/gmap/skin/public/
  * Le fichier CSS est dans le dossier /plugin/gmap/css/public.css
 
 Depuis la version 2.3.5, le dossier public du plugin peut être utilisé directement dans le skin.

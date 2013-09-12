@@ -2,7 +2,7 @@
 #
 # This file is a plugin of Magix CMS.
 # Magix CMS, a CMS optimized for SEO
-# Copyright (C) 2011 -2013
+# Copyright (C) 2011 - 2013
 # Author and contributor:
 # Aurelien Gerits <aurelien[at]magix-cms[point]com>,<contact[at]magix-dev[point]be>
 # jean-baptiste demonte (http://gmap3.net/)
@@ -36,7 +36,7 @@ Upgrade
 
 Note
 - Pour avoir une mise en page en rapport avec votre charte graphique, 
-vous pouvez éditer le fichier index.phtml dans le dossier /plugin/gmap/skin/public/
+vous pouvez éditer le fichier index.tpl dans le dossier /plugin/gmap/skin/public/
 - Le fichier CSS est dans le dossier /plugin/gmap/css/public.css
 
 Depuis la version 2.3.5, le dossier public du plugin peut être utilisé directement dans le skin.

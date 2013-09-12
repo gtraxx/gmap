@@ -150,7 +150,7 @@ class plugins_gmap_admin extends database_plugins_gmap{
      */
     private function install_table($create){
         if(parent::c_show_table() == 0){
-            $create->db_install_table('db.sql', 'request/install.phtml');
+            $create->db_install_table('db.sql', 'request/install.tpl');
         }else{
             $magixfire = new magixcjquery_debug_magixfire();
             //$magixfire->magixFireInfo('Les tables mysql sont installés', 'Statut des tables mysql du plugin');
@@ -184,11 +184,11 @@ class plugins_gmap_admin extends database_plugins_gmap{
 	private function upgrade_version(){
 		$config = parent::s_uniq_map_config('gmap_version');
 		if($config['config_value'] == null){
-			backend_controller_plugins::create()->db_install_table('update_1.1.sql', 'request/update.phtml');
+			backend_controller_plugins::create()->db_install_table('update_1.1.sql', 'request/update.tpl');
 		}elseif($config['config_value'] == '1.0'){
-			backend_controller_plugins::create()->db_install_table('update_1.1.sql', 'request/update.phtml');
+			backend_controller_plugins::create()->db_install_table('update_1.1.sql', 'request/update.tpl');
 		}elseif($config['config_value'] < $this->read_local_version()){
-			backend_controller_plugins::create()->db_install_table('update_'.$this->read_local_version().'.sql', 'request/update.phtml');
+			backend_controller_plugins::create()->db_install_table('update_'.$this->read_local_version().'.sql', 'request/update.tpl');
 		}else{
 			//magixcjquery_debug_magixfire::magixFireInfo('Les tables mysql sont installés', 'Statut des tables mysql du plugin');
 			return true;
@@ -220,9 +220,9 @@ class plugins_gmap_admin extends database_plugins_gmap{
 	private function add_map($create){
 		if(isset($this->name_map)){
 			if(empty($this->name_map)){
-                $create->display('request/empty.phtml');
+                $create->display('request/empty.tpl');
 			}elseif(parent::s_verify_lang($this->getlang) != null){
-                $create->display('request/element_exist.phtml');
+                $create->display('request/element_exist.tpl');
 			}else{
 				$this->i_new_map(
 					backend_model_member::s_idadmin(), 
@@ -230,7 +230,7 @@ class plugins_gmap_admin extends database_plugins_gmap{
 					$this->name_map,
 					$this->content_map
 				);
-                $create->display('request/success_add.phtml');
+                $create->display('request/success_add.tpl');
 			}
 		}
 	}
@@ -263,7 +263,7 @@ class plugins_gmap_admin extends database_plugins_gmap{
 				$this->content_map, 
 				$this->edit
 			);
-            $create->display('request/success_update.phtml');
+            $create->display('request/success_update.tpl');
 		}
 	}
 	/**
@@ -274,7 +274,7 @@ class plugins_gmap_admin extends database_plugins_gmap{
 		$makefile = new magixcjquery_files_makefiles();
 		$marker = $makefile->scanDir(magixglobal_model_system::base_path().'/plugins/gmap/markers/');
 		$mconfig= parent::s_config_data('marker');
-		$icon = '<ul class="inline">';
+		$icon = '<ul class="list-inline">';
 		foreach($marker as $m){
 			if($m == $mconfig['config_value']){
 				$icon .= '<li>';
@@ -317,7 +317,7 @@ class plugins_gmap_admin extends database_plugins_gmap{
 	private function update_config($create){
 		if(isset($this->lat_map) AND isset($this->lng_map)){
 			if(empty($this->lat_map) AND empty($this->lng_map)){
-                $create->display('request/empty.phtml');
+                $create->display('request/empty.tpl');
 			}else{
                 if(!empty($this->marker)){
                     $marker = $this->marker;
@@ -335,7 +335,7 @@ class plugins_gmap_admin extends database_plugins_gmap{
 					$this->lat_map,
 					$this->lng_map
 				);
-				$create->display('request/success_update.phtml');
+				$create->display('request/success_update.tpl');
 			}
 		}
 	}
@@ -349,15 +349,15 @@ class plugins_gmap_admin extends database_plugins_gmap{
 			$this->d_map($deletemap);
 		}
 	}
-	/**
-	 * @access private
-	 * Insertio d'une adresse relative à une carte
-	 * @param integer $editmap
-	 */
-	private function insert_relative_map($create){
+
+    /**
+     * Insertion d'une adresse relative à une carte
+     * @param $create
+     */
+    private function insert_relative_map($create){
 		if(isset($this->adress_ga)){
 			if(empty($this->lat_ga) AND empty($this->lng_ga)){
-                $create->display('request/empty.phtml');
+                $create->display('request/empty.tpl');
 			}else{
 				parent::i_relative_map(
                     $this->edit,
@@ -368,7 +368,7 @@ class plugins_gmap_admin extends database_plugins_gmap{
 					$this->lat_ga, 
 					$this->lng_ga
 				);
-                $create->display('request/success_add.phtml');
+                $create->display('request/success_add.tpl');
 			}
 		}
 	}
@@ -413,11 +413,11 @@ class plugins_gmap_admin extends database_plugins_gmap{
                     }else{
                         $this->load_config($create);
                         $create->assign('markers',$this->find_marker());
-                        // Retourne la page index.phtml
-                        $create->display('list.phtml');
+                        // Retourne la page index.tpl
+                        $create->display('list.tpl');
                     }
                 }elseif($this->tab == 'about'){
-                    $create->display('about.phtml');
+                    $create->display('about.tpl');
                 }else{
                     if(magixcjquery_filter_request::isGet('json_map_record')){
                         $header->head_expires("Mon, 26 Jul 1997 05:00:00 GMT");
@@ -430,8 +430,8 @@ class plugins_gmap_admin extends database_plugins_gmap{
                     }else{
                         if(isset($this->action)){
                             if($this->action == 'list'){
-                                // Retourne la page index.phtml
-                                $create->display('list.phtml');
+                                // Retourne la page index.tpl
+                                $create->display('list.tpl');
                             }elseif($this->action == 'add'){
                                 if(isset($this->name_map)){
                                     $this->add_map($create);
@@ -453,11 +453,11 @@ class plugins_gmap_admin extends database_plugins_gmap{
                                             $this->insert_relative_map($create);
                                         }else{
                                             $this->load_map($create);
-                                            $create->display('edit.phtml');
+                                            $create->display('edit.tpl');
                                         }
                                     }else{
                                         $this->load_map($create);
-                                        $create->display('edit.phtml');
+                                        $create->display('edit.tpl');
                                     }
                                 }
                             }elseif($this->action == 'remove'){
@@ -470,59 +470,8 @@ class plugins_gmap_admin extends database_plugins_gmap{
                         }
                     }
                 }
-            }else{
-                // Retourne la page index.phtml
-                $create->display('index.phtml');
             }
         }
-		/*if(self::install_table() == true){
-			if(magixcjquery_filter_request::isGet('postassign')){
-				$this->insert_new_map();
-			}elseif(isset($this->editmap)){
-				if(isset($this->name_map)){
-					$this->post_edit_map($this->editmap);
-				}elseif(isset($this->lat_ga) AND isset($this->lng_ga)){
-					$this->insert_relative_map($this->editmap);
-				}elseif(magixcjquery_filter_request::isGet('json_rel_map')){
-					$header->head_expires("Mon, 26 Jul 1997 05:00:00 GMT");
-					$header->head_last_modified(gmdate( "D, d M Y H:i:s" ) . "GMT");
-					$header->pragma();
-					$header->cache_control("nocache");
-					$header->getStatus('200');
-					$header->json_header("UTF-8");
-					$this->json_map_relative();
-				}else{
-					$this->load_updatemap($this->editmap);
-					$create->display('editmap.phtml');
-				}
-			}elseif(magixcjquery_filter_request::isGet('json_map_record')){
-				$header->head_expires("Mon, 26 Jul 1997 05:00:00 GMT");
-				$header->head_last_modified(gmdate( "D, d M Y H:i:s" ) . "GMT");
-				$header->pragma();
-				$header->cache_control("nocache");
-				$header->getStatus('200');
-				$header->json_header("UTF-8");
-				$this->json_map_record();
-			}elseif(magixcjquery_filter_request::isGet('updateconfig')){
-				$this->update_gmap_config($create);
-			}elseif(isset($this->deletemap)){
-				$this->delete_map($this->deletemap);
-			}elseif(isset($this->delete_rel_map)){
-				$this->delete_relative_adress($this->delete_rel_map);
-			}else{
-				if(self::upgrade_version() == true){
-					$this->load_map_config($create);
-					$create->assign('markers',$this->find_marker());
-					$create->assign('selectlang',backend_model_blockDom::select_language());
-				}else{
-					$this->upgrade_version();
-				}
-				$create->display('index.phtml');
-			}
-		}else{
-			// Retourne la page index.phtml
-			$create->display('index.phtml');
-		}*/
 	}
 	/**
 	 * @access public
