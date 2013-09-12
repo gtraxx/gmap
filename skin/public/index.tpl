@@ -4,9 +4,9 @@
 <script src="http://maps.google.com/maps/api/js?sensor=false&amp;language={getlang}" type="text/javascript"></script>
 {include file="section/css.tpl"}
 {headlink rel="stylesheet" href="/min/?f=plugins/gmap/css/public.css" concat=$concat media="screen"}
-<link rel="stylesheet" href="http://addyosmani.github.io/jquery-ui-bootstrap/css/custom-theme/jquery-ui-1.10.2.custom.css">
+<link rel="stylesheet" href="http://addyosmani.github.io/jquery-ui-bootstrap/css/custom-theme/jquery-ui-1.10.3.custom.css">
 <!--[if lt IE 9]>
-<link rel="stylesheet" href="http://addyosmani.github.io/jquery-ui-bootstrap/css/custom-theme/jquery.ui.1.10.2.ie.css">
+<link rel="stylesheet" href="http://addyosmani.github.io/jquery-ui-bootstrap/css/custom-theme/jquery.ui.1.10.3.ie.css">
 <![endif]-->
 </head>
 <body id="gmap">
