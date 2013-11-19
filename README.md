@@ -1,4 +1,6 @@
-## Créer et distribuer par [Magix Dev](http://www.magix-dev.be/)
+## Gmap pour Magix CMS
+
+#### Créer et distribuer par [Magix Dev](http://www.magix-dev.be/)
 
 ## Installation
  * Décompresser l'archive dans le dossier "plugins" de magix cms
