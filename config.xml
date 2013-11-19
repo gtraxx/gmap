@@ -28,6 +28,16 @@
 						</link>
 					</author>
 				</authors>
+                <version>
+                    <date_create>21/01/2012</date_create>
+                    <date_update>19/11/2013</date_update>
+                    <number>2.1</number>
+                    <phase>Stable</phase>
+                    <support>
+                        <ticket href="https://github.com/gtraxx/gmap/issues"></ticket>
+                        <git href="https://github.com/gtraxx/gmap"></git>
+                    </support>
+                </version>
 			</infos>
 		</admin>
 	</acl>

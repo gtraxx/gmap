@@ -211,7 +211,9 @@ class plugins_gmap_admin extends database_plugins_gmap{
                 ',"content_map":'.$content.'}';
 			}
 			print '['.implode(',',$json).']';
-		}
+		}else{
+            print '{}';
+        }
 	}
 	/**
 	 * @access private
@@ -274,7 +276,7 @@ class plugins_gmap_admin extends database_plugins_gmap{
 		$makefile = new magixcjquery_files_makefiles();
 		$marker = $makefile->scanDir(magixglobal_model_system::base_path().'/plugins/gmap/markers/');
 		$mconfig= parent::s_config_data('marker');
-		$icon = '<ul class="list-inline">';
+		$icon = '<ul class="list-unstyled list-inline">';
 		foreach($marker as $m){
 			if($m == $mconfig['config_value']){
 				$icon .= '<li>';
@@ -383,7 +385,9 @@ class plugins_gmap_admin extends database_plugins_gmap{
 				',"country_ga":'.json_encode($key['country_ga']).',"city_ga":'.json_encode($key['city_ga']).',"adress_ga":'.json_encode($key['adress_ga']).'}';
 			}
 			print '['.implode(',',$map).']';
-		}
+		}else{
+            print '{}';
+        }
 	}
 
     /**

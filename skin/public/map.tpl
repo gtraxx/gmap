@@ -1,37 +1,44 @@
 {if $plugin_status != 0}
 {if $config_map.name_map != null}
     <h1>{$config_map.name_map}</h1>
-    <div class="row">
-    <div class="span5">
-        <div class="alert alert-info" itemscope itemtype="http://data-vocabulary.org/Organization">
-            <span class="icon icon-map-marker"></span>
-            <span itemprop="name">{$config_map.society_map}</span> :
-            <div itemprop="address" itemscope itemtype="http://schema.org/PostalAddress">
-                <span itemprop="streetAddress">{$config_map.adress_map}</span>
-                <span itemprop="addressLocality">{$config_map.city_map}, {$config_map.country_map}</span>
-            </div>
-            <div itemprop="geo" itemscope itemtype="http://schema.org/GeoCoordinates">
-                <meta itemprop="latitude" content="{$config_map.lat_map}" />
-                <meta itemprop="longitude" content="{$config_map.lng_map}" />
-            </div>
+    <div class="container">
+    <div class="col-lg-6 alert alert-info" itemscope itemtype="http://data-vocabulary.org/Organization">
+        <span class="icon icon-map-marker"></span>
+        <span itemprop="name">{$config_map.society_map}</span> :
+        <div itemprop="address" itemscope itemtype="http://schema.org/PostalAddress">
+            <span itemprop="streetAddress">{$config_map.adress_map}</span>
+            <span itemprop="addressLocality">{$config_map.city_map}, {$config_map.country_map}</span>
         </div>
-        {if $config_map.multi_marker eq '0'}
-            {if $config_map.route_map eq '1'}
-            <form class="form-search">
-                <div class="input-append">
-                    <input type="text" class="span4 search-query" id="getadress" name="getadress" placeholder="{#gmap_adress#}" value="" />
-                    <button class="btn subdirection">Search</button>
+        <div itemprop="geo" itemscope itemtype="http://schema.org/GeoCoordinates">
+            <meta itemprop="latitude" content="{$config_map.lat_map}" />
+            <meta itemprop="longitude" content="{$config_map.lng_map}" />
+        </div>
+    </div>
+
+    {if $config_map.multi_marker eq '0'}
+        {if $config_map.route_map eq '1'}
+        <div class="col-lg-6">
+        <form class="form-search">
+            <div class="input-group">
+                <input type="text" class="form-control" id="getadress" name="getadress" placeholder="{#gmap_adress#}" value="" />
+                <div class="input-group-btn">
+                <button class="btn btn-default subdirection" type="button">
+                    <span class="glyphicon glyphicon-search"></span>
+                </button>
                 </div>
-            </form>
-            {/if}
+            </div>
+        </form>
+        </div>
         {/if}
+    {/if}
+    </div>
+    <div class="container">
         {if $config_map.content_map != null}
-            {$config_map.content_map}
+            <div class="gmap-content">{$config_map.content_map}</div>
         {/if}
     </div>
-    <div class="span5">
-        <div id="map_adress" class="gmap3 span5"></div>
-    </div>
+    <div class="container">
+        <div id="map_adress" class="gmap3 col-lg-12"></div>
         {if $config_map.multi_marker eq '0'}
             {if $config_map.route_map eq '1'}
                 <div id="r-directions"></div>
