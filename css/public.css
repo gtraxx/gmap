@@ -50,3 +50,6 @@
 #map_adress img{
     max-width: inherit;
 }
+.gmap-content{
+    clear: both;
+}

@@ -1,7 +1,6 @@
 {if $plugin_status != 0}
 {if $config_map.name_map != null}
     <h1>{$config_map.name_map}</h1>
-    <div class="container">
     <div class="col-lg-6 alert alert-info" itemscope itemtype="http://data-vocabulary.org/Organization">
         <span class="icon icon-map-marker"></span>
         <span itemprop="name">{$config_map.society_map}</span> :
@@ -31,20 +30,15 @@
         </div>
         {/if}
     {/if}
-    </div>
-    <div class="container">
-        {if $config_map.content_map != null}
-            <div class="gmap-content">{$config_map.content_map}</div>
+    {if $config_map.content_map != null}
+        <div class="gmap-content">{$config_map.content_map}</div>
+    {/if}
+    <div id="map_adress" class="gmap3 col-lg-12"></div>
+    {if $config_map.multi_marker eq '0'}
+        {if $config_map.route_map eq '1'}
+            <div id="r-directions"></div>
         {/if}
-    </div>
-    <div class="container">
-        <div id="map_adress" class="gmap3 col-lg-12"></div>
-        {if $config_map.multi_marker eq '0'}
-            {if $config_map.route_map eq '1'}
-                <div id="r-directions"></div>
-            {/if}
-        {/if}
-    </div>
+    {/if}
     {else}
     <div class="mc-message clearfix">
         <p class="alert alert-warning fade in">
