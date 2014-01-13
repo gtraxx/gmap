@@ -2,7 +2,7 @@
 {if $config_map.name_map != null}
     <h1>{$config_map.name_map}</h1>
     <div class="col-lg-6 alert alert-info" itemscope itemtype="http://data-vocabulary.org/Organization">
-        <span class="icon icon-map-marker"></span>
+        <span class="icon fa fa-map-marker"></span>
         <span itemprop="name">{$config_map.society_map}</span> :
         <div itemprop="address" itemscope itemtype="http://schema.org/PostalAddress">
             <span itemprop="streetAddress">{$config_map.adress_map}</span>
@@ -22,7 +22,7 @@
                 <input type="text" class="form-control" id="getadress" name="getadress" placeholder="{#gmap_adress#}" value="" />
                 <div class="input-group-btn">
                 <button class="btn btn-default subdirection" type="button">
-                    <span class="glyphicon glyphicon-search"></span>
+                    <span class="glyphicon glyphfa fa-search"></span>
                 </button>
                 </div>
             </div>
@@ -43,7 +43,7 @@
     <div class="mc-message clearfix">
         <p class="alert alert-warning fade in">
             <button type="button" class="close" data-dismiss="alert">&times;</button>
-            <span class="icon-warning-sign"></span> {#gmap_plugin_error#} : {#gmap_plugin_configured#}
+            <span class="fa fa-warning-sign"></span> {#gmap_plugin_error#} : {#gmap_plugin_configured#}
         </p>
     </div>
 {/if}
@@ -51,7 +51,7 @@
     <div class="mc-message clearfix">
         <p class="alert alert-warning fade in">
             <button type="button" class="close" data-dismiss="alert">&times;</button>
-            <span class="icon-warning-sign"></span> {#gmap_plugin_error#} : {#gmap_plugin_installed#}
+            <span class="fa fa-warning-sign"></span> {#gmap_plugin_error#} : {#gmap_plugin_installed#}
         </p>
     </div>
 {/if}

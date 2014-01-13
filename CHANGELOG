@@ -1,3 +1,7 @@
+Version 2.2
+* Mise a jour des icônes "Font Awesome 4.0.3"
+* Suppression de la classe container
+
 Version 2.1
 * Fix #2 création du skin pour magix cms 2.4.0
 * Fix bug requête json null admin (error json parser)

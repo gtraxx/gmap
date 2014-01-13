@@ -54,16 +54,16 @@ var MC_plugins_gmap = (function ($, undefined) {
                             ),
                             $(document.createElement("th")).append(
                                 $(document.createElement("span"))
-                                    .addClass("icon-flag")
+                                    .addClass("fa fa-flag")
                             ),
                             $(document.createElement("th")).append(
                                 $(document.createElement("span"))
-                                    .addClass("icon-edit")
+                                    .addClass("fa fa-edit")
                             ),
                             $(document.createElement("th"))
                                 .append(
                                 $(document.createElement("span"))
-                                    .addClass("icon-trash")
+                                    .addClass("fa fa-trash-o")
                             )
                         )
                     ),
@@ -76,14 +76,14 @@ var MC_plugins_gmap = (function ($, undefined) {
                 if(j !== null){
                     $.each(j, function(i,item) {
                         if(item.content_map != 0){
-                            var contentMap = $(document.createElement("span")).addClass("icon-check");
+                            var contentMap = $(document.createElement("span")).addClass("fa fa-check");
                         }else{
-                            var contentMap = $(document.createElement("span")).addClass("icon-warning-sign");
+                            var contentMap = $(document.createElement("span")).addClass("fa fa-warning-sign");
                         }
                         if(item.lang != null){
                             var flaglang = item.lang;
                         }else{
-                            var flaglang = $(document.createElement("span")).addClass("icon-warning-sign");
+                            var flaglang = $(document.createElement("span")).addClass("fa fa-warning-sign");
                         }
                         tbody.append(
                             $(document.createElement("tr"))
@@ -106,7 +106,7 @@ var MC_plugins_gmap = (function ($, undefined) {
                                         .attr("title", "Edit")
                                         .append(
                                             $(document.createElement("span"))
-                                                .addClass("icon-edit")
+                                                .addClass("fa fa-edit")
                                     )
                                 ),
                                 $(document.createElement("td")).append(
@@ -116,7 +116,7 @@ var MC_plugins_gmap = (function ($, undefined) {
                                         .attr("data-delete", item.idgmap)
                                         .attr("title", Globalize.localize( "remove", iso )+": "+item.name_map)
                                         .append(
-                                        $(document.createElement("span")).addClass("icon-trash")
+                                        $(document.createElement("span")).addClass("fa fa-trash-o")
                                     )
                                 )
                             )
@@ -127,25 +127,25 @@ var MC_plugins_gmap = (function ($, undefined) {
                         $(document.createElement("tr"))
                             .append(
                             $(document.createElement("td")).append(
-                                $(document.createElement("span")).addClass("icon-minus")
+                                $(document.createElement("span")).addClass("fa fa-minus")
                             ),
                             $(document.createElement("td")).append(
-                                $(document.createElement("span")).addClass("icon-minus")
+                                $(document.createElement("span")).addClass("fa fa-minus")
                             ),
                             $(document.createElement("td")).append(
-                                $(document.createElement("span")).addClass("icon-minus")
+                                $(document.createElement("span")).addClass("fa fa-minus")
                             ),
                             $(document.createElement("td")).append(
-                                $(document.createElement("span")).addClass("icon-minus")
+                                $(document.createElement("span")).addClass("fa fa-minus")
                             ),
                             $(document.createElement("td")).append(
-                                $(document.createElement("span")).addClass("icon-minus")
+                                $(document.createElement("span")).addClass("fa fa-minus")
                             ),
                             $(document.createElement("td")).append(
-                                $(document.createElement("span")).addClass("icon-minus")
+                                $(document.createElement("span")).addClass("fa fa-minus")
                             ),
                             $(document.createElement("td")).append(
-                                $(document.createElement("span")).addClass("icon-minus")
+                                $(document.createElement("span")).addClass("fa fa-minus")
                             )
                         )
                     )
@@ -403,7 +403,7 @@ var MC_plugins_gmap = (function ($, undefined) {
                             $(document.createElement("th")).append("Adresse"),
                             $(document.createElement("th"))
                                 .append(
-                                    $(document.createElement("span")).addClass("icon-trash")
+                                    $(document.createElement("span")).addClass("fa fa-trash-o")
                             )
                         )
                     ),
@@ -430,7 +430,7 @@ var MC_plugins_gmap = (function ($, undefined) {
                                         .attr("data-delete", item.id_adress)
                                         .attr("title", "Remove")
                                         .append(
-                                            $(document.createElement("span")).addClass("icon-trash")
+                                            $(document.createElement("span")).addClass("fa fa-trash-o")
                                     )
                                 )
                             )
@@ -441,22 +441,22 @@ var MC_plugins_gmap = (function ($, undefined) {
                         $(document.createElement("tr"))
                             .append(
                             $(document.createElement("td")).append(
-                                $(document.createElement("span")).addClass("icon-minus")
+                                $(document.createElement("span")).addClass("fa fa-minus")
                             ),
                             $(document.createElement("td")).append(
-                                $(document.createElement("span")).addClass("icon-minus")
+                                $(document.createElement("span")).addClass("fa fa-minus")
                             ),
                             $(document.createElement("td")).append(
-                                $(document.createElement("span")).addClass("icon-minus")
+                                $(document.createElement("span")).addClass("fa fa-minus")
                             ),
                             $(document.createElement("td")).append(
-                                $(document.createElement("span")).addClass("icon-minus")
+                                $(document.createElement("span")).addClass("fa fa-minus")
                             ),
                             $(document.createElement("td")).append(
-                                $(document.createElement("span")).addClass("icon-minus")
+                                $(document.createElement("span")).addClass("fa fa-minus")
                             ),
                             $(document.createElement("td")).append(
-                                $(document.createElement("span")).addClass("icon-minus")
+                                $(document.createElement("span")).addClass("fa fa-minus")
                             )
                         )
                     )

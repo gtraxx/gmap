@@ -1,6 +1,6 @@
 <p>
     <a href="#block-show" class="btn view-block">
-        <span class="icon-plus"></span> {#add_a_adress#|ucfirst}
+        <span class="fa fa-plus"></span> {#add_a_adress#|ucfirst}
     </a>
 </p>
 <div class="collapse-block" id="block-show">

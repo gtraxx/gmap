@@ -11,7 +11,7 @@
     {if !$smarty.get.tab}
         <p class="btn-row">
             <a class="btn btn-primary" href="#" id="open-add">
-                <span class="icon-plus"></span> {#add_a_page#|ucfirst}
+                <span class="fa fa-plus"></span> {#add_a_page#|ucfirst}
             </a>
         </p>
         <div id="load_plugin_gmap"></div>

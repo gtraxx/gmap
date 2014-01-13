@@ -182,7 +182,7 @@ class plugins_gmap_admin extends database_plugins_gmap{
 	 * Effectue le controle pour la migration vers une version supérieur
 	 */
 	private function upgrade_version(){
-		$config = parent::s_uniq_map_config('gmap_version');
+		$config= parent::s_config_data('gmap_version');
 		if($config['config_value'] == null){
 			backend_controller_plugins::create()->db_install_table('update_1.1.sql', 'request/update.tpl');
 		}elseif($config['config_value'] == '1.0'){
@@ -411,68 +411,73 @@ class plugins_gmap_admin extends database_plugins_gmap{
 		//Installation des tables mysql
         if(self::install_table($create) == true){
             if(magixcjquery_filter_request::isGet('getlang')){
-                if($this->tab == 'config'){
-                    if(isset($this->lat_map)){
-                        $this->update_config($create);
+                if(self::upgrade_version() === true){
+                    if($this->tab == 'config'){
+                        if(isset($this->lat_map)){
+                            $this->update_config($create);
+                        }else{
+                            $this->load_config($create);
+                            $create->assign('markers',$this->find_marker());
+                            // Retourne la page index.tpl
+                            $create->display('list.tpl');
+                        }
+                    }elseif($this->tab == 'about'){
+                        $create->display('about.tpl');
                     }else{
-                        $this->load_config($create);
-                        $create->assign('markers',$this->find_marker());
-                        // Retourne la page index.tpl
-                        $create->display('list.tpl');
-                    }
-                }elseif($this->tab == 'about'){
-                    $create->display('about.tpl');
-                }else{
-                    if(magixcjquery_filter_request::isGet('json_map_record')){
-                        $header->head_expires("Mon, 26 Jul 1997 05:00:00 GMT");
-                        $header->head_last_modified(gmdate( "D, d M Y H:i:s" ) . "GMT");
-                        $header->pragma();
-                        $header->cache_control("nocache");
-                        $header->getStatus('200');
-                        $header->json_header("UTF-8");
-                        $this->json_map_record();
-                    }else{
-                        if(isset($this->action)){
-                            if($this->action == 'list'){
-                                // Retourne la page index.tpl
-                                $create->display('list.tpl');
-                            }elseif($this->action == 'add'){
-                                if(isset($this->name_map)){
-                                    $this->add_map($create);
-                                }
-                            }elseif($this->action == 'edit'){
-                                if(isset($this->edit)){
+                        if(magixcjquery_filter_request::isGet('json_map_record')){
+                            $header->head_expires("Mon, 26 Jul 1997 05:00:00 GMT");
+                            $header->head_last_modified(gmdate( "D, d M Y H:i:s" ) . "GMT");
+                            $header->pragma();
+                            $header->cache_control("nocache");
+                            $header->getStatus('200');
+                            $header->json_header("UTF-8");
+                            $this->json_map_record();
+                        }else{
+                            if(isset($this->action)){
+                                if($this->action == 'list'){
+                                    // Retourne la page index.tpl
+                                    $create->display('list.tpl');
+                                }elseif($this->action == 'add'){
                                     if(isset($this->name_map)){
-                                        $this->update_map($create);
-                                    }elseif($this->tab == 'multimarkers'){
-                                        if(magixcjquery_filter_request::isGet('json_map_relative')){
-                                            $header->head_expires("Mon, 26 Jul 1997 05:00:00 GMT");
-                                            $header->head_last_modified(gmdate( "D, d M Y H:i:s" ) . "GMT");
-                                            $header->pragma();
-                                            $header->cache_control("nocache");
-                                            $header->getStatus('200');
-                                            $header->json_header("UTF-8");
-                                            $this->json_map_relative();
-                                        }elseif(isset($this->adress_ga)){
-                                            $this->insert_relative_map($create);
+                                        $this->add_map($create);
+                                    }
+                                }elseif($this->action == 'edit'){
+                                    if(isset($this->edit)){
+                                        if(isset($this->name_map)){
+                                            $this->update_map($create);
+                                        }elseif($this->tab == 'multimarkers'){
+                                            if(magixcjquery_filter_request::isGet('json_map_relative')){
+                                                $header->head_expires("Mon, 26 Jul 1997 05:00:00 GMT");
+                                                $header->head_last_modified(gmdate( "D, d M Y H:i:s" ) . "GMT");
+                                                $header->pragma();
+                                                $header->cache_control("nocache");
+                                                $header->getStatus('200');
+                                                $header->json_header("UTF-8");
+                                                $this->json_map_relative();
+                                            }elseif(isset($this->adress_ga)){
+                                                $this->insert_relative_map($create);
+                                            }else{
+                                                $this->load_map($create);
+                                                $create->display('edit.tpl');
+                                            }
                                         }else{
                                             $this->load_map($create);
                                             $create->display('edit.tpl');
                                         }
-                                    }else{
-                                        $this->load_map($create);
-                                        $create->display('edit.tpl');
                                     }
-                                }
-                            }elseif($this->action == 'remove'){
-                                if(isset($this->deletemap)){
-                                    $this->delete_map($this->deletemap);
-                                }elseif(isset($this->delete_rel_map)){
-                                    $this->delete_relative_adress($this->delete_rel_map);
+                                }elseif($this->action == 'remove'){
+                                    if(isset($this->deletemap)){
+                                        $this->delete_map($this->deletemap);
+                                    }elseif(isset($this->delete_rel_map)){
+                                        $this->delete_relative_adress($this->delete_rel_map);
+                                    }
                                 }
                             }
                         }
                     }
+                }else{
+                    // Retourne la page index.tpl
+                    $create->display('list.tpl');
                 }
             }
         }
