@@ -27,7 +27,7 @@ Copier le dossier public de gmap à la racine de votre skin.
 renommé le dossier public en gmap, ensuite vous pouvez éditer les fichiers phtml comme bon vous semble.
 
 ### SMARTY/JAVASCRIPT
-<pre>
+```javascript
 {script src="/min/?f=plugins/gmap/js/gmap3.min.js,plugins/gmap/js/public.0.3.js" type="javascript"}
 {if $plugin_status != 0}
 <script type="text/javascript">
@@ -44,7 +44,7 @@ $(function(){
 });
 </script>
 {/if}
-</pre>
+````
 
 ### MISE A JOUR
 La mise à jour du plugin est à effectuer en replaçant le dossier du plugin par la nouvelle version
