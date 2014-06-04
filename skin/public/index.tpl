@@ -1,10 +1,9 @@
 {extends file="layout.tpl"}
 {block name="styleSheet" append}
     <script src="http://maps.google.com/maps/api/js?sensor=false&amp;language={getlang}" type="text/javascript"></script>
-    {headlink rel="stylesheet" href="/min/?f=plugins/gmap/css/public.css" concat=$concat media="screen"}
-    <link rel="stylesheet" href="http://addyosmani.github.io/jquery-ui-bootstrap/css/custom-theme/jquery-ui-1.10.3.custom.css">
+    {headlink rel="stylesheet" href="/min/?f=plugins/gmap/css/public.css,plugins/gmap/css/ui-bootstrap/jquery-ui-1.10.3.custom.css" concat=$concat media="screen"}
     <!--[if lt IE 9]>
-    <link rel="stylesheet" href="http://addyosmani.github.io/jquery-ui-bootstrap/css/custom-theme/jquery.ui.1.10.3.ie.css">
+    {headlink rel="stylesheet" href="/min/?f=plugins/gmap/css/ui-bootstrap/jquery.ui.1.10.3.ie.css" concat=$concat media="screen"}
     <![endif]-->
 {/block}
 {block name="title"}{seo_rewrite config_param=['level'=>'0','idmetas'=>'1','default'=>{$name_map|ucfirst}]}{/block}

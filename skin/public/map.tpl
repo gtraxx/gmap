@@ -2,7 +2,7 @@
 {if $config_map.name_map != null}
     <h1>{$config_map.name_map}</h1>
     <div class="col-lg-6 alert alert-info" itemscope itemtype="http://data-vocabulary.org/Organization">
-        <span class="icon fa fa-map-marker"></span>
+        <span class="glyphicon glyphicon-map-marker"></span>
         <span itemprop="name">{$config_map.society_map}</span> :
         <div itemprop="address" itemscope itemtype="http://schema.org/PostalAddress">
             <span itemprop="streetAddress">{$config_map.adress_map}</span>
@@ -22,7 +22,7 @@
                 <input type="text" class="form-control" id="getadress" name="getadress" placeholder="{#gmap_adress#}" value="" />
                 <div class="input-group-btn">
                 <button class="btn btn-default subdirection" type="button">
-                    <span class="glyphicon glyphfa fa-search"></span>
+                    <span class="glyphicon glyphicon-search"></span>
                 </button>
                 </div>
             </div>

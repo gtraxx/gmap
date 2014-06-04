@@ -59,6 +59,7 @@ class plugins_gmap_admin extends database_plugins_gmap{
 	 * 
 	 */
 	public
+    $idadmin,
 	$society_ga,
 	$adress_ga,
 	$city_ga,
@@ -81,6 +82,9 @@ class plugins_gmap_admin extends database_plugins_gmap{
         }
         if(magixcjquery_filter_request::isGet('tab')){
             $this->tab = magixcjquery_form_helpersforms::inputClean($_GET['tab']);
+        }
+        if(magixcjquery_filter_request::isSession('keyuniqid_admin')){
+            $this->idadmin = magixcjquery_filter_isVar::isPostNumeric($_SESSION['id_admin']);
         }
         //Formulaire
 		if(magixcjquery_filter_request::isPost('name_map')){
@@ -207,7 +211,7 @@ class plugins_gmap_admin extends database_plugins_gmap{
 					$content = 0;
 				}
 				$json[]= '{"idgmap":'.json_encode($key['idgmap']).',"lang":'.json_encode($key['iso']).
-				',"pseudo":'.json_encode($key['pseudo']).',"name_map":'.json_encode($key['name_map']).
+				',"pseudo":'.json_encode($key['pseudo_admin']).',"name_map":'.json_encode($key['name_map']).
                 ',"content_map":'.$content.'}';
 			}
 			print '['.implode(',',$json).']';
@@ -227,7 +231,7 @@ class plugins_gmap_admin extends database_plugins_gmap{
                 $create->display('request/element_exist.tpl');
 			}else{
 				$this->i_new_map(
-					backend_model_member::s_idadmin(), 
+					$this->idadmin,
 					$this->getlang,
 					$this->name_map,
 					$this->content_map
@@ -260,7 +264,7 @@ class plugins_gmap_admin extends database_plugins_gmap{
 	private function update_map($create){
 		if(isset($this->name_map)){
 			parent::u_map_record(
-				backend_model_member::s_idadmin(), 
+                $this->idadmin,
 				$this->name_map, 
 				$this->content_map, 
 				$this->edit
@@ -564,10 +568,10 @@ class database_plugins_gmap{
 	 * Selectionne les cartes dans la langue
 	 */
 	protected function s_map($getlang){
-		$sql ='SELECT map.*,lang.iso,m.pseudo
+		$sql ='SELECT map.*,lang.iso,m.pseudo_admin
         FROM mc_plugins_gmap AS map
 		JOIN mc_lang AS lang ON ( map.idlang = lang.idlang )
-		JOIN mc_admin_member as m ON ( map.idadmin = m.idadmin )
+		JOIN mc_admin_employee AS m ON ( map.idadmin = m.id_admin )
 		WHERE map.idlang = :getlang';
         return magixglobal_model_db::layerDB()->select($sql,array(
             ':getlang'=>$getlang
