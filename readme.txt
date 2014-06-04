@@ -42,7 +42,7 @@ vous pouvez éditer le fichier index.tpl dans le dossier /plugin/gmap/skin/publi
 Depuis la version 2.3.5, le dossier public du plugin peut être utilisé directement dans le skin.
 Faites comme suit :
 Copier le dossier public de gmap à la racine de votre skin.
-renommé le dossier public en gmap, ensuite vous pouvez éditer les fichiers phtml comme bon vous semble.
+renommé le dossier public en gmap, ensuite vous pouvez éditer les fichiers tpl comme bon vous semble.
 
 ### SMARTY/JAVASCRIPT ###
 {script src="/min/?f=plugins/gmap/js/gmap3.min.js,plugins/gmap/js/public.0.3.js" type="javascript"}
