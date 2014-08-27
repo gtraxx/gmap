@@ -276,7 +276,7 @@ class plugins_gmap_admin extends database_plugins_gmap{
 	 * @access private
 	 * Parcour le dossier marker dans le plugin pour retourner les images
 	 */
-	private function find_marker(){
+	private function findMarker(){
 		$makefile = new magixcjquery_files_makefiles();
 		$marker = $makefile->scanDir(magixglobal_model_system::base_path().'/plugins/gmap/markers/');
 		$mconfig= parent::s_config_data('marker');
@@ -421,7 +421,7 @@ class plugins_gmap_admin extends database_plugins_gmap{
                             $this->update_config($create);
                         }else{
                             $this->load_config($create);
-                            $create->assign('markers',$this->find_marker());
+                            $create->assign('markers',$this->findMarker());
                             // Retourne la page index.tpl
                             $create->display('list.tpl');
                         }
