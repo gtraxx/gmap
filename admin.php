@@ -32,6 +32,7 @@
  *
  */
 class plugins_gmap_admin extends database_plugins_gmap{
+    protected $message,$template;
 	public 
 	/**
 	 * Ajouter ou modifier une carte
@@ -70,6 +71,10 @@ class plugins_gmap_admin extends database_plugins_gmap{
 	 * Construct class
 	 */
 	public function __construct(){
+        if(class_exists('backend_model_message')){
+            $this->message = new backend_model_message();
+        }
+        $this->template = new backend_controller_plugins();
         //Global
         if(magixcjquery_filter_request::isGet('action')){
             $this->action = magixcjquery_form_helpersforms::inputClean($_GET['action']);
@@ -223,12 +228,12 @@ class plugins_gmap_admin extends database_plugins_gmap{
 	 * @access private
 	 * Insertion d'une nouvelle carte
 	 */
-	private function add_map($create){
+	private function add_map(){
 		if(isset($this->name_map)){
 			if(empty($this->name_map)){
-                $create->display('request/empty.tpl');
+                $this->message->getNotify('empty');
 			}elseif(parent::s_verify_lang($this->getlang) != null){
-                $create->display('request/element_exist.tpl');
+                $this->message->getNotify('lang_exist');
 			}else{
 				$this->i_new_map(
 					$this->idadmin,
@@ -236,7 +241,7 @@ class plugins_gmap_admin extends database_plugins_gmap{
 					$this->name_map,
 					$this->content_map
 				);
-                $create->display('request/success_add.tpl');
+                $this->message->getNotify('add');
 			}
 		}
 	}
@@ -246,9 +251,9 @@ class plugins_gmap_admin extends database_plugins_gmap{
      * Charge les données d'une carte pour l'édition
      * @param $create
      */
-	private function load_map($create){
+	private function load_map(){
 		$data = parent::s_map_data($this->edit);
-        $create->assign('map',
+        $this->template->assign('map',
             array(
                 'name_map'      =>  $data['name_map'],
                 'content_map'   =>  $data['content_map']
@@ -261,7 +266,7 @@ class plugins_gmap_admin extends database_plugins_gmap{
      * POST une modification de carte
      * @param $create
      */
-	private function update_map($create){
+	private function update_map(){
 		if(isset($this->name_map)){
 			parent::u_map_record(
                 $this->idadmin,
@@ -269,7 +274,7 @@ class plugins_gmap_admin extends database_plugins_gmap{
 				$this->content_map, 
 				$this->edit
 			);
-            $create->display('request/success_update.tpl');
+            $this->message->getNotify('update');
 		}
 	}
 	/**
@@ -302,9 +307,9 @@ class plugins_gmap_admin extends database_plugins_gmap{
 	 * @access private
 	 * Charge les données de configuration pour l'édition
 	 */
-	private function load_config($create){
+	private function load_config(){
 		$config = parent::s_map_config();
-        $create->assign('config',array(
+        $this->template->assign('config',array(
             'society_map'   =>  $config[0]['config_value'],
             'adress_map'    =>  $config[1]['config_value'],
             'country_map'   =>  $config[2]['config_value'],
@@ -320,10 +325,10 @@ class plugins_gmap_admin extends database_plugins_gmap{
 	 * @access private
 	 * Modification des données de configuration du plugin
 	 */
-	private function update_config($create){
+	private function update_config(){
 		if(isset($this->lat_map) AND isset($this->lng_map)){
 			if(empty($this->lat_map) AND empty($this->lng_map)){
-                $create->display('request/empty.tpl');
+                $this->message->getNotify('empty');
 			}else{
                 if(!empty($this->marker)){
                     $marker = $this->marker;
@@ -341,7 +346,7 @@ class plugins_gmap_admin extends database_plugins_gmap{
 					$this->lat_map,
 					$this->lng_map
 				);
-				$create->display('request/success_update.tpl');
+                $this->message->getNotify('update');
 			}
 		}
 	}
@@ -360,10 +365,10 @@ class plugins_gmap_admin extends database_plugins_gmap{
      * Insertion d'une adresse relative à une carte
      * @param $create
      */
-    private function insert_relative_map($create){
+    private function insert_relative_map(){
 		if(isset($this->adress_ga)){
 			if(empty($this->lat_ga) AND empty($this->lng_ga)){
-                $create->display('request/empty.tpl');
+                $this->message->getNotify('empty');
 			}else{
 				parent::i_relative_map(
                     $this->edit,
@@ -374,7 +379,7 @@ class plugins_gmap_admin extends database_plugins_gmap{
 					$this->lat_ga, 
 					$this->lng_ga
 				);
-                $create->display('request/success_add.tpl');
+                $this->message->getNotify('add');
 			}
 		}
 	}
@@ -411,22 +416,21 @@ class plugins_gmap_admin extends database_plugins_gmap{
 	 */
 	public function run(){
         $header= new magixglobal_model_header();
-        $create = new backend_controller_plugins();
 		//Installation des tables mysql
-        if(self::install_table($create) == true){
+        if(self::install_table($this->template) == true){
             if(magixcjquery_filter_request::isGet('getlang')){
                 if(self::upgrade_version() === true){
                     if($this->tab == 'config'){
                         if(isset($this->lat_map)){
-                            $this->update_config($create);
+                            $this->update_config();
                         }else{
-                            $this->load_config($create);
-                            $create->assign('markers',$this->findMarker());
+                            $this->load_config();
+                            $this->template->assign('markers',$this->findMarker());
                             // Retourne la page index.tpl
-                            $create->display('list.tpl');
+                            $this->template->display('list.tpl');
                         }
                     }elseif($this->tab == 'about'){
-                        $create->display('about.tpl');
+                        $this->template->display('about.tpl');
                     }else{
                         if(magixcjquery_filter_request::isGet('json_map_record')){
                             $header->head_expires("Mon, 26 Jul 1997 05:00:00 GMT");
@@ -440,15 +444,15 @@ class plugins_gmap_admin extends database_plugins_gmap{
                             if(isset($this->action)){
                                 if($this->action == 'list'){
                                     // Retourne la page index.tpl
-                                    $create->display('list.tpl');
+                                    $this->template->display('list.tpl');
                                 }elseif($this->action == 'add'){
                                     if(isset($this->name_map)){
-                                        $this->add_map($create);
+                                        $this->add_map();
                                     }
                                 }elseif($this->action == 'edit'){
                                     if(isset($this->edit)){
                                         if(isset($this->name_map)){
-                                            $this->update_map($create);
+                                            $this->update_map();
                                         }elseif($this->tab == 'multimarkers'){
                                             if(magixcjquery_filter_request::isGet('json_map_relative')){
                                                 $header->head_expires("Mon, 26 Jul 1997 05:00:00 GMT");
@@ -459,14 +463,14 @@ class plugins_gmap_admin extends database_plugins_gmap{
                                                 $header->json_header("UTF-8");
                                                 $this->json_map_relative();
                                             }elseif(isset($this->adress_ga)){
-                                                $this->insert_relative_map($create);
+                                                $this->insert_relative_map();
                                             }else{
-                                                $this->load_map($create);
-                                                $create->display('edit.tpl');
+                                                $this->load_map();
+                                                $this->template->display('edit.tpl');
                                             }
                                         }else{
-                                            $this->load_map($create);
-                                            $create->display('edit.tpl');
+                                            $this->load_map();
+                                            $this->template->display('edit.tpl');
                                         }
                                     }
                                 }elseif($this->action == 'remove'){
@@ -481,7 +485,7 @@ class plugins_gmap_admin extends database_plugins_gmap{
                     }
                 }else{
                     // Retourne la page index.tpl
-                    $create->display('list.tpl');
+                    $this->template->display('list.tpl');
                 }
             }
         }
