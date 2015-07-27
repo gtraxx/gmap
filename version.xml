@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!-- /*
- * MAGIX DEV Copyright (c) 2011 - 2013 Gerits Aurelien,
+ * MAGIX DEV Copyright (c) 2011 - 2015 Gerits Aurelien,
  * http://www.magix-dev
  * Dual licensed under the MIT AND GPL Version 3 licenses.
  *
- * Date: May 27 00:40 2013
+ * Date: July 27 00:40 2015
  */-->
 <version>
-	<number>2.4</number>
+	<number>2.5</number>
 	<phase>Stable</phase>
 	<link>http://www.magix-dev.be/fr/catalogue/2-creation-logiciels/4-plugins-magix-cms/gmap-9</link>
 </version>
