@@ -1,7 +1,7 @@
 {extends file="layout.tpl"}
 {block name="styleSheet" append}
     <script src="http://maps.google.com/maps/api/js?sensor=false&amp;language={getlang}" type="text/javascript"></script>
-    {headlink rel="stylesheet" href="/min/?f=skin/{template}/css/perfect-scrollbar.min.css,plugins/gmap/css/public.css,plugins/gmap/css/ui-bootstrap/jquery-ui-1.10.3.custom.css" concat=$concat media="screen"}
+    {headlink rel="stylesheet" href="/min/?f=plugins/gmap/css/perfect-scrollbar.min.css,plugins/gmap/css/public.css,plugins/gmap/css/ui-bootstrap/jquery-ui-1.10.3.custom.css" concat=$concat media="screen"}
     <!--[if lt IE 9]>
     {headlink rel="stylesheet" href="/min/?f=plugins/gmap/css/ui-bootstrap/jquery.ui.1.10.3.ie.css" concat=$concat media="screen"}
     <![endif]-->
@@ -21,7 +21,7 @@
     {$map_data}
 {/block}
 {block name="foot" append}
-    {script src="/min/?f=skin/{template}/js/vendor/perfect-scrollbar.min.js,plugins/gmap/js/gmap3.min.js,plugins/gmap/js/public.0.3.js" concat=$concat type="javascript"}
+    {script src="/min/?f=plugins/gmap/js/perfect-scrollbar.min.js,plugins/gmap/js/gmap3.min.js,plugins/gmap/js/public.0.3.js" concat=$concat type="javascript"}
     {if $plugin_status != 0}
         <script type="text/javascript">
             $(function(){
