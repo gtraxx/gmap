@@ -1,6 +1,6 @@
 {if $plugin_status != 0}
     {if $config_map.name_map != null}
-        {*<div class="container">*}
+        <div class="container">
             <h1>{$config_map.name_map}</h1>
             <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6 alert alert-info" itemscope itemtype="http://data-vocabulary.org/Organization">
                 <span class="glyphicon glyphicon-map-marker"></span>
@@ -45,7 +45,7 @@
             {if $config_map.content_map != null}
                 <div class="gmap-content">{$config_map.content_map}</div>
             {/if}
-        {*</div>*}
+        </div>
 
     {else}
         <div class="container">
