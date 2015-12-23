@@ -23,7 +23,7 @@
                                 <input type="text" class="form-control" id="getadress" name="getadress" placeholder="{#gmap_adress#}" value="" />
                                 <div class="input-group-btn">
                                     <button class="btn btn-default subdirection" type="button">
-                                        <span class="glyphicon glyphicon-search"></span>
+                                        <span class="fa fa-search"></span>
                                     </button>
                                 </div>
                             </div>
