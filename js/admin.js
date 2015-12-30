@@ -238,7 +238,8 @@ var MC_plugins_gmap = (function ($, undefined) {
         });
     }
     function loadConfig(){
-        $('#contener-map').addClass("map-col");
+        $('#btn-map').removeClass("hide-map");
+        //$('#btn-map').addClass("show-map");
         var infocontent = $('#adress_map').val()+'<br />'+$('#city_map').val()+' '+$('#country_map').val();
         var adr = $('#adress_map').val()+','+$('#city_map').val()+' '+$('#country_map').val();
         $('#contener-map').gmap3({
@@ -330,7 +331,6 @@ var MC_plugins_gmap = (function ($, undefined) {
                 }
             }
         });
-
     }
     function remove(baseadmin,getlang){
         $(document).on('click','.d-plugin-gmap',function (event){
@@ -538,7 +538,8 @@ var MC_plugins_gmap = (function ($, undefined) {
         });
     }
     function loadRelated(){
-        $('#contener-map').addClass("map-col");
+        $('#btn-map').removeClass("hide-map");
+        //$('#contener-map').addClass("map-col");
         var infocontent = $('#adress_ga').val()+'<br />'+$('#city_ga').val()+' '+$('#country_ga').val();
         var adr = $('#adress_ga').val()+','+$('#city_ga').val()+' '+$('#country_ga').val();
         $('#contener-map').gmap3({
@@ -546,7 +547,7 @@ var MC_plugins_gmap = (function ($, undefined) {
             map:{
                 address: adr,
                 options:{
-                    zoom:14,
+                    zoom:12,
                     mapTypeId: google.maps.MapTypeId.ROADMAP,
                     mapTypeControl: true,
                     mapTypeControlOptions: {

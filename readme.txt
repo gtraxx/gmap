@@ -2,7 +2,7 @@
 #
 # This file is a plugin of Magix CMS.
 # Magix CMS, a CMS optimized for SEO
-# Copyright (C) 2011 - 2013
+# Copyright (C) 2011 - 2016
 # Author and contributor:
 # Aurelien Gerits <aurelien[at]magix-cms[point]com>,<contact[at]magix-dev[point]be>
 # jean-baptiste demonte (http://gmap3.net/)
@@ -37,7 +37,7 @@ Upgrade
 Note
 - Pour avoir une mise en page en rapport avec votre charte graphique, 
 vous pouvez éditer le fichier index.tpl dans le dossier /plugin/gmap/skin/public/
-- Le fichier CSS est dans le dossier /plugin/gmap/css/public.css
+- Le fichier Less est dans le dossier /plugin/gmap/less/gmap.less à copier dans le dossier /skin/default/css/bootstrap/less/custom/theme/
 
 Depuis la version 2.3.5, le dossier public du plugin peut être utilisé directement dans le skin.
 Faites comme suit :
@@ -45,21 +45,32 @@ Copier le dossier public de gmap à la racine de votre skin.
 renommé le dossier public en gmap, ensuite vous pouvez éditer les fichiers tpl comme bon vous semble.
 
 ### SMARTY/JAVASCRIPT ###
-{script src="/min/?f=plugins/gmap/js/gmap3.min.js,plugins/gmap/js/public.0.3.js" type="javascript"}
+{script src="/min/?f=plugins/gmap/js/perfect-scrollbar.min.js,plugins/gmap/js/gmap3.min.js,plugins/gmap/js/public.0.3.js" concat=$concat type="javascript"}
 {if $plugin_status != 0}
-<script type="text/javascript">
-$(function(){
-    if (typeof gmap == "undefined"){
-        console.log("gmap is not defined");
-    }else{
-        {if $multi_marker eq '1'}
-            gmap.runMultiMarker(iso);
-        {else}
-            gmap.run(iso);
-        {/if}
-    }
-});
-</script>
+    <script type="text/javascript">
+        $(function(){
+            var iso = '{getlang}';
+            if (typeof gmap == "undefined"){
+                console.log("gmap is not defined");
+            }else{
+                {if $config_map.multi_marker eq '1'}
+                gmap.runMultiMarker(iso);
+                {else}
+                gmap.run(iso);
+                $('.subdirection').on('click',function(){
+                    var checkRoute = setInterval(function () {
+                        var fill = $("#r-directions .adp").html();
+                        if (fill !== undefined) {
+                            // Custom Scrollbar
+                            $('#r-directions .adp').perfectScrollbar();
+                            clearInterval(checkRoute);
+                        }
+                    }, 50);
+                });
+                {/if}
+            }
+        });
+    </script>
 {/if}
 
 ### MISE A JOUR ###

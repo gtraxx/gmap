@@ -1,3 +1,8 @@
+Version 2.6
+* Ajout du fichier less
+* Suppression du fichier public.css
+* Modification de la table mysql de configuration (Ajout identifiant numérique)
+
 Version 2.5
 * Adaptation pour magix cms 2.6.x
 * Ajout d'un fichier less (pour votre skin)

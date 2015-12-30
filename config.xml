@@ -31,7 +31,7 @@
                 <version>
                     <date_create>21/01/2012</date_create>
                     <date_update>27/07/2015</date_update>
-                    <number>2.5</number>
+                    <number>2.6</number>
                     <phase>Stable</phase>
                     <support>
                         <ticket href="https://github.com/gtraxx/gmap/issues"></ticket>

@@ -120,10 +120,10 @@ class plugins_gmap_admin extends database_plugins_gmap{
 			$this->marker = (string) magixcjquery_form_helpersforms::inputClean($_POST['marker']);
 		}
 		if(magixcjquery_filter_request::isPost('route_map')){
-			$this->route_map = (integer) magixcjquery_filter_isVar::isPostNumeric($_POST['route_map']);
+			$this->route_map = '1';
 		}
 		if(magixcjquery_filter_request::isPost('multi_marker')){
-			$this->multi_marker = (integer) magixcjquery_filter_isVar::isPostNumeric($_POST['multi_marker']);
+			$this->multi_marker = '1';
 		}
 
 		if(magixcjquery_filter_request::isPost('deletemap')){

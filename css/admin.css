@@ -1,8 +1,14 @@
 .map-col{
     font-size:13px;
     color:black;
-    height:250px;
+    height:600px;
 }
 #contener-map img{
     max-width: inherit;
+}
+.form-group label {
+    margin-top: 0;
+}
+#btn-map.hide-map{
+    visibility: hidden;
 }

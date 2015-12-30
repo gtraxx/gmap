@@ -9,9 +9,11 @@ CREATE TABLE IF NOT EXISTS `mc_plugins_gmap` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `mc_plugins_gmap_config` (
+  `idgmapconfig` smallint(4) unsigned NOT NULL AUTO_INCREMENT,
   `config_id` varchar(100) NOT NULL,
-  `config_value` tinytext
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `config_value` tinytext,
+  PRIMARY KEY (`idgmapconfig`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `mc_plugins_gmap_adress` (
   `id_adress` smallint(4) NOT NULL AUTO_INCREMENT,
@@ -25,13 +27,14 @@ CREATE TABLE IF NOT EXISTS `mc_plugins_gmap_adress` (
   PRIMARY KEY (`id_adress`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
-INSERT INTO `mc_plugins_gmap_config` VALUES('society_map', NULL);
-INSERT INTO `mc_plugins_gmap_config` VALUES('adress_map', NULL);
-INSERT INTO `mc_plugins_gmap_config` VALUES('country_map', NULL);
-INSERT INTO `mc_plugins_gmap_config` VALUES('city_map', NULL);
-INSERT INTO `mc_plugins_gmap_config` VALUES('marker', 'red-dot.png');
-INSERT INTO `mc_plugins_gmap_config` VALUES('route_map', '0');
-INSERT INTO `mc_plugins_gmap_config` VALUES('lat_map', NULL);
-INSERT INTO `mc_plugins_gmap_config` VALUES('lng_map', NULL);
-INSERT INTO `mc_plugins_gmap_config` VALUES('gmap_version', '2.5');
-INSERT INTO `mc_plugins_gmap_config` VALUES('multi_marker', '0');
+INSERT INTO `mc_plugins_gmap_config` (`idgmapconfig`, `config_id`, `config_value`) VALUES
+(NULL, 'society_map', NULL),
+(NULL, 'adress_map', NULL),
+(NULL, 'country_map', NULL),
+(NULL, 'city_map', NULL),
+(NULL, 'marker', 'red-dot.png'),
+(NULL, 'route_map', '0'),
+(NULL, 'lat_map', NULL),
+(NULL, 'lng_map', NULL),
+(NULL, 'gmap_version', '2.6'),
+(NULL, 'multi_marker', '0');
