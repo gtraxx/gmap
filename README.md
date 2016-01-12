@@ -15,6 +15,11 @@
  * Connectez-vous dans l'administration de votre site internet 
  * Cliquer sur l'onglet plugins du menu déroulant pour sélectionner gmap.
  * Une fois dans le plugin, laisser faire l'auto update
+ 
+#### Configuration
+![Configuration du plugin gmap dans Magix CMS](https://cloud.githubusercontent.com/assets/356674/12264692/c1be8efe-b938-11e5-9b60-30dcb2a17132.png "Configuration du plugin gmap dans Magix CMS")
+#### Gestion de la page
+![Page du plugin gmap dans Magix CMS](https://cloud.githubusercontent.com/assets/356674/12264693/c1c4292c-b938-11e5-8cbb-02795b026ff0.png "Page du plugin gmap dans Magix CMS")
 
 ## Note
  * Pour avoir une mise en page en rapport avec votre charte graphique, 
