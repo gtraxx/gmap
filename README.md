@@ -28,22 +28,35 @@ renommé le dossier public en gmap, ensuite vous pouvez éditer les fichiers tpl
 
 ### SMARTY/JAVASCRIPT
 ```javascript
-{script src="/min/?f=plugins/gmap/js/gmap3.min.js,plugins/gmap/js/public.0.3.js" type="javascript"}
-{if $plugin_status != 0}
-<script type="text/javascript">
-$(function(){
-    if (typeof gmap == "undefined"){
-        console.log("gmap is not defined");
-    }else{
-        {if $multi_marker eq '1'}
-            gmap.runMultiMarker(iso);
-        {else}
-            gmap.run(iso);
-        {/if}
-    }
-});
-</script>
-{/if}
+{block name="foot" append}
+    {script src="/min/?f=plugins/gmap/js/perfect-scrollbar.min.js,plugins/gmap/js/gmap3.min.js,plugins/gmap/js/public.0.3.js" concat=$concat type="javascript"}
+    {if $plugin_status != 0}
+        <script type="text/javascript">
+            $(function(){
+                var iso = '{getlang}';
+                if (typeof gmap == "undefined"){
+                    console.log("gmap is not defined");
+                }else{
+                    {if $config_map.multi_marker eq '1'}
+                    gmap.runMultiMarker(iso);
+                    {else}
+                    gmap.run(iso);
+                    $('.subdirection').on('click',function(){
+                        var checkRoute = setInterval(function () {
+                            var fill = $("#r-directions .adp").html();
+                            if (fill !== undefined) {
+                                // Custom Scrollbar
+                                $('#r-directions .adp').perfectScrollbar();
+                                clearInterval(checkRoute);
+                            }
+                        }, 50);
+                    });
+                    {/if}
+                }
+            });
+        </script>
+    {/if}
+{/block}
 ````
 
 ### MISE A JOUR
@@ -55,7 +68,7 @@ et de se connecter à l'administration de celui-ci pour faire la mise à jour de
 This file is a plugin of Magix CMS.
 Magix CMS, a CMS optimized for SEO
 
-Copyright (C) 2008 - 2013 magix-cms.com support[at]magix-cms[point]com | contact[at]magix-dev[point]be
+Copyright (C) 2008 - 2016 magix-cms.com support[at]magix-cms[point]com | contact[at]magix-dev[point]be
 
 AUTHORS :
 
