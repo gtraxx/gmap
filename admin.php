@@ -335,14 +335,24 @@ class plugins_gmap_admin extends database_plugins_gmap{
                 }else{
                     $marker = null;
                 }
+				if(!isset($this->route_map)){
+					$route_map = '0';
+				}else{
+					$route_map = $this->route_map;
+				}
+				if(!isset($this->multi_marker)){
+					$multi_marker = '0';
+				}else{
+					$multi_marker = $this->multi_marker;
+				}
 				parent::u_config_map(
 					$this->society_map, 
 					$this->adress_map, 
 					$this->city_map, 
 					$this->country_map,
                     $marker,
-					$this->route_map,
-					$this->multi_marker,
+					$route_map,
+					$multi_marker,
 					$this->lat_map,
 					$this->lng_map
 				);
