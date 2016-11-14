@@ -1,6 +1,12 @@
 <form id="forms_plugins_gmap_config" method="post" action="" class="form-horizontal">
     <fieldset>
         <div class="form-group">
+            <label for="api_key" class="col-sm-2 control-label">API KEY :</label>
+            <div class="col-sm-7">
+                <input type="text" class="form-control" id="society_map" name="api_key" value="{$config.api_key}" size="50" />
+            </div>
+        </div>
+        <div class="form-group">
             <label for="society_map" class="col-sm-2 control-label">Société :</label>
             <div class="col-sm-7">
                 <input type="text" class="form-control" id="society_map" name="society_map" value="{$config.society_map}" size="50" />

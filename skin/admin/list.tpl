@@ -26,7 +26,7 @@
     </div>
 {/block}
 {block name='javascript' prepend}
-    <script src="http://maps.googleapis.com/maps/api/js?sensor=false&language=fr" type="text/javascript"></script>
+    <script src="http://maps.google.com/maps/api/js?language=fr{if $config.api_key != '' OR $config.api_key != NULL}&amp;key={$config.api_key}{/if}" type="text/javascript"></script>
 {/block}
 {block name='javascript'}
     {include file="js.tpl"}

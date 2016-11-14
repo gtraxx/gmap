@@ -86,7 +86,8 @@ class plugins_gmap_public extends database_plugins_gmap{
             'route_map'     =>  $config[5]['config_value'],
             'lat_map'       =>  $config[6]['config_value'],
             'lng_map'       =>  $config[7]['config_value'],
-            'multi_marker'  =>  $config[9]['config_value']
+            'multi_marker'  =>  $config[9]['config_value'],
+            'api_key'       =>  $config[10]['config_value']
         ));
 	}
 	/**

@@ -1,6 +1,6 @@
 {include file="section/editor.tpl"}
 {script src="/{baseadmin}/min/?g=tinymce" concat={$concat} type="javascript"}
-{script src="/{baseadmin}/min/?f={baseadmin}/template/js/tinymce-config.js,libjs/jimagine/plugins/jquery.jmMap.js,plugins/{$pluginName}/js/bootstrap2-toggle.min.js,plugins/{$pluginName}/js/gmap3.min.js,plugins/{$pluginName}/js/admin.js" concat={$concat} type="javascript"}
+{script src="/{baseadmin}/min/?f={baseadmin}/template/js/tinymce-config.js,libjs/jimagine/plugins/jquery.jmMap.js,plugins/{$pluginName}/js/gmap3.min.js,plugins/{$pluginName}/js/admin.js" concat={$concat} type="javascript"}
 <script type="text/javascript">
     $(function(){
         if (typeof MC_plugins_gmap == "undefined")

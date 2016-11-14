@@ -38,6 +38,7 @@ class plugins_gmap_admin extends database_plugins_gmap{
 	 * Ajouter ou modifier une carte
 	 */
 	$getlang,$action,$edit,$tab,
+    $api_key,
 	$name_map,
 	$content_map,
 	/**
@@ -92,6 +93,9 @@ class plugins_gmap_admin extends database_plugins_gmap{
             $this->idadmin = magixcjquery_filter_isVar::isPostNumeric($_SESSION['id_admin']);
         }
         //Formulaire
+        if(magixcjquery_filter_request::isPost('api_key')){
+            $this->api_key = magixcjquery_form_helpersforms::inputClean($_POST['api_key']);
+        }
 		if(magixcjquery_filter_request::isPost('name_map')){
 			$this->name_map = (string) magixcjquery_form_helpersforms::inputClean($_POST['name_map']);
 		}
@@ -318,7 +322,8 @@ class plugins_gmap_admin extends database_plugins_gmap{
             'lat_map'       =>  $config[6]['config_value'],
             'lng_map'       =>  $config[7]['config_value'],
             'gmap_version'  =>  $config[8]['config_value'],
-            'multi_marker'  =>  $config[9]['config_value']
+            'multi_marker'  =>  $config[9]['config_value'],
+            'ap_key'  =>  $config[10]['config_value']
         ));
 	}
 	/**
@@ -353,6 +358,7 @@ class plugins_gmap_admin extends database_plugins_gmap{
                     $marker,
 					$route_map,
 					$multi_marker,
+                    $this->api_key,
 					$this->lat_map,
 					$this->lng_map
 				);
@@ -714,19 +720,22 @@ class database_plugins_gmap{
 			':edit'		=>	$edit
 		));
 	}
-	/**
-	 * @access protected
-	 * Mise à jour de la configuration
-	 * @param string $society_map
-	 * @param string $adress_map
-	 * @param string $city_map
-	 * @param string $country_map
-	 * @param string $marker
-	 * @param string $route_map
-	 * @param string $lat_map
-	 * @param string $lng_map
-	 */
-	protected function u_config_map($society_map,$adress_map,$city_map,$country_map,$marker,$route_map,$multi_marker,$lat_map,$lng_map){
+
+    /**
+     * @access protected
+     * Mise à jour de la configuration
+     * @param string $society_map
+     * @param string $adress_map
+     * @param string $city_map
+     * @param string $country_map
+     * @param string $marker
+     * @param string $route_map
+     * @param $api_key
+     * @param $multi_marker
+     * @param string $lat_map
+     * @param string $lng_map
+     */
+	protected function u_config_map($society_map,$adress_map,$city_map,$country_map,$marker,$route_map,$multi_marker,$api_key,$lat_map,$lng_map){
 		$sql=array(
 			'UPDATE mc_plugins_gmap_config 
 			SET config_value="'.$society_map.'" WHERE config_id = "society_map"',
@@ -742,6 +751,8 @@ class database_plugins_gmap{
 			SET config_value="'.$marker.'" WHERE config_id = "marker"',
 			'UPDATE mc_plugins_gmap_config 
 			SET config_value="'.$route_map.'" WHERE config_id = "route_map"',
+            'UPDATE mc_plugins_gmap_config 
+			SET config_value="'.$api_key.'" WHERE config_id = "api_key"',
 			'UPDATE mc_plugins_gmap_config 
 			SET config_value="'.$lat_map.'" WHERE config_id = "lat_map"',
 			'UPDATE mc_plugins_gmap_config 
