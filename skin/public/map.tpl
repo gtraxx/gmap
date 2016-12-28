@@ -2,6 +2,11 @@
     {if $config_map.name_map != null}
         <div class="container">
             <h1>{$config_map.name_map}</h1>
+            {if $config_map.content_map != null}
+                <div class="gmap-content col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    {$config_map.content_map}
+                </div>
+            {/if}
             <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6 alert alert-info" itemscope itemtype="http://data-vocabulary.org/Organization">
                 <span class="glyphicon glyphicon-map-marker"></span>
                 <span itemprop="name">{$config_map.society_map}</span> :
@@ -17,7 +22,7 @@
 
             {if $config_map.multi_marker eq '0'}
                 {if $config_map.route_map eq '1'}
-                    <div class="col-xs-12 col-sm-6 col-md-6col-lg-6">
+                    <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
                         <form class="form-search">
                             <div class="input-group">
                                 <input type="text" class="form-control" id="getadress" name="getadress" placeholder="{#gmap_adress#}" value="" />
@@ -41,10 +46,6 @@
                     {/if}
                 </div>
             </div>
-            <div class="clearfix"></div>
-            {if $config_map.content_map != null}
-                <div class="gmap-content">{$config_map.content_map}</div>
-            {/if}
         </div>
 
     {else}
