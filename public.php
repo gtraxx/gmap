@@ -38,33 +38,14 @@ class plugins_gmap_public extends database_plugins_gmap{
 	 * paramètre pour la requête JSON
 	 * @var uniqp
 	 */
-	public $jsondata,$json_multi_data;
+	public $json_multi_data;
 	/**
 	 * @access public
 	 * Constructor
 	 */
 	function __construct(){
-		if(magixcjquery_filter_request::isGet('jsondata')){
-			$this->jsondata = (string) magixcjquery_form_helpersforms::inputClean($_GET['jsondata']);
-		}
 		if(magixcjquery_filter_request::isGet('json_multi_data')){
 			$this->json_multi_data = (string) magixcjquery_form_helpersforms::inputClean($_GET['json_multi_data']);
-		}
-	}
-
-	/**
-	 * @access private
-	 * Retourne la configuration de gmap avec une requête JSON
-	 */
-	private function json_map_record(){
-		$config = parent::s_map_config();
-        $json = new magixglobal_model_json();
-		if($config != null){
-			$map[]= '{"society":'.json_encode($config[0]['config_value']).',"adress":'.json_encode($config[1]['config_value']).
-			',"country":'.json_encode($config[2]['config_value']).',"city":'.json_encode($config[3]['config_value']).
-			',"marker":'.json_encode($config[4]['config_value']).',"route":'.json_encode($config[5]['config_value']).
-			',"lat":'.json_encode($config[6]['config_value']).',"lng":'.json_encode($config[7]['config_value']).'}';
-            $json->encode($map,array('[',']'));
 		}
 	}
 
@@ -76,24 +57,25 @@ class plugins_gmap_public extends database_plugins_gmap{
      */
 	private function data_map($create,$loaddata){
 		$config = parent::s_map_config();
-        $create->assign('config_map',array(
+        $configId = '';
+        $configValue = '';
+        foreach($config as $key){
+            $configId[] = $key['config_id'];
+            $configValue[] = $key['config_value'];
+        }
+        $setConfig = array_combine($configId,$configValue);
+        $setData = array(
             'name_map'      =>  $loaddata['name_map'],
-            'content_map'   =>  $loaddata['content_map'],
-            'society_map'   =>  $config[0]['config_value'],
-            'adress_map'    =>  $config[1]['config_value'],
-            'country_map'   =>  $config[2]['config_value'],
-            'city_map'      =>  $config[3]['config_value'],
-            'route_map'     =>  $config[5]['config_value'],
-            'lat_map'       =>  $config[6]['config_value'],
-            'lng_map'       =>  $config[7]['config_value'],
-            'multi_marker'  =>  $config[9]['config_value'],
-            'api_key'       =>  $config[10]['config_value']
-        ));
+            'content_map'   =>  $loaddata['content_map']
+        );
+        $dataMap = array_merge($setConfig, $setData);
+        $create->assign('config_map',$dataMap);
 	}
-	/**
-	 * @access private
-	 * Retourne la configuration de gmap avec une requête JSON
-	 */
+
+    /**
+     * @param $loaddata
+     * Retourne la configuration de gmap avec une requête JSON
+     */
 	private function json_related_adress($loaddata){
         $json = new magixglobal_model_json();
 		if(parent::s_relative_map($loaddata['idgmap']) != null){
@@ -119,15 +101,7 @@ class plugins_gmap_public extends database_plugins_gmap{
 		$create->configLoad();
 		if(parent::c_show_table() != 0){
 			$loaddata = parent::s_map($create->getLanguage());
-			if($this->jsondata){
-                $header->head_expires("Mon, 26 Jul 1997 05:00:00 GMT");
-                $header->head_last_modified(gmdate( "D, d M Y H:i:s" ) . "GMT");
-                $header->pragma();
-                $header->cache_control("nocache");
-                $header->getStatus('200');
-                $header->json_header("UTF-8");
-				$this->json_map_record();
-			}elseif($this->json_multi_data){
+			if($this->json_multi_data){
                 $header->head_expires("Mon, 26 Jul 1997 05:00:00 GMT");
                 $header->head_last_modified(gmdate( "D, d M Y H:i:s" ) . "GMT");
                 $header->pragma();

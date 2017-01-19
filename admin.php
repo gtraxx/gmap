@@ -32,7 +32,7 @@
  *
  */
 class plugins_gmap_admin extends database_plugins_gmap{
-    protected $message,$template;
+    protected $message,$template,$country,$translation;
 	public 
 	/**
 	 * Ajouter ou modifier une carte
@@ -61,7 +61,6 @@ class plugins_gmap_admin extends database_plugins_gmap{
 	 * 
 	 */
 	public
-    $idadmin,
 	$society_ga,
 	$adress_ga,
 	$city_ga,
@@ -76,6 +75,8 @@ class plugins_gmap_admin extends database_plugins_gmap{
             $this->message = new backend_model_message();
         }
         $this->template = new backend_controller_plugins();
+        $this->country = new backend_controller_country();
+        $this->translation = new backend_controller_template();
         //Global
         if(magixcjquery_filter_request::isGet('action')){
             $this->action = magixcjquery_form_helpersforms::inputClean($_GET['action']);
@@ -88,9 +89,6 @@ class plugins_gmap_admin extends database_plugins_gmap{
         }
         if(magixcjquery_filter_request::isGet('tab')){
             $this->tab = magixcjquery_form_helpersforms::inputClean($_GET['tab']);
-        }
-        if(magixcjquery_filter_request::isSession('keyuniqid_admin')){
-            $this->idadmin = magixcjquery_filter_isVar::isPostNumeric($_SESSION['id_admin']);
         }
         //Formulaire
         if(magixcjquery_filter_request::isPost('api_key')){
@@ -240,7 +238,6 @@ class plugins_gmap_admin extends database_plugins_gmap{
                 $this->message->getNotify('lang_exist');
 			}else{
 				$this->i_new_map(
-					$this->idadmin,
 					$this->getlang,
 					$this->name_map,
 					$this->content_map
@@ -273,7 +270,6 @@ class plugins_gmap_admin extends database_plugins_gmap{
 	private function update_map(){
 		if(isset($this->name_map)){
 			parent::u_map_record(
-                $this->idadmin,
 				$this->name_map, 
 				$this->content_map, 
 				$this->edit
@@ -311,20 +307,16 @@ class plugins_gmap_admin extends database_plugins_gmap{
 	 * @access private
 	 * Charge les données de configuration pour l'édition
 	 */
-	private function load_config(){
+	private function setConfigData(){
 		$config = parent::s_map_config();
-        $this->template->assign('config',array(
-            'society_map'   =>  $config[0]['config_value'],
-            'adress_map'    =>  $config[1]['config_value'],
-            'country_map'   =>  $config[2]['config_value'],
-            'city_map'      =>  $config[3]['config_value'],
-            'route_map'     =>  $config[5]['config_value'],
-            'lat_map'       =>  $config[6]['config_value'],
-            'lng_map'       =>  $config[7]['config_value'],
-            'gmap_version'  =>  $config[8]['config_value'],
-            'multi_marker'  =>  $config[9]['config_value'],
-            'ap_key'  =>  $config[10]['config_value']
-        ));
+        $configId = '';
+        $configValue = '';
+        foreach($config as $key){
+            $configId[] = $key['config_id'];
+            $configValue[] = $key['config_value'];
+        }
+        $setConfig = array_combine($configId,$configValue);
+        $this->template->assign('config',$setConfig);
 	}
 	/**
 	 * @access private
@@ -436,11 +428,19 @@ class plugins_gmap_admin extends database_plugins_gmap{
         if(self::install_table($this->template) == true){
             if(magixcjquery_filter_request::isGet('getlang')){
                 if(self::upgrade_version() === true){
+                    $this->translation->addConfigFile(
+                        array(
+                            'country/tools'
+                        ),array(
+                        'country_iso_',
+                    ),false
+                    );
                     if($this->tab == 'config'){
                         if(isset($this->lat_map)){
                             $this->update_config();
                         }else{
-                            $this->load_config();
+                            $this->setConfigData();
+                            $this->template->assign('countryTools',$this->country->setItemsData());
                             $this->template->assign('markers',$this->findMarker());
                             // Retourne la page index.tpl
                             $this->template->display('list.tpl');
@@ -482,6 +482,7 @@ class plugins_gmap_admin extends database_plugins_gmap{
                                                 $this->insert_relative_map();
                                             }else{
                                                 $this->load_map();
+                                                $this->template->assign('countryTools',$this->country->setItemsData());
                                                 $this->template->display('edit.tpl');
                                             }
                                         }else{
@@ -588,10 +589,9 @@ class database_plugins_gmap{
 	 * Selectionne les cartes dans la langue
 	 */
 	protected function s_map($getlang){
-		$sql ='SELECT map.*,lang.iso,m.pseudo_admin
+		$sql ='SELECT map.*,lang.iso
         FROM mc_plugins_gmap AS map
 		JOIN mc_lang AS lang ON ( map.idlang = lang.idlang )
-		JOIN mc_admin_employee AS m ON ( map.idadmin = m.id_admin )
 		WHERE map.idlang = :getlang';
         return magixglobal_model_db::layerDB()->select($sql,array(
             ':getlang'=>$getlang
@@ -661,16 +661,14 @@ class database_plugins_gmap{
 	 * 
 	 * @access protected
 	 * Insert une nouvelle carte
-	 * @param integer $idadmin
 	 * @param integer $idlang
 	 * @param string $name_map
 	 * @param string $content_map
 	 */
-	protected function i_new_map($idadmin,$idlang,$name_map,$content_map){
-		$sql = 'INSERT INTO mc_plugins_gmap (idadmin,idlang,name_map,content_map) 
-		VALUE(:idadmin,:idlang,:name_map,:content_map)';
+	protected function i_new_map($idlang,$name_map,$content_map){
+		$sql = 'INSERT INTO mc_plugins_gmap (idlang,name_map,content_map) 
+		VALUE(:idlang,:name_map,:content_map)';
 		magixglobal_model_db::layerDB()->insert($sql,array(
-			':idadmin'		=>	$idadmin,
 			':idlang'		=>	$idlang,
 			':name_map'		=>	$name_map,
 			':content_map'	=>	$content_map
@@ -705,16 +703,14 @@ class database_plugins_gmap{
     /**
      * @access protected
      * Mise à jour de la carte
-     * @param integer $idadmin
      * @param string $name_map
      * @param string $content_map
      * @param $edit
      */
-	protected function u_map_record($idadmin,$name_map,$content_map,$edit){
-		$sql = 'UPDATE mc_plugins_gmap SET idadmin=:idadmin,name_map=:name_map,content_map=:content_map
+	protected function u_map_record($name_map,$content_map,$edit){
+		$sql = 'UPDATE mc_plugins_gmap SET name_map=:name_map,content_map=:content_map
 		WHERE idgmap = :edit';
 		magixglobal_model_db::layerDB()->update($sql,array(
-			':idadmin'		=>	$idadmin,
 			':name_map'		=>	$name_map,
 			':content_map'	=>	$content_map,
 			':edit'		=>	$edit

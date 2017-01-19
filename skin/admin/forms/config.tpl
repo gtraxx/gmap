@@ -13,9 +13,16 @@
             </div>
         </div>
         <div class="form-group">
-            <label for="country_map" class="col-sm-2 control-label">Pays :</label>
+            <label class="col-sm-2 control-label" for="country_map">
+                Pays :
+            </label>
             <div class="col-sm-7">
-                <input type="text" class="form-control" id="country_map" name="country_map" value="{$config.country_map}" size="50" />
+                <select class="form-control" id="country_map" name="country_map">
+                    <option value="">{#select_country#}</option>
+                    {foreach $countryTools as $key => $val}
+                        <option value="{#$val.iso#}"{if $config.country_map eq #$val.iso#} selected{/if}>{#$val.iso#|ucfirst}</option>
+                    {/foreach}
+                </select>
             </div>
         </div>
         <div class="form-group">
@@ -72,14 +79,15 @@
         <div class="form-group">
             <div class="col-sm-offset-2 col-sm-10">
                 <button type="submit" class="btn btn-primary">{#save#|ucfirst}</button>
-                <button type="button" id="btn-map" class="btn btn-success hide-map" data-toggle="modal" data-target="#map-modal">
+                {*<button type="button" id="btn-map" class="btn btn-success hide-map" data-toggle="modal" data-target="#map-modal">
                     Voir la carte
-                </button>
+                </button>*}
             </div>
         </div>
     </fieldset>
 </form>
-<div class="modal fade" id="map-modal" tabindex="-1" role="dialog">
+<div id="contener-map" class="map-col"></div>
+{*<div class="modal fade" id="map-modal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -91,4 +99,4 @@
             </div>
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
+</div><!-- /.modal -->*}

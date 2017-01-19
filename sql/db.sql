@@ -1,11 +1,10 @@
 CREATE TABLE IF NOT EXISTS `mc_plugins_gmap` (
   `idgmap` SMALLINT(3) NOT NULL AUTO_INCREMENT,
   `idlang` SMALLINT(3) NOT NULL,
-  `idadmin` SMALLINT(3) NOT NULL,
   `name_map` VARCHAR(175) NOT NULL,
   `content_map` text,
   PRIMARY KEY (`idgmap`),
-  KEY `idlang` (`idlang`,`idadmin`)
+  KEY `idlang` (`idlang`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `mc_plugins_gmap_config` (
@@ -36,6 +35,6 @@ INSERT INTO `mc_plugins_gmap_config` (`idgmapconfig`, `config_id`, `config_value
 (NULL, 'route_map', '0'),
 (NULL, 'lat_map', NULL),
 (NULL, 'lng_map', NULL),
-(NULL, 'gmap_version', '2.7'),
+(NULL, 'gmap_version', '2.8'),
 (NULL, 'multi_marker', '0'),
 (NULL, 'api_key', NULL);

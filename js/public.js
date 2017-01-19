@@ -1,17 +1,25 @@
 var gmap = (function ($, undefined) {
     /**
+     *
+     * @param originData
+     * @returns {{OriginContent: *, OriginAddress: *, originPosition: *}}
+     */
+    function init(originData){
+        return {
+            OriginContent : originData[0],
+            OriginAddress : originData[1],
+            OriginPosition : originData[2],
+            OriginRoute:originData[3],
+            OriginMarker:originData[4]
+        }
+    }
+    /**
      * Chargement de la carte par défaut
      * @param item
      */
     function loadMap(item) {
-        if (item.society != null) {
-            var infocontent = '<strong>' + item.society + '</strong>' + '<br />' + item.adress + '<br />' + item.city + '<br />' + item.country;
-        } else {
-            var infocontent = item.adress + '<br />' + item.city + '<br />' + item.country;
-        }
-        var center  = [item.lat, item.lng];
         $('#map_adress').gmap3({
-            center: center,
+            center: item.OriginPosition,
             zoom: 15,
             mapTypeId: google.maps.MapTypeId.ROADMAP,
             mapTypeControl: true,
@@ -21,124 +29,145 @@ var gmap = (function ($, undefined) {
             navigationControl: true,
             scrollwheel: true,
             streetViewControl: true
-        }).marker({
-            position: center,
-            icon: new google.maps.MarkerImage("/plugins/gmap/markers/"+item.marker)
-        }).infowindow({
-            position: center,
-            content: infocontent
+        })
+        .marker({
+            position: item.OriginPosition,
+            icon: "/plugins/gmap/markers/"+item.OriginMarker
+            /*,
+            icon: new google.maps.MarkerImage("/plugins/gmap/markers/"+item.marker)*/
+        })
+        .infowindow({
+            position: item.OriginPosition,
+            content: item.OriginContent+'<br />'+item.OriginAddress
+        })
+        .then(function (infowindow) {
+            var map = this.get(0);
+            var marker = this.get(1);
+            marker.addListener('click', function() {
+                infowindow.open(map, marker);
+            });
         });
-        if(item.route == '1'){
-            /*$('#getadress').autocomplete({
-                //This bit uses the geocoder to fetch address values
-                source: function(request, response) {
-                    $("#map_adress").gmap3({
-                        address: request.term
-                    }).then(function(results){
-                        if (!results) return;
-                        response($.map(results, function(item) {
-                            return {
-                                label: item.formatted_address,
-                                value: item.formatted_address,
-                                latLng: item.geometry.location
-                            };
-                        }));
-                    });
-                }
-            });*/
-            $('#getadress').autocomplete({
-                //This bit uses the geocoder to fetch address values
-                source: function(request, response) {
-                    /*$("#map_adress").gmap3({
-                        address: request.term
-                    }).then(function(results){
-                        if (!results) return;
-                        response($.map(results, function(item) {
-                            return {
-                                label: item.formatted_address,
-                                value: item.formatted_address,
-                                latLng: item.geometry.location
-                            };
-                        }));
-                    });*/
-                    var geocoder = new google.maps.Geocoder();
-                    geocoder.geocode({'address': request.term}, function (results, status) {
-                        if (status === google.maps.GeocoderStatus.OK) {
-                            console.log(results);
-                        }
-                    });
+        /*if(item.route == '1'){
+            var geocoder = new google.maps.Geocoder();
+            geocoder.geocode({'address': request.term}, function (results, status) {
+                if (status === google.maps.GeocoderStatus.OK) {
+                    console.log(results);
                 }
             });
-
-        }
+        }*/
     }
 
     /**
-     * Trace la route sur la carte
-     * @param button
+     *
      * @param item
      */
-    function getDirection(button,item){
-        if(item.route == '1'){
-            $(document).on('click',button,function(event){
-                $('#r-directions').empty();
-                if($('#getadress').val().length != 0){
-                    $('#r-directions').addClass('sizedirection').show(800);
-                    /*$('#map_adress').gmap3({
-                        clear: {name:"getroute"},
-                        getroute:{
-                            options:{
-                                origin: $('#getadress').val(),
-                                destination: item.adress+' '+item.city+','+item.country,
-                                travelMode: google.maps.DirectionsTravelMode.DRIVING
-                            },
-                            callback: function(results){
-                                if (!results) return;
-                                $(this).gmap3({
-                                    directionsrenderer:{
-                                        container: $('#r-directions'),
-                                        options:{
-                                            directions:results
-                                        }
-                                    }
-                                });
-                            }
-                        }
-                    });*/
-                    $('#map_adress')
-                        .gmap3({
-                            center: [item.lat, item.lng],
-                            zoom: 6,
-                            mapTypeId : google.maps.MapTypeId.ROADMAP
-                        })
-                        .route({
-                            origin: $('#getadress').val(),
-                            destination: item.adress+' '+item.city+','+item.country,
-                            travelMode: google.maps.DirectionsTravelMode.DRIVING
-                        })
-                        .directionsrenderer(function (results) {
+    function setDirection(item){
+        if(item.OriginRoute == '1') {
+            $('#r-directions').empty();
+            if ($('#getadress').val().length != 0) {
+                $('#r-directions').addClass('sizedirection').show(800);
+                $('#map_adress')
+                    .gmap3({
+                        //center: [item.lat, item.lng],
+                        address: $('#getadress').val(),
+                        zoom: 6,
+                        mapTypeId: google.maps.MapTypeId.ROADMAP
+                    })
+                    .route({
+                        origin: $('#getadress').val(),
+                        destination: item.OriginAddress,
+                        travelMode: google.maps.DirectionsTravelMode.DRIVING
+                    })
+                    .directionsrenderer(function (results) {
                             if (results) {
                                 return {
                                     panel: "#r-directions",
                                     directions: results
                                 }
                             }
-                        });
-                    $('#getadress').val('');
-                }
-            });
+                        }
+                    );
+                //$('#getadress').val('');
+            }
         }
+    }
+    /**
+     * Trace la route sur la carte
+     * @param button
+     * @param item
+     */
+    function getDirection(button,item){
+        $(document).on('click',button,function(){
+            setDirection(item);
+        });
+        $('.form-search').submit(function(e) {
+            e.preventDefault();
+            setDirection(item);
+        });
     }
 
     /**
-     * Chargement des données de la carte au formùat JSON
-     * @param button
+     * Création des markers multiples
+     * @param item
+     * @param multiadress
+     */
+    function multiMarker(item,multiadress) {
+        var markers = [];
+        markers.push({
+            position: item.OriginPosition,
+            //address: OriginAddress,
+            icon: "/plugins/gmap/markers/"+item.OriginMarker,
+            content: item.OriginContent+'<br />'+item.OriginAddress
+        });
+        //console.log(originPosition);
+        $.each(multiadress, function(key, val){
+            var latLng = [val.latLng[0], val.latLng[1]];
+            var content = val.data.society+'<br />'+val.data.adress
+            markers.push({
+                //position: latLng,
+                address: val.data.adress+', '+val.data.country,
+                icon: "http://maps.google.com/mapfiles/marker_grey.png",
+                content: content
+            });
+        });
+        //console.log(markers);
+        $('#map_adress').gmap3({
+            center: item.originPosition,
+            zoom: 4,
+            mapTypeId: google.maps.MapTypeId.ROADMAP,
+            mapTypeControl: true,
+            mapTypeControlOptions: {
+                style: google.maps.MapTypeControlStyle.DROPDOWN_MENU
+            },
+            navigationControl: true,
+            scrollwheel: true,
+            streetViewControl: true
+        })
+        .marker(markers)
+        .infowindow(markers)
+        .then(function (infowindow) {
+            var map = this.get(0);
+            var marker = this.get(1);
+
+            marker.forEach(function(item,i){
+                item.addListener('click', function() {
+                    infowindow[i].open(map, item);
+                });
+            })
+
+        }).fit();
+    }
+    /**
+     * Chargement des données multi marker au format JSON
      * @param iso
      */
-    function jsonData(button,iso){
+    function loadDataMultiMarker(iso,originData){
+        /**
+         * Requête AJAX pour le mode muti adresse
+         */
         $.nicenotify({
             ntype: "ajax",
-            uri: '/plugins.php?strLangue='+iso+'&magixmod=gmap&jsondata=true',
+            uri: '/plugins.php?strLangue='+iso+'&magixmod=gmap&json_multi_data=true',
             typesend: 'get',
             datatype: 'json',
             beforeParams:function(){
@@ -154,25 +183,28 @@ var gmap = (function ($, undefined) {
                 });
                 if(j === undefined){
                     console.log(j);
-                    $('#map_adress').text("map is undefined");
-                }
-                if(j !== null){
-                    $.each(j, function(i,item) {
-                        if(item.lat != null && item.lng != null){
-                            loadMap(item);
-                            if(item.adress != null && item.city != null){
-                                getDirection(button,item);
-                            }
-                        }
-                    });
+                }else{
+                    if(j !== null){
+                        multiMarker(originData,j.multi_adress);
+                    }else{
+                        console.error("Multi adress is null");
+                    }
                 }
             }
         });
     }
     return {
         //Fonction Public
-        run:function(iso){
-            jsonData('.subdirection:button',iso);
+        run:function(iso,originData){
+            var data = init(originData);//init.call(this,originData);
+            loadMap(data);
+            if(data.OriginAddress != null){
+                getDirection('.subdirection:button',data);
+            }
+        },
+        runMultiMarker:function(iso,originData){
+            var data = init(originData);
+            loadDataMultiMarker(iso,data);
         }
     };
 })(jQuery);

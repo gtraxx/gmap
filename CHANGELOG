@@ -1,3 +1,8 @@
+Version 2.8
+* Upgrade de gmap3 6.1 => 7.2
+* Adaptation des fichiers javascript avec gmap 3 v7
+* Ajout du menu select des pays venant du module country
+
 Version 2.6
 * Ajout du fichier less
 * Suppression du fichier public.css
