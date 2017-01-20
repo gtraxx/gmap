@@ -38,6 +38,7 @@ class plugins_gmap_admin extends database_plugins_gmap{
 	 * Ajouter ou modifier une carte
 	 */
 	$getlang,$action,$edit,$tab,
+        $delete,
     $api_key,
 	$name_map,
 	$content_map,
@@ -127,7 +128,10 @@ class plugins_gmap_admin extends database_plugins_gmap{
 		if(magixcjquery_filter_request::isPost('multi_marker')){
 			$this->multi_marker = '1';
 		}
-
+        # DELETE PAGE
+        if(magixcjquery_filter_request::isPOST('delete')){
+            $this->delete = magixcjquery_form_helpersforms::inputNumeric($_POST['delete']);
+        }
 		if(magixcjquery_filter_request::isPost('deletemap')){
 			$this->deletemap = (integer) magixcjquery_filter_isVar::isPostNumeric($_POST['deletemap']);
 		}
@@ -418,6 +422,25 @@ class plugins_gmap_admin extends database_plugins_gmap{
 			$this->d_rel_adress($delete_rel_map);
 		}
 	}
+
+    /**
+     * @return array
+     */
+    public function setItemsData(){
+        return parent::fetch(array(
+            'context'   =>  'all',
+            'type'      =>  'page',
+            'idlang'    =>  $this->getlang
+        ));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function getItemsData(){
+        $data = $this->setItemsData();
+        $this->template->assign('getItemsData',$data);
+    }
 	/**
 	 * Affiche les pages de l'administration du plugin
 	 * @access public
@@ -460,6 +483,7 @@ class plugins_gmap_admin extends database_plugins_gmap{
                             if(isset($this->action)){
                                 if($this->action == 'list'){
                                     // Retourne la page index.tpl
+                                    $this->getItemsData();
                                     $this->template->display('list.tpl');
                                 }elseif($this->action == 'add'){
                                     if(isset($this->name_map)){
@@ -491,8 +515,8 @@ class plugins_gmap_admin extends database_plugins_gmap{
                                         }
                                     }
                                 }elseif($this->action == 'remove'){
-                                    if(isset($this->deletemap)){
-                                        $this->delete_map($this->deletemap);
+                                    if(isset($this->delete)){
+                                        $this->delete_map($this->delete);
                                     }elseif(isset($this->delete_rel_map)){
                                         $this->delete_relative_adress($this->delete_rel_map);
                                     }
@@ -584,6 +608,45 @@ class database_plugins_gmap{
 		$table = 'mc_plugins_gmap';
 		return magixglobal_model_db::layerDB()->showTable($table);
 	}
+    /**
+     * @return array
+     */
+    protected function fetch($data){
+        if(is_array($data)){
+            if($data['context'] === 'all'){
+                if(($data['type'] === 'page')){
+                    $sql = 'SELECT map.*,lang.iso
+                FROM mc_plugins_gmap AS map
+                JOIN mc_lang AS lang ON ( map.idlang = lang.idlang )
+                WHERE map.idlang = :idlang';
+                    return magixglobal_model_db::layerDB()->select($sql,array(
+                        ':idlang'=>$data['idlang']
+                    ));
+                }
+                elseif($data['type'] === 'last'){
+                    $sql = 'SELECT map.*,lang.iso
+                FROM mc_plugins_gmap AS map
+                JOIN mc_lang AS lang ON ( map.idlang = lang.idlang )
+                WHERE map.idlang = : idlang ORDER BY idgmap DESC LIMIT 0,1';
+                    return magixglobal_model_db::layerDB()->select($sql);
+                }
+
+            }elseif($data['context'] === 'one'){
+                if($data['type'] === 'iso'){
+                    $sql = 'SELECT co.*
+					FROM mc_country AS co 
+					WHERE co.iso = :iso';
+                    return magixglobal_model_db::layerDB()->selectOne($sql,array(
+                        ':iso'	=>	$data['iso']
+                    ));
+                }elseif($data['type'] === 'count'){
+                    $sql = 'SELECT count(co.idcountry) AS datacount
+                	FROM mc_country AS co';
+                    return magixglobal_model_db::layerDB()->selectOne($sql);
+                }
+            }
+        }
+    }
 	/**
 	 * @access protected
 	 * Selectionne les cartes dans la langue
