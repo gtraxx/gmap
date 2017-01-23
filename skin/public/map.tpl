@@ -7,7 +7,7 @@
                     {$config_map.content_map}
                 </div>
             {/if}
-            <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6 alert alert-info" itemscope itemtype="http://data-vocabulary.org/Organization">
+            <div class="col-xs-12 {if $config_map.multi_marker eq '0' AND $config_map.route_map eq '1'}col-sm-6 col-md-6 col-lg-6{else}col-sm-12 col-md-12 col-lg-12{/if} alert alert-info" itemscope itemtype="http://data-vocabulary.org/Organization">
                 <span class="glyphicon glyphicon-map-marker"></span>
                 <span itemprop="name">{$config_map.society_map}</span> :
                 <div itemprop="address" itemscope itemtype="http://schema.org/PostalAddress">
