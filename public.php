@@ -65,7 +65,7 @@ class plugins_gmap_public extends database_plugins_gmap{
      * @param $setData
      * Retourne la configuration de gmap avec une requête JSON
      */
-	private function json_related_adress($setData){
+	private function setJsonData($setData){
         $json = new magixglobal_model_json();
         $setAddress = parent::fetch(array(
             'type'      =>  'address',
@@ -98,7 +98,7 @@ class plugins_gmap_public extends database_plugins_gmap{
             ));
 			if($this->json_multi_data){
                 $header->set_json_headers();
-				$this->json_related_adress($setData);
+				$this->setJsonData($setData);
 			}else{
 				$this->setMapConfig($setData);
                 $getMapConfig = $this->template->fetch('map.tpl');
