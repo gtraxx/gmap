@@ -1,9 +1,9 @@
 ## Gmap pour Magix CMS
 
-#### Créer et distribuer par [Magix Dev](http://www.magix-dev.be/)
+#### Créer et distribuer par [Magix CMS](http://www.magix-cms.com)
 
 ## Installation
- * Décompresser l'archive dans le dossier "plugins" de magix cms
+ * Décompresser l'archive dans le dossier "**plugins**" de magix cms
  * Connectez-vous dans l'administration de votre site internet 
  * Cliquer sur l'onglet plugins du menu déroulant pour sélectionner gmap.
  * Une fois dans le plugin, laisser faire l'auto installation
@@ -24,17 +24,14 @@
 ## Note
  * Pour avoir une mise en page en rapport avec votre charte graphique, 
 vous pouvez éditer le fichier index.tpl dans le dossier /plugin/gmap/skin/public/
- * Le fichier CSS est dans le dossier /plugin/gmap/css/public.css
 
-Depuis la version 2.3.5, le dossier public du plugin peut être utilisé directement dans le skin.
-Faites comme suit :
 Copier le dossier public de gmap à la racine de votre skin.
-renommé le dossier public en gmap, ensuite vous pouvez éditer les fichiers tpl comme bon vous semble.
+renommé le dossier public en **gmap**, ensuite vous pouvez éditer les fichiers tpl comme bon vous semble.
 
 ### SMARTY/JAVASCRIPT
 ```javascript
 {block name="foot" append}
-    {script src="/min/?f=plugins/gmap/js/perfect-scrollbar.min.js,plugins/gmap/js/gmap3.min.js,plugins/gmap/js/public.0.3.js" concat=$concat type="javascript"}
+    {script src="/min/?f=plugins/gmap/js/perfect-scrollbar.min.js,plugins/gmap/js/gmap3-7.2.min.js,plugins/gmap/js/public.js" concat=$concat type="javascript"}
     {if $plugin_status != 0}
         <script type="text/javascript">
             $(function(){
@@ -73,7 +70,7 @@ et de se connecter à l'administration de celui-ci pour faire la mise à jour de
 This file is a plugin of Magix CMS.
 Magix CMS, a CMS optimized for SEO
 
-Copyright (C) 2008 - 2016 magix-cms.com support[at]magix-cms[point]com | contact[at]magix-dev[point]be
+Copyright (C) 2008 - 2017 magix-cms.com support[at]magix-cms[point]com | contact[at]magix-dev[point]be
 
 AUTHORS :
 

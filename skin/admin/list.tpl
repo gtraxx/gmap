@@ -22,17 +22,28 @@
                 {#add_a_page#|ucfirst}
             </a>
         </p>
-        {include file="loop/items.tpl"}
+        <table class="table table-bordered table-condensed table-hover">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Titre</th>
+                <th>Contenu</th>
+                <th><span class="fa fa-flag"></span></th>
+                <th><span class="fa fa-edit"></span></th>
+                <th><span class="fa fa-trash-o"></span></th>
+            </tr>
+            </thead>
+            <tbody id="list_page">
+            {include file="loop/items-page.tpl"}
+            {include file="no-entry.tpl"}
+            </tbody>
+        </table>
         {include file="modal/addpage.tpl"}
     {elseif $smarty.get.tab eq "config"}
         {include file="forms/config.tpl"}
     {/if}
 {/block}
 {block name="modal"}
-    {*<div id="window-dialog"></div>
-    <div id="forms-add" class="hide-modal" title="{#add_a_new_page#|ucfirst}">
-        {include file="forms/add.tpl"}
-    </div>*}
     {include file="modal/delete.tpl"}
 {/block}
 {block name='javascript' prepend}

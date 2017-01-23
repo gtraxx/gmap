@@ -9,27 +9,16 @@
         }else{
             {if $smarty.get.getlang}
                 {if $smarty.get.tab eq 'config'}
-                /*$('#btn-map').on('click', function () {
-                    $('#map-modal').on('shown.bs.modal', function () {
-                        google.maps.event.trigger($("#contener-map").gmap3("get"), "resize");
-                    });
-                });*/
                 MC_plugins_gmap.runConfig(baseadmin,getlang);
                 {else}
                     {if $smarty.get.edit}
                         {if $smarty.get.tab eq 'multimarkers'}
-                        MC_plugins_gmap.runRelated(baseadmin,getlang,iso,edit);
-                        $('#btn-map').on('click', function () {
-                            $('#map-modal').on('shown.bs.modal', function () {
-                                google.maps.event.trigger($("#contener-map").gmap3("get"), "resize");
-                                //map.setCenter(center);
-                            });
-                        });
+                        MC_plugins_gmap.runRelated(baseadmin,getlang,edit);
                         {else}
                         MC_plugins_gmap.runEdit(baseadmin,getlang,edit);
                         {/if}
                     {else}
-                        MC_plugins_gmap.runList(baseadmin,getlang,iso);
+                        MC_plugins_gmap.runList(baseadmin,getlang);
                     {/if}
                 {/if}
             {/if}

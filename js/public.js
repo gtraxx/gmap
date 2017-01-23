@@ -8,9 +8,10 @@ var gmap = (function ($, undefined) {
         return {
             OriginContent : originData[0],
             OriginAddress : originData[1],
-            OriginPosition : originData[2],
-            OriginRoute:originData[3],
-            OriginMarker:originData[4]
+            OriginCity : originData[2],
+            OriginPosition : originData[3],
+            OriginRoute:originData[4],
+            OriginMarker:originData[5]
         }
     }
     /**
@@ -86,7 +87,9 @@ var gmap = (function ($, undefined) {
                                 }
                             }
                         }
-                    );
+                    ).catch(function (error) {
+                        console.error('catched: ' + error);
+                    });
                 //$('#getadress').val('');
             }
         }
@@ -117,12 +120,12 @@ var gmap = (function ($, undefined) {
             position: item.OriginPosition,
             //address: OriginAddress,
             icon: "/plugins/gmap/markers/"+item.OriginMarker,
-            content: item.OriginContent+'<br />'+item.OriginAddress
+            content: item.OriginContent+'<br />'+item.OriginAddress+'<br />'+item.OriginCity
         });
         //console.log(originPosition);
         $.each(multiadress, function(key, val){
             var latLng = [val.latLng[0], val.latLng[1]];
-            var content = val.data.society+'<br />'+val.data.adress
+            var content = val.data.society+'<br />'+val.data.adress+'<br />'+val.data.city
             markers.push({
                 //position: latLng,
                 address: val.data.adress+', '+val.data.country,
@@ -155,6 +158,8 @@ var gmap = (function ($, undefined) {
                 });
             })
 
+        }).catch(function (error) {
+            console.error('catched: ' + error);
         }).fit();
     }
     /**
@@ -171,13 +176,15 @@ var gmap = (function ($, undefined) {
             typesend: 'get',
             datatype: 'json',
             beforeParams:function(){
-                var img = $(document.createElement("img"))
-                    .addClass("map_loader")
-                    .attr("src", "/plugins/gmap/img/ajax-loader.gif");
-                $('#map_adress').html(img);
+                var loader = $(document.createElement("div")).addClass("map_loader")
+                    .append(
+                        $(document.createElement("i")).addClass("fa fa-spinner fa-pulse fa-3x fa-fw"),
+                        $(document.createElement("span")).append("Loading...").addClass("sr-only")
+                    );
+                $('#map_adress').before(loader);
             },
             successParams:function(j){
-                $('#map_adress').empty();
+                $('.map_loader').remove();
                 $.nicenotify.initbox(j,{
                     display:false
                 });

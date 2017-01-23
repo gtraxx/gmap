@@ -22,9 +22,10 @@
                 var iso = '{getlang}';
                 var latLng = ["{$config_map.lat_map}", "{$config_map.lng_map}"];
                 var postalAddress = "{$config_map.adress_map}, {$config_map.country_map}";
+                var city = "{$config_map.city_map}";
                 var route = "{$config_map.route_map}";
                 var marker = "{$config_map.marker}";
-                var originData = ["{$config_map.society_map}",postalAddress,latLng,route,marker];
+                var originData = ["{$config_map.society_map}",postalAddress,city,latLng,route,marker];
                 if (typeof gmap == "undefined"){
                     console.log("gmap is not defined");
                 }else{

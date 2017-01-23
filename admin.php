@@ -18,19 +18,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 # -- END LICENSE BLOCK -----------------------------------
-/**
- * MAGIX CMS
- * @category   gmap 
- * @package    plugins
- * @copyright  MAGIX CMS Copyright (c) 2012 Gerits Aurelien, 
- * http://www.magix-cms.com, http://www.magix-cjquery.com, http://www.magix-dev.be
- * @license    Dual licensed under the MIT or GPL Version 3 licenses.
- * @version    1.6
- * @author Gérits Aurélien <aurelien@magix-cms.com>|<contact@magix-dev.be> , jean-baptiste demonte (http://gmap3.net/)
- * @name gmap
- * La géolocalisation avec Googlemap (gmap3)
- *
- */
 class plugins_gmap_admin extends database_plugins_gmap{
     protected $message,$template,$country,$translation;
 	public 
@@ -68,6 +55,7 @@ class plugins_gmap_admin extends database_plugins_gmap{
 	$country_ga,
 	$lat_ga,
 	$lng_ga,$delete_rel_map;
+    public static $notify = array('plugin'=>'true','template'=>'message-gmap.tpl','method'=>'display','assignFetch'=>'notifier');
 	/**
 	 * Construct class
 	 */
@@ -129,9 +117,6 @@ class plugins_gmap_admin extends database_plugins_gmap{
 			$this->multi_marker = '1';
 		}
         # DELETE PAGE
-        if(magixcjquery_filter_request::isPOST('delete')){
-            $this->delete = magixcjquery_form_helpersforms::inputNumeric($_POST['delete']);
-        }
 		if(magixcjquery_filter_request::isPost('deletemap')){
 			$this->deletemap = (integer) magixcjquery_filter_isVar::isPostNumeric($_POST['deletemap']);
 		}
@@ -197,7 +182,11 @@ class plugins_gmap_admin extends database_plugins_gmap{
 	 * Effectue le controle pour la migration vers une version supérieur
 	 */
 	private function upgrade_version(){
-		$config= parent::s_config_data('gmap_version');
+		$config= parent::fetch(array(
+            'context'   =>  'one',
+            'type'      =>  'config',
+            'id'        =>   'gmap_version'
+        ));
 		if($config['config_value'] == null){
 			backend_controller_plugins::create()->db_install_table('update_1.1.sql', 'request/update.tpl');
 		}elseif($config['config_value'] == '1.0'){
@@ -209,56 +198,18 @@ class plugins_gmap_admin extends database_plugins_gmap{
 			return true;
 		}
 	}
-	/**
-	 * @access private
-	 * Retourne les cartes ajoutés sous format JSON
-	 */
-	private function json_map_record(){
-		if(parent::s_map($this->getlang) != null){
-			foreach (parent::s_map($this->getlang) as $key){
-				if($key['content_map'] != ''){
-					$content = 1;
-				}else{
-					$content = 0;
-				}
-				$json[]= '{"idgmap":'.json_encode($key['idgmap']).',"lang":'.json_encode($key['iso']).
-				',"pseudo":'.json_encode($key['pseudo_admin']).',"name_map":'.json_encode($key['name_map']).
-                ',"content_map":'.$content.'}';
-			}
-			print '['.implode(',',$json).']';
-		}else{
-            print '{}';
-        }
-	}
-	/**
-	 * @access private
-	 * Insertion d'une nouvelle carte
-	 */
-	private function add_map(){
-		if(isset($this->name_map)){
-			if(empty($this->name_map)){
-                $this->message->getNotify('empty');
-			}elseif(parent::s_verify_lang($this->getlang) != null){
-                $this->message->getNotify('lang_exist');
-			}else{
-				$this->i_new_map(
-					$this->getlang,
-					$this->name_map,
-					$this->content_map
-				);
-                $this->message->getNotify('add');
-			}
-		}
-	}
 
     /**
      * @access private
      * Charge les données d'une carte pour l'édition
-     * @param $create
      */
-	private function load_map(){
-		$data = parent::s_map_data($this->edit);
-        $this->template->assign('map',
+	private function getData(){
+		$data = parent::fetch(array(
+            'context'   =>  'one',
+            'type'      =>  'page',
+            'edit'      =>  $this->edit
+        ));
+        $this->template->assign('getData',
             array(
                 'name_map'      =>  $data['name_map'],
                 'content_map'   =>  $data['content_map']
@@ -266,53 +217,24 @@ class plugins_gmap_admin extends database_plugins_gmap{
         );
 	}
 
-    /**
-     * @access private
-     * POST une modification de carte
-     * @param $create
-     */
-	private function update_map(){
-		if(isset($this->name_map)){
-			parent::u_map_record(
-				$this->name_map, 
-				$this->content_map, 
-				$this->edit
-			);
-            $this->message->getNotify('update');
-		}
-	}
 	/**
 	 * @access private
-	 * Parcour le dossier marker dans le plugin pour retourner les images
+	 * Parcour le dossier marker dans le plugin pour retourner un tableau des images
 	 */
 	private function findMarker(){
 		$makefile = new magixcjquery_files_makefiles();
-		$marker = $makefile->scanDir(magixglobal_model_system::base_path().'/plugins/gmap/markers/');
-		$mconfig= parent::s_config_data('marker');
-		$icon = '<ul class="list-unstyled list-inline">';
-		foreach($marker as $m){
-			if($m == $mconfig['config_value']){
-				$icon .= '<li>';
-				$icon .= '<input type="radio" name="marker" checked="checked" value="'.$m.'" />';
-				$icon .= '<img alt="marker" src="/plugins/gmap/markers/'.$m.'" />';
-				$icon .= '</li>';
-			}else{
-				$icon .= '<li>';
-				$icon .= '<input type="radio" name="marker" value="'.$m.'" />';
-				$icon .= '<img alt="marker" src="/plugins/gmap/markers/'.$m.'" />';
-				$icon .= '</li>';
-			}
-			
-		}
-		$icon .= '</ul>';
-		return $icon;
+		$markerCollection = $makefile->scanDir(magixglobal_model_system::base_path().'/plugins/gmap/markers/');
+        $this->template->assign('markerCollection',$markerCollection);
 	}
 	/**
 	 * @access private
 	 * Charge les données de configuration pour l'édition
 	 */
 	private function setConfigData(){
-		$config = parent::s_map_config();
+		$config = parent::fetch(array(
+            'context'   =>  'all',
+            'type'      =>  'config'
+        ));
         $configId = '';
         $configValue = '';
         foreach($config as $key){
@@ -320,126 +242,166 @@ class plugins_gmap_admin extends database_plugins_gmap{
             $configValue[] = $key['config_value'];
         }
         $setConfig = array_combine($configId,$configValue);
-        $this->template->assign('config',$setConfig);
-	}
-	/**
-	 * @access private
-	 * Modification des données de configuration du plugin
-	 */
-	private function update_config(){
-		if(isset($this->lat_map) AND isset($this->lng_map)){
-			if(empty($this->lat_map) AND empty($this->lng_map)){
-                $this->message->getNotify('empty');
-			}else{
-                if(!empty($this->marker)){
-                    $marker = $this->marker;
-                }else{
-                    $marker = null;
-                }
-				if(!isset($this->route_map)){
-					$route_map = '0';
-				}else{
-					$route_map = $this->route_map;
-				}
-				if(!isset($this->multi_marker)){
-					$multi_marker = '0';
-				}else{
-					$multi_marker = $this->multi_marker;
-				}
-				parent::u_config_map(
-					$this->society_map, 
-					$this->adress_map, 
-					$this->city_map, 
-					$this->country_map,
-                    $marker,
-					$route_map,
-					$multi_marker,
-                    $this->api_key,
-					$this->lat_map,
-					$this->lng_map
-				);
-                $this->message->getNotify('update');
-			}
-		}
-	}
-	/**
-	 * Suppression de carte Googlemap
-	 * @access private
-	 * @param integer $deletemap
-	 */
-	private function delete_map($deletemap){
-		if(isset($deletemap)){
-			$this->d_map($deletemap);
-		}
+        $this->template->assign('getConfigData',$setConfig);
 	}
 
     /**
-     * Insertion d'une adresse relative à une carte
-     * @param $create
-     */
-    private function insert_relative_map(){
-		if(isset($this->adress_ga)){
-			if(empty($this->lat_ga) AND empty($this->lng_ga)){
-                $this->message->getNotify('empty');
-			}else{
-				parent::i_relative_map(
-                    $this->edit,
-					$this->society_ga, 
-					$this->adress_ga, 
-					$this->city_ga, 
-					$this->country_ga, 
-					$this->lat_ga, 
-					$this->lng_ga
-				);
-                $this->message->getNotify('add');
-			}
-		}
-	}
-	/**
-	 * @access private
-	 * Retourne les adresses relative ajoutés sous format JSON
-	 */
-	private function json_map_relative(){
-		if(parent::s_relative_map($this->edit) != null){
-			foreach (parent::s_relative_map($this->edit) as $key){
-				$map[]= '{"id_adress":'.json_encode($key['id_adress']).',"society_ga":'.json_encode($key['society_ga']).
-				',"country_ga":'.json_encode($key['country_ga']).',"city_ga":'.json_encode($key['city_ga']).',"adress_ga":'.json_encode($key['adress_ga']).'}';
-			}
-			print '['.implode(',',$map).']';
-		}else{
-            print '{}';
-        }
-	}
-
-    /**
-     * Suppression d'une adresse relative
-     * @access private
-     * @param $delete_rel_map
-     * @internal param int $deletemap
-     */
-	private function delete_relative_adress($delete_rel_map){
-		if(isset($delete_rel_map)){
-			$this->d_rel_adress($delete_rel_map);
-		}
-	}
-
-    /**
+     * Retourne la liste des records
+     * @param $type
      * @return array
      */
-    public function setItemsData(){
-        return parent::fetch(array(
-            'context'   =>  'all',
-            'type'      =>  'page',
-            'idlang'    =>  $this->getlang
-        ));
+    public function setItemsData($type){
+        if($type === 'page'){
+            return parent::fetch(array(
+                'context'   =>  'all',
+                'type'      =>  $type,
+                'idlang'    =>  $this->getlang
+            ));
+        }elseif($type === 'address'){
+            return parent::fetch(array(
+                'context'   =>  'all',
+                'type'      =>  $type,
+                'idgmap'    =>  $this->edit
+            ));
+        }
     }
 
     /**
-     * @throws Exception
+     * @param $type
      */
-    public function getItemsData(){
-        $data = $this->setItemsData();
+    public function getItemsData($type){
+        $data = $this->setItemsData($type);
         $this->template->assign('getItemsData',$data);
+    }
+
+    /**
+     * Retourne le dernier record
+     * @param $type
+     * @return array
+     */
+    private function setLastItemData($type){
+        if($type === 'page') {
+            return parent::fetch(array(
+                'context' => 'all',
+                'type' => 'lastPage',
+                'idlang' => $this->getlang
+            ));
+        }elseif($type === 'address'){
+            return parent::fetch(array(
+                'context'   =>  'all',
+                'type'      =>  'lastAddress',
+                'idgmap'    =>  $this->edit
+            ));
+        }
+    }
+
+    /**
+     * @param $type
+     */
+    private function getLastItemData($type){
+        $data = $this->setLastItemData($type);
+        $this->template->assign('getItemsData',$data);
+    }
+
+    /**
+     * Execute la sauvegarde des données
+     * @param $data
+     */
+    private function save($data){
+        switch($data['context']){
+            case 'add':
+                if($data['type'] === 'page'){
+                    if(isset($this->name_map)){
+                        if(!empty($this->name_map)){
+                            parent::add(array(
+                                'type'      =>'page',
+                                'idlang'    =>$this->getlang,
+                                'name'      =>$this->name_map,
+                                'content'   =>$this->content_map
+                            ));
+                            $this->getLastItemData('page');
+                            $this->message->json_post_response(true,'save',$this->template->fetch('loop/items-page.tpl'),self::$notify);
+                        }
+                    }
+                }elseif($data['type'] === 'address'){
+                    if(isset($this->adress_ga)){
+                        if(!empty($this->adress_ga)){
+                            parent::add(array(
+                                'type'      =>'address',
+                                'edit'		=>	$this->edit,
+                                'society'	=>	$this->society_ga,
+                                'address'	=>	$this->adress_ga,
+                                'city'		=>	$this->city_ga,
+                                'country'	=>	$this->country_ga,
+                                'lat'		=>	$this->lat_ga,
+                                'lng'		=>	$this->lng_ga
+                            ));
+                            $this->getLastItemData('address');
+                            $this->message->json_post_response(true,'save',$this->template->fetch('loop/items-address.tpl'),self::$notify);
+                        }
+                    }
+                }
+                break;
+            case 'update':
+                if($data['type'] === 'config'){
+                    if(isset($this->lat_map) AND isset($this->lng_map)){
+                        if(!empty($this->marker)){
+                            $marker = $this->marker;
+                        }else{
+                            $marker = null;
+                        }
+                        if(!isset($this->route_map)){
+                            $route_map = '0';
+                        }else{
+                            $route_map = $this->route_map;
+                        }
+                        if(!isset($this->multi_marker)){
+                            $multi_marker = '0';
+                        }else{
+                            $multi_marker = $this->multi_marker;
+                        }
+                        parent::update(array(
+                            'type'      =>  'config',
+                            'marker'	=>	$marker,
+                            'multi'	    =>	$multi_marker,
+                            'route'	    =>	$route_map,
+                            'api'	    =>	$this->api_key,
+                            'society'	=>	$this->society_map,
+                            'address'	=>	$this->adress_map,
+                            'city'		=>	$this->city_map,
+                            'country'	=>	$this->country_map,
+                            'lat'		=>	$this->lat_map,
+                            'lng'		=>	$this->lng_map
+                        ));
+                        $this->message->getNotify('update');
+                    }
+                }elseif($data['type'] === 'page'){
+                    if(isset($this->name_map)){
+                        parent::update(array(
+                            'type'      =>  'page',
+                            'edit'      =>  $this->edit,
+                            'name'      =>$this->name_map,
+                            'content'   =>$this->content_map
+                        ));
+                        $this->message->getNotify('update');
+                    }
+                }
+                break;
+        }
+    }
+    /**
+     * Suppression de l'enregistrement
+     * @access private
+     * @param $type
+     * @param $id
+     */
+    private function delete($type,$id){
+        if(isset($id)){
+            parent::remove(array(
+                'type'=>$type,
+                'id'=>$id
+            ));
+        }
     }
 	/**
 	 * Affiche les pages de l'administration du plugin
@@ -460,66 +422,76 @@ class plugins_gmap_admin extends database_plugins_gmap{
                     );
                     if($this->tab == 'config'){
                         if(isset($this->lat_map)){
-                            $this->update_config();
+                            $this->save(array(
+                                'context'   => 'update',
+                                'type'      =>'config'
+                            ));
                         }else{
                             $this->setConfigData();
                             $this->template->assign('countryTools',$this->country->setItemsData());
-                            $this->template->assign('markers',$this->findMarker());
+                            //$this->template->assign('markers',$this->findMarker());
+                            $this->findMarker();
                             // Retourne la page index.tpl
                             $this->template->display('list.tpl');
                         }
                     }elseif($this->tab == 'about'){
                         $this->template->display('about.tpl');
                     }else{
-                        if(magixcjquery_filter_request::isGet('json_map_record')){
-                            $header->head_expires("Mon, 26 Jul 1997 05:00:00 GMT");
-                            $header->head_last_modified(gmdate( "D, d M Y H:i:s" ) . "GMT");
-                            $header->pragma();
-                            $header->cache_control("nocache");
-                            $header->getStatus('200');
-                            $header->json_header("UTF-8");
-                            $this->json_map_record();
-                        }else{
-                            if(isset($this->action)){
-                                if($this->action == 'list'){
-                                    // Retourne la page index.tpl
-                                    $this->getItemsData();
-                                    $this->template->display('list.tpl');
-                                }elseif($this->action == 'add'){
+                        if(isset($this->action)){
+                            if($this->action == 'list'){
+                                // Retourne la page index.tpl
+                                $this->getItemsData('page');
+                                $this->template->display('list.tpl');
+                            }elseif($this->action == 'add'){
+                                if(isset($this->name_map)){
+                                    $header= new magixglobal_model_header();
+                                    $header->head_expires("Mon, 26 Jul 1997 05:00:00 GMT");
+                                    $header->head_last_modified(gmdate( "D, d M Y H:i:s" ) . "GMT");
+                                    $header->pragma();
+                                    $header->cache_control("nocache");
+                                    $header->getStatus('200');
+                                    $header->json_header("UTF-8");
+                                    $this->save(array(
+                                        'context'   => 'add',
+                                        'type'      =>'page'
+                                    ));
+                                }
+                            }elseif($this->action == 'edit'){
+                                if(isset($this->edit)){
                                     if(isset($this->name_map)){
-                                        $this->add_map();
-                                    }
-                                }elseif($this->action == 'edit'){
-                                    if(isset($this->edit)){
-                                        if(isset($this->name_map)){
-                                            $this->update_map();
-                                        }elseif($this->tab == 'multimarkers'){
-                                            if(magixcjquery_filter_request::isGet('json_map_relative')){
-                                                $header->head_expires("Mon, 26 Jul 1997 05:00:00 GMT");
-                                                $header->head_last_modified(gmdate( "D, d M Y H:i:s" ) . "GMT");
-                                                $header->pragma();
-                                                $header->cache_control("nocache");
-                                                $header->getStatus('200');
-                                                $header->json_header("UTF-8");
-                                                $this->json_map_relative();
-                                            }elseif(isset($this->adress_ga)){
-                                                $this->insert_relative_map();
-                                            }else{
-                                                $this->load_map();
-                                                $this->template->assign('countryTools',$this->country->setItemsData());
-                                                $this->template->display('edit.tpl');
-                                            }
+                                        $this->save(array(
+                                            'context'   => 'update',
+                                            'type'      =>'page'
+                                        ));
+                                    }elseif($this->tab == 'multimarkers'){
+                                        if(isset($this->adress_ga)){
+                                            $header= new magixglobal_model_header();
+                                            $header->head_expires("Mon, 26 Jul 1997 05:00:00 GMT");
+                                            $header->head_last_modified(gmdate( "D, d M Y H:i:s" ) . "GMT");
+                                            $header->pragma();
+                                            $header->cache_control("nocache");
+                                            $header->getStatus('200');
+                                            $header->json_header("UTF-8");
+                                            $this->save(array(
+                                                'context'   => 'add',
+                                                'type'      =>'address'
+                                            ));
                                         }else{
-                                            $this->load_map();
+                                            $this->getData();
+                                            $this->getItemsData('address');
+                                            $this->template->assign('countryTools',$this->country->setItemsData());
                                             $this->template->display('edit.tpl');
                                         }
+                                    }else{
+                                        $this->getData();
+                                        $this->template->display('edit.tpl');
                                     }
-                                }elseif($this->action == 'remove'){
-                                    if(isset($this->delete)){
-                                        $this->delete_map($this->delete);
-                                    }elseif(isset($this->delete_rel_map)){
-                                        $this->delete_relative_adress($this->delete_rel_map);
-                                    }
+                                }
+                            }elseif($this->action == 'remove'){
+                                if(isset($this->deletemap)){
+                                    $this->delete('page',$this->deletemap);
+                                }elseif(isset($this->delete_rel_map)){
+                                    $this->delete('address',$this->delete_rel_map);
                                 }
                             }
                         }
@@ -608,13 +580,21 @@ class database_plugins_gmap{
 		$table = 'mc_plugins_gmap';
 		return magixglobal_model_db::layerDB()->showTable($table);
 	}
+
     /**
+     * fetch Data
+     * @param $data
      * @return array
      */
     protected function fetch($data){
         if(is_array($data)){
             if($data['context'] === 'all'){
-                if(($data['type'] === 'page')){
+                if(($data['type'] === 'config')){
+                    $sql = 'SELECT conf.* FROM mc_plugins_gmap_config AS conf';
+                    return magixglobal_model_db::layerDB()->select($sql);
+                }
+                elseif(($data['type'] === 'page')){
+                    //Selectionne les cartes dans la langue
                     $sql = 'SELECT map.*,lang.iso
                 FROM mc_plugins_gmap AS map
                 JOIN mc_lang AS lang ON ( map.idlang = lang.idlang )
@@ -623,226 +603,142 @@ class database_plugins_gmap{
                         ':idlang'=>$data['idlang']
                     ));
                 }
-                elseif($data['type'] === 'last'){
+                elseif(($data['type'] === 'address')){
+                    $sql = 'SELECT addr.* FROM mc_plugins_gmap_adress AS addr
+		            WHERE addr.idgmap = :idgmap';
+                    return magixglobal_model_db::layerDB()->select($sql,array(
+                        ':idgmap'=>$data['idgmap']
+                    ));
+                }
+                elseif($data['type'] === 'lastPage'){
                     $sql = 'SELECT map.*,lang.iso
                 FROM mc_plugins_gmap AS map
                 JOIN mc_lang AS lang ON ( map.idlang = lang.idlang )
-                WHERE map.idlang = : idlang ORDER BY idgmap DESC LIMIT 0,1';
-                    return magixglobal_model_db::layerDB()->select($sql);
+                WHERE map.idlang = :idlang ORDER BY idgmap DESC LIMIT 0,1';
+                    return magixglobal_model_db::layerDB()->select($sql,array(
+                        ':idlang'=>$data['idlang']
+                    ));
+                }
+                elseif($data['type'] === 'lastAddress'){
+                    $sql = 'SELECT addr.* FROM mc_plugins_gmap_adress AS addr
+		            WHERE addr.idgmap = :idgmap ORDER BY id_adress DESC LIMIT 0,1';
+                    return magixglobal_model_db::layerDB()->select($sql,array(
+                        ':idgmap'=>$data['idgmap']
+                    ));
                 }
 
             }elseif($data['context'] === 'one'){
-                if($data['type'] === 'iso'){
-                    $sql = 'SELECT co.*
-					FROM mc_country AS co 
-					WHERE co.iso = :iso';
+                if($data['type'] === 'page'){
+                    //Selectionne la carte pour édition
+                    $sql = 'SELECT map.* FROM mc_plugins_gmap AS map
+		            WHERE map.idgmap = :edit';
                     return magixglobal_model_db::layerDB()->selectOne($sql,array(
-                        ':iso'	=>	$data['iso']
+                        ':edit'	=>	$data['edit']
                     ));
-                }elseif($data['type'] === 'count'){
-                    $sql = 'SELECT count(co.idcountry) AS datacount
-                	FROM mc_country AS co';
-                    return magixglobal_model_db::layerDB()->selectOne($sql);
+                }elseif(($data['type'] === 'config')){
+                    $sql ='SELECT conf.* FROM mc_plugins_gmap_config AS conf
+		            WHERE config_id = :config_id';
+                    return magixglobal_model_db::layerDB()->selectOne($sql,array(
+                        ':config_id'=>$data['id']
+                    ));
                 }
             }
         }
     }
-	/**
-	 * @access protected
-	 * Selectionne les cartes dans la langue
-	 */
-	protected function s_map($getlang){
-		$sql ='SELECT map.*,lang.iso
-        FROM mc_plugins_gmap AS map
-		JOIN mc_lang AS lang ON ( map.idlang = lang.idlang )
-		WHERE map.idlang = :getlang';
-        return magixglobal_model_db::layerDB()->select($sql,array(
-            ':getlang'=>$getlang
-        ));
-	}
 
     /**
-     * @access protected
-     * Selectionne la carte pour édition
-     * @param $edit
-     * @return array
+     * Ajoute un enregistrement
+     * @param $data
      */
-	protected function s_map_data($edit){
-		$sql = 'SELECT map.* FROM mc_plugins_gmap AS map
-		WHERE map.idgmap = :edit';
-		return magixglobal_model_db::layerDB()->selectOne($sql,array(
-            ':edit'=>$edit
-        ));
-	}
-	/**
-	 * @access protected
-	 * Vérifie si la carte existe dans la langue
-	 * @param integer $idlang
-     * @return array
-     */
-	protected function s_verify_lang($idlang){
-		$sql = 'SELECT map.*,lang.iso FROM mc_plugins_gmap AS map
-		LEFT JOIN mc_lang AS lang ON ( map.idlang = lang.idlang )
-		WHERE map.idlang = :idlang';
-		return magixglobal_model_db::layerDB()->selectOne($sql,array(
-            ':idlang'=>$idlang
-        ));
-	}
-	/**
-	 * @access protected
-	 * Retourne la configuration
-	 * @param string $config_id
-     * @return array
-     */
-	protected function s_config_data($config_id){
-		$sql ='SELECT conf.* FROM mc_plugins_gmap_config AS conf
-		WHERE config_id = :config_id';
-		return magixglobal_model_db::layerDB()->selectOne($sql,array(
-            ':config_id'=>$config_id
-        ));
-	}
-	/**
-	 * @access protected
-	 * Selectionne la configuration complète
-	 */
-	protected function s_map_config(){
-		$sql ='SELECT conf.* FROM mc_plugins_gmap_config AS conf';
-		return magixglobal_model_db::layerDB()->select($sql);
-	}
-	/**
-	 * @access protected
-	 * Selectionne les cartes ou record
-	 */
-	protected function s_relative_map($idgmap){
-		$sql ='SELECT addr.* FROM mc_plugins_gmap_adress AS addr
-		WHERE addr.idgmap = :idgmap';
-		return magixglobal_model_db::layerDB()->select($sql,array(
-            ':idgmap'=>$idgmap
-        ));
-	}
-	/**
-	 * 
-	 * @access protected
-	 * Insert une nouvelle carte
-	 * @param integer $idlang
-	 * @param string $name_map
-	 * @param string $content_map
-	 */
-	protected function i_new_map($idlang,$name_map,$content_map){
-		$sql = 'INSERT INTO mc_plugins_gmap (idlang,name_map,content_map) 
-		VALUE(:idlang,:name_map,:content_map)';
-		magixglobal_model_db::layerDB()->insert($sql,array(
-			':idlang'		=>	$idlang,
-			':name_map'		=>	$name_map,
-			':content_map'	=>	$content_map
-		));
-	}
+    protected function add($data){
+        if(is_array($data)) {
+            if (($data['type'] === 'page')) {
+                $sql = 'INSERT INTO mc_plugins_gmap (idlang,name_map,content_map) 
+		        VALUE(:idlang,:name_map,:content_map)';
+                magixglobal_model_db::layerDB()->insert($sql,array(
+                    ':idlang'		=>	$data['idlang'],
+                    ':name_map'		=>	$data['name'],
+                    ':content_map'	=>	$data['content']
+                ));
+            }elseif($data['type'] === 'address'){
+                $sql = 'INSERT INTO mc_plugins_gmap_adress (society_ga,adress_ga,city_ga,country_ga,lat_ga,lng_ga,idgmap)
+		        VALUE(:society_ga,:adress_ga,:city_ga,:country_ga,:lat_ga,:lng_ga,:edit)';
+                magixglobal_model_db::layerDB()->insert($sql,array(
+                    ':edit'		    =>	$data['edit'],
+                    ':society_ga'	=>	$data['society'],
+                    ':adress_ga'	=>	$data['address'],
+                    ':city_ga'		=>	$data['city'],
+                    ':country_ga'	=>	$data['country'],
+                    ':lat_ga'		=>	$data['lat'],
+                    ':lng_ga'		=>	$data['lng']
+                ));
+            }
+        }
+    }
 
     /**
-     * @access protected
-     * insertion d'une adresse relative
-     * @param $edit
-     * @param string $society_ga
-     * @param string $adress_ga
-     * @param string $city_ga
-     * @param string $country_ga
-     * @param string $lat_ga
-     * @param string $lng_ga
+     * Mise a jour des données
+     * @param $data
      */
-	protected function i_relative_map($edit,$society_ga,$adress_ga,$city_ga,$country_ga,$lat_ga,$lng_ga){
-		$sql = 'INSERT INTO mc_plugins_gmap_adress (society_ga,adress_ga,city_ga,country_ga,lat_ga,lng_ga,idgmap)
-		VALUE(:society_ga,:adress_ga,:city_ga,:country_ga,:lat_ga,:lng_ga,:edit)';
-		magixglobal_model_db::layerDB()->insert($sql,array(
-            ':edit'		    =>	$edit,
-			':society_ga'	=>	$society_ga,
-			':adress_ga'	=>	$adress_ga,
-			':city_ga'		=>	$city_ga,
-			':country_ga'	=>	$country_ga,
-			':lat_ga'		=>	$lat_ga,
-			':lng_ga'		=>	$lng_ga
-		));
-	}
+    protected function update($data){
+        if(is_array($data)) {
+            if (($data['type'] === 'page')) {
+                $sql = 'UPDATE mc_plugins_gmap 
+                SET name_map=:name_map,content_map=:content_map
+		        WHERE idgmap = :edit';
+                magixglobal_model_db::layerDB()->update($sql,array(
+                    ':edit'		    =>	$data['edit'],
+                    ':name_map'		=>	$data['name'],
+                    ':content_map'	=>	$data['content']
+                ));
+            }elseif($data['type'] === 'config'){
+                $sql=array(
+                    'UPDATE mc_plugins_gmap_config 
+			SET config_value="'.$data['society'].'" WHERE config_id = "society_map"',
+                    'UPDATE mc_plugins_gmap_config 
+			SET config_value="'.$data['address'].'" WHERE config_id = "adress_map"',
+                    'UPDATE mc_plugins_gmap_config 
+			SET config_value="'.$data['city'].'" WHERE config_id = "city_map"',
+                    'UPDATE mc_plugins_gmap_config 
+			SET config_value="'.$data['country'].'" WHERE config_id = "country_map"',
+                    'UPDATE mc_plugins_gmap_config 
+			SET config_value="'.$data['multi'].'" WHERE config_id = "multi_marker"',
+                    'UPDATE mc_plugins_gmap_config 
+			SET config_value="'.$data['marker'].'" WHERE config_id = "marker"',
+                    'UPDATE mc_plugins_gmap_config 
+			SET config_value="'.$data['route'].'" WHERE config_id = "route_map"',
+                    'UPDATE mc_plugins_gmap_config 
+			SET config_value="'.$data['api'].'" WHERE config_id = "api_key"',
+                    'UPDATE mc_plugins_gmap_config 
+			SET config_value="'.$data['lat'].'" WHERE config_id = "lat_map"',
+                    'UPDATE mc_plugins_gmap_config 
+			SET config_value="'.$data['lng'].'" WHERE config_id = "lng_map"'
+                );
+                magixglobal_model_db::layerDB()->transaction($sql);
+            }
+        }
+    }
 
     /**
-     * @access protected
-     * Mise à jour de la carte
-     * @param string $name_map
-     * @param string $content_map
-     * @param $edit
+     * @param $data
      */
-	protected function u_map_record($name_map,$content_map,$edit){
-		$sql = 'UPDATE mc_plugins_gmap SET name_map=:name_map,content_map=:content_map
-		WHERE idgmap = :edit';
-		magixglobal_model_db::layerDB()->update($sql,array(
-			':name_map'		=>	$name_map,
-			':content_map'	=>	$content_map,
-			':edit'		=>	$edit
-		));
-	}
-
-    /**
-     * @access protected
-     * Mise à jour de la configuration
-     * @param string $society_map
-     * @param string $adress_map
-     * @param string $city_map
-     * @param string $country_map
-     * @param string $marker
-     * @param string $route_map
-     * @param $api_key
-     * @param $multi_marker
-     * @param string $lat_map
-     * @param string $lng_map
-     */
-	protected function u_config_map($society_map,$adress_map,$city_map,$country_map,$marker,$route_map,$multi_marker,$api_key,$lat_map,$lng_map){
-		$sql=array(
-			'UPDATE mc_plugins_gmap_config 
-			SET config_value="'.$society_map.'" WHERE config_id = "society_map"',
-			'UPDATE mc_plugins_gmap_config 
-			SET config_value="'.$adress_map.'" WHERE config_id = "adress_map"',
-			'UPDATE mc_plugins_gmap_config 
-			SET config_value="'.$city_map.'" WHERE config_id = "city_map"',
-			'UPDATE mc_plugins_gmap_config 
-			SET config_value="'.$country_map.'" WHERE config_id = "country_map"',
-			'UPDATE mc_plugins_gmap_config 
-			SET config_value="'.$multi_marker.'" WHERE config_id = "multi_marker"',
-			'UPDATE mc_plugins_gmap_config 
-			SET config_value="'.$marker.'" WHERE config_id = "marker"',
-			'UPDATE mc_plugins_gmap_config 
-			SET config_value="'.$route_map.'" WHERE config_id = "route_map"',
-            'UPDATE mc_plugins_gmap_config 
-			SET config_value="'.$api_key.'" WHERE config_id = "api_key"',
-			'UPDATE mc_plugins_gmap_config 
-			SET config_value="'.$lat_map.'" WHERE config_id = "lat_map"',
-			'UPDATE mc_plugins_gmap_config 
-			SET config_value="'.$lng_map.'" WHERE config_id = "lng_map"'
-		);
-        magixglobal_model_db::layerDB()->transaction($sql);
-	}
-	/**
-	 * @access protected
-	 * Suppression d'une carte
-	 * @param integer $deletemap
-	 */
-	protected function d_map($deletemap){
-		$sql = 'DELETE FROM mc_plugins_gmap WHERE idgmap = :deletemap';
-		magixglobal_model_db::layerDB()->delete($sql,
-			array(
-			':deletemap'=>$deletemap
-			)
-		);
-	}
-	/**
-	 * @access protected
-	 * Suppression d'une adresse relative à une carte
-	 * @param integer $deletemap
-	 */
-	protected function d_rel_adress($delete_rel_map){
-		$sql = 'DELETE FROM mc_plugins_gmap_adress WHERE id_adress = :delete_rel_map';
-		magixglobal_model_db::layerDB()->delete($sql,
-			array(
-			':delete_rel_map'=>$delete_rel_map
-			)
-		);
-	}
+	protected function remove($data){
+        if(is_array($data)){
+            if(($data['type'] === 'page')){
+                $sql = 'DELETE FROM mc_plugins_gmap WHERE idgmap = :id';
+                magixglobal_model_db::layerDB()->delete($sql,
+                    array(
+                        ':id'=>$data['id']
+                    )
+                );
+            }elseif(($data['type'] === 'address')){
+                $sql = 'DELETE FROM mc_plugins_gmap_adress WHERE id_adress = :id';
+                magixglobal_model_db::layerDB()->delete($sql,
+                    array(
+                        ':id'=>$data['id']
+                    )
+                );
+            }
+        }
+    }
 }
