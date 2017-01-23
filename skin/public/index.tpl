@@ -7,7 +7,7 @@
 {block name="description"}{seo_rewrite config_param=['level'=>'0','idmetas'=>'2','default'=>{$config_map.name_map|ucfirst}]}{/block}
 {block name='body:id'}gmap{/block}
 {block name="main"}
-    {$map_data}
+    {$getMapConfig}
 {/block}
 {block name="foot" append}
     {script src="/min/?g=form" concat=$concat type="javascript"}

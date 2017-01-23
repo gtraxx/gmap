@@ -429,7 +429,6 @@ class plugins_gmap_admin extends database_plugins_gmap{
                         }else{
                             $this->setConfigData();
                             $this->template->assign('countryTools',$this->country->setItemsData());
-                            //$this->template->assign('markers',$this->findMarker());
                             $this->findMarker();
                             // Retourne la page index.tpl
                             $this->template->display('list.tpl');
@@ -444,13 +443,7 @@ class plugins_gmap_admin extends database_plugins_gmap{
                                 $this->template->display('list.tpl');
                             }elseif($this->action == 'add'){
                                 if(isset($this->name_map)){
-                                    $header= new magixglobal_model_header();
-                                    $header->head_expires("Mon, 26 Jul 1997 05:00:00 GMT");
-                                    $header->head_last_modified(gmdate( "D, d M Y H:i:s" ) . "GMT");
-                                    $header->pragma();
-                                    $header->cache_control("nocache");
-                                    $header->getStatus('200');
-                                    $header->json_header("UTF-8");
+                                    $header->set_json_headers();
                                     $this->save(array(
                                         'context'   => 'add',
                                         'type'      =>'page'
@@ -465,13 +458,7 @@ class plugins_gmap_admin extends database_plugins_gmap{
                                         ));
                                     }elseif($this->tab == 'multimarkers'){
                                         if(isset($this->adress_ga)){
-                                            $header= new magixglobal_model_header();
-                                            $header->head_expires("Mon, 26 Jul 1997 05:00:00 GMT");
-                                            $header->head_last_modified(gmdate( "D, d M Y H:i:s" ) . "GMT");
-                                            $header->pragma();
-                                            $header->cache_control("nocache");
-                                            $header->getStatus('200');
-                                            $header->json_header("UTF-8");
+                                            $header->set_json_headers();
                                             $this->save(array(
                                                 'context'   => 'add',
                                                 'type'      =>'address'

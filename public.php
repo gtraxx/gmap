@@ -18,21 +18,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 # -- END LICENSE BLOCK -----------------------------------
-
-/**
- * MAGIX CMS
- * @category   gmap 
- * @package    plugins
- * @copyright  MAGIX CMS Copyright (c) 2008 - 2013 Gerits Aurelien,
- * http://www.magix-cms.com,  http://www.magix-cjquery.com
- * @license    Dual licensed under the MIT or GPL Version 3 licenses.
- * @version    2.0
- * @author Gérits Aurélien <aurelien@magix-cms.com> <aurelien@magix-dev.be>, jean-baptiste demonte (http://gmap3.net/)
- * @name gmap
- * La géolocalisation avec Googlemap (gmap3)
- *
- */
 class plugins_gmap_public extends database_plugins_gmap{
+    protected $template;
 	/**
 	 * 
 	 * paramètre pour la requête JSON
@@ -44,6 +31,7 @@ class plugins_gmap_public extends database_plugins_gmap{
 	 * Constructor
 	 */
 	function __construct(){
+	    $this->template = new frontend_controller_plugins();
 		if(magixcjquery_filter_request::isGet('json_multi_data')){
 			$this->json_multi_data = (string) magixcjquery_form_helpersforms::inputClean($_GET['json_multi_data']);
 		}
@@ -52,11 +40,12 @@ class plugins_gmap_public extends database_plugins_gmap{
     /**
      * @access private
      * Chargement des données de la carte
-     * @param $create
-     * @param void $loaddata
+     * @param void $setData
      */
-	private function data_map($create,$loaddata){
-		$config = parent::s_map_config();
+	private function setMapConfig($setData){
+		$config = parent::fetch(array(
+            'type'      =>  'config'
+        ));
         $configId = '';
         $configValue = '';
         foreach($config as $key){
@@ -65,21 +54,25 @@ class plugins_gmap_public extends database_plugins_gmap{
         }
         $setConfig = array_combine($configId,$configValue);
         $setData = array(
-            'name_map'      =>  $loaddata['name_map'],
-            'content_map'   =>  $loaddata['content_map']
+            'name_map'      =>  $setData['name_map'],
+            'content_map'   =>  $setData['content_map']
         );
         $dataMap = array_merge($setConfig, $setData);
-        $create->assign('config_map',$dataMap);
+        $this->template->assign('config_map',$dataMap);
 	}
 
     /**
-     * @param $loaddata
+     * @param $setData
      * Retourne la configuration de gmap avec une requête JSON
      */
-	private function json_related_adress($loaddata){
+	private function json_related_adress($setData){
         $json = new magixglobal_model_json();
-		if(parent::s_relative_map($loaddata['idgmap']) != null){
-			foreach (parent::s_relative_map($loaddata['idgmap']) as $s){
+        $setAddress = parent::fetch(array(
+            'type'      =>  'address',
+            'id'    =>  $setData['idgmap']
+        ));
+		if($setAddress != null){
+			foreach ($setAddress as $s){
                 $map[]= '{"latLng":['.$s['lat_ga'].','.$s['lng_ga'].']'.
                     ',"data":'.'{'.'"society":'.json_encode($s['society_ga']).
                     ',"country":'.json_encode($s['country_ga']).',"city":'.json_encode($s['city_ga']).',"adress":'
@@ -95,70 +88,70 @@ class plugins_gmap_public extends database_plugins_gmap{
 	 * Execute le plugin dans la partie public
 	 */
 	public function run(){
-		$create = frontend_controller_plugins::create();
         $header= new magixglobal_model_header();
-        $create->assign('plugin_status',parent::c_show_table());
-		$create->configLoad();
+        $this->template->assign('plugin_status',parent::c_show_table());
+		$this->template->configLoad();
 		if(parent::c_show_table() != 0){
-			$loaddata = parent::s_map($create->getLanguage());
+			$setData = parent::fetch(array(
+                'type'      =>  'page',
+                'iso'    =>  $this->template->getLanguage()
+            ));
 			if($this->json_multi_data){
-                $header->head_expires("Mon, 26 Jul 1997 05:00:00 GMT");
-                $header->head_last_modified(gmdate( "D, d M Y H:i:s" ) . "GMT");
-                $header->pragma();
-                $header->cache_control("nocache");
-                $header->getStatus('200');
-                $header->json_header("UTF-8");
-				$this->json_related_adress($loaddata);
+                $header->set_json_headers();
+				$this->json_related_adress($setData);
 			}else{
-				$this->data_map($create,$loaddata);
-                $map_data = $create->fetch('map.tpl');
-                $create->assign('map_data',$map_data);
-				$create->display('index.tpl');
+				$this->setMapConfig($setData);
+                $getMapConfig = $this->template->fetch('map.tpl');
+                $this->template->assign('getMapConfig',$getMapConfig);
+                $this->template->display('index.tpl');
 			}
 		}else{
-            $map_data = $create->fetch('map.tpl');
-            $create->assign('map_data',$map_data);
-			$create->display('index.tpl');
+            $getMapConfig = $this->template->fetch('map.tpl');
+            $this->template->assign('getMapConfig',$getMapConfig);
+            $this->template->display('index.tpl');
 		}
     }
 }
-class database_plugins_gmap{
-	/**
-	 * Vérifie si les tables du plugin sont installé
-	 * @access protected
-	 * return integer
-	 */
-	protected function c_show_table(){
-		$table = 'mc_plugins_gmap';
-		return magixglobal_model_db::layerDB()->showTable($table);
-	}
-	/**
-	 * @access protected
-	 * Récupère la configuration
-	 */
-	protected function s_map_config(){
-		$sql ='SELECT conf.* FROM mc_plugins_gmap_config AS conf';
-		return magixglobal_model_db::layerDB()->select($sql);
-	}
+class database_plugins_gmap
+{
+    /**
+     * Vérifie si les tables du plugin sont installé
+     * @access protected
+     * return integer
+     */
+    protected function c_show_table()
+    {
+        $table = 'mc_plugins_gmap';
+        return magixglobal_model_db::layerDB()->showTable($table);
+    }
 
     /**
-     * @param $iso
+     * fetch Data
+     * @param $data
      * @return array
      */
-	protected function s_map($iso){
-		$sql = 'SELECT map.* FROM mc_plugins_gmap AS map
-		JOIN mc_lang AS lang ON ( map.idlang = lang.idlang )
-		WHERE lang.iso = :iso';
-		return magixglobal_model_db::layerDB()->selectOne($sql,array(':iso'=>$iso));
-	}
+    protected function fetch($data)
+    {
+        if (is_array($data)) {
+            if (($data['type'] === 'config')) {
 
-	/**
-	 * @access protected
-	 * Selectionne les cartes ou record
-	 */
-	protected function s_relative_map($idgmap){
-		$sql ='SELECT addr.* FROM mc_plugins_gmap_adress AS addr
-		WHERE addr.idgmap = :idgmap';
-		return magixglobal_model_db::layerDB()->select($sql,array(':idgmap'=>$idgmap));
-	}
+                $sql = 'SELECT conf.* FROM mc_plugins_gmap_config AS conf';
+                return magixglobal_model_db::layerDB()->select($sql);
+
+            } elseif ($data['type'] === 'page') {
+
+                $sql = 'SELECT map.* FROM mc_plugins_gmap AS map
+                JOIN mc_lang AS lang ON ( map.idlang = lang.idlang )
+                WHERE lang.iso = :iso';
+
+                return magixglobal_model_db::layerDB()->selectOne($sql, array(':iso' => $data['iso']));
+            } elseif ($data['type'] === 'address') {
+
+                $sql = 'SELECT addr.* FROM mc_plugins_gmap_adress AS addr
+		        WHERE addr.idgmap = :idgmap';
+
+                return magixglobal_model_db::layerDB()->select($sql, array(':idgmap' => $data['id']));
+            }
+        }
+    }
 }
