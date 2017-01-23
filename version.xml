@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!-- /*
- * MAGIX DEV Copyright (c) 2011 - 2015 Gerits Aurelien,
+ * MAGIX CMS Copyright (c) 2011 - 2017 Gerits Aurelien,
  * http://www.magix-dev
  * Dual licensed under the MIT AND GPL Version 3 licenses.
  *
@@ -9,5 +9,5 @@
 <version>
 	<number>2.8</number>
 	<phase>Stable</phase>
-	<link>http://www.magix-dev.be/fr/catalogue/2-creation-logiciels/4-plugins-magix-cms/gmap-9</link>
+	<link>http://www.magix-cms.com/fr/catalogue/15-les-plugins-officiel/plugin-gmap-58</link>
 </version>

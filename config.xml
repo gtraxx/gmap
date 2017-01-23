@@ -30,7 +30,7 @@
                     <date_create>21/01/2012</date_create>
                     <date_update>23/01/2017</date_update>
                     <number>2.8</number>
-                    <phase>Beta</phase>
+                    <phase>Stable</phase>
                     <support>
                         <ticket href="https://github.com/gtraxx/gmap/issues"></ticket>
                         <git href="https://github.com/gtraxx/gmap"></git>
