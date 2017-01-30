@@ -15,7 +15,8 @@ var MC_plugins_gmap = (function ($, undefined) {
      */
     function loadMapConfig(){
         var infocontent = $('#adress_map').val() + '<br />' + $('#city_map').val() + ' ' + $('#country_map').val();
-        var adr = $('#adress_map').val() + ', ' + $('#country_map').val();
+        //var adr = $('#adress_map').val() + ', ' + $('#country_map').val();
+        var adr = $('#adress_map').val()+' '+ $('#city_map').val() + ', ' + $('#country_map').val();
         //alert(adr);
         $('#contener-map')
             .gmap3()
@@ -32,7 +33,7 @@ var MC_plugins_gmap = (function ($, undefined) {
      */
     function loadMapRelated() {
         var infocontent = $('#adress_ga').val() + '<br />' + $('#city_ga').val() + ' ' + $('#country_ga').val();
-        var adr = $('#adress_ga').val() + ', ' + $('#country_ga').val();
+        var adr = $('#adress_ga').val() +' '+ $('#city_ga').val() + ', ' + $('#country_ga').val();
         //alert(adr);
         $('#contener-map')
             .gmap3() // no options = no start map for now...
@@ -327,8 +328,10 @@ var MC_plugins_gmap = (function ($, undefined) {
             save(getlang,'config','#forms_plugins_gmap_config',null);
             if ($("#contener-map").length != 0) {
                 $('#adress_map').keypress(function () {
+                    //console.log("keypress ok");
                     updateTimer('', 'MC_plugins_gmap.mapConfig();');
                 }).change(function () {
+                    //console.log("keypress change ok");
                     updateTimer(100, 'MC_plugins_gmap.mapConfig();');
                 });
             }
