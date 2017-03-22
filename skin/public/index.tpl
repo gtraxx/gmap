@@ -7,7 +7,9 @@
 {block name="description"}{seo_rewrite config_param=['level'=>'0','idmetas'=>'2','default'=>{$config_map.name_map|ucfirst}]}{/block}
 {block name='body:id'}gmap{/block}
 {block name="main"}
-    {$getMapConfig}
+    <div class="container">
+        {$getMapConfig}
+    </div>
 {/block}
 {block name="foot" append}
     {script src="/min/?g=form" concat=$concat type="javascript"}
@@ -18,34 +20,13 @@
     {script src="/min/?f=plugins/gmap/js/perfect-scrollbar.min.js,plugins/gmap/js/gmap3-7.2.min.js,plugins/gmap/js/public.js" concat=$concat type="javascript"}
     {if $plugin_status != 0}
         <script type="text/javascript">
-            $(function(){
-                var iso = '{getlang}';
-                var latLng = ["{$config_map.lat_map}", "{$config_map.lng_map}"];
-                var postalAddress = "{$config_map.adress_map}, {$config_map.country_map}";
-                var city = "{$config_map.city_map}";
-                var route = "{$config_map.route_map}";
-                var marker = "{$config_map.marker}";
-                var originData = ["{$config_map.society_map}",postalAddress,city,latLng,route,marker];
-                if (typeof gmap == "undefined"){
-                    console.log("gmap is not defined");
-                }else{
-                    {if $config_map.multi_marker eq '1'}
-                    gmap.runMultiMarker(iso,originData);
-                    {else}
-                    gmap.run(iso,originData);
-                    $('.subdirection').on('click',function(){
-                        var checkRoute = setInterval(function () {
-                            var fill = $("#r-directions .adp").html();
-                            if (fill !== undefined) {
-                                // Custom Scrollbar
-                                $('#r-directions .adp').perfectScrollbar();
-                                clearInterval(checkRoute);
-                            }
-                        }, 50);
-                    });
-                    {/if}
-                }
-            });
+			$(function(){
+				if (typeof gmap == "undefined"){
+					console.log("gmap is not defined");
+				}else{
+					gmap.run({$config_gmap},{literal}{scrollwheel: false}{/literal});
+				}
+			});
         </script>
     {/if}
 {/block}

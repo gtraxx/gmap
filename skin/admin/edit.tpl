@@ -30,6 +30,7 @@
                 <th>ID</th>
                 <th>Société</th>
                 <th>Adresse</th>
+                <th>Code postal</th>
                 <th>Ville</th>
                 <th>Pays</th>
                 <th><span class="fa fa-trash-o"></span></th>

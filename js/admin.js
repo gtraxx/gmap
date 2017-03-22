@@ -33,17 +33,20 @@ var MC_plugins_gmap = (function ($, undefined) {
      */
     function loadMapRelated() {
         var infocontent = $('#adress_ga').val() + '<br />' + $('#city_ga').val() + ' ' + $('#country_ga').val();
-        var adr = $('#adress_ga').val() +' '+ $('#city_ga').val() + ', ' + $('#country_ga').val();
+        var adr = $('#adress_ga').val() +', ' + $('#postcode_ga').val() + ' ' + $('#city_ga').val() + ', ' + $('#country_ga').val();
+        console.log(adr);
         //alert(adr);
-        $('#contener-map')
-            .gmap3() // no options = no start map for now...
-            .latlng({
-                address: adr
-            })
-            .then(function (latlng) {
-                $("#lat_ga").val(latlng.lat());
-                $("#lng_ga").val(latlng.lng());
-            });
+		if($('#adress_ga').val() !== '' && $('#postcode_ga').val() !== '' && $('#city_ga').val() !== '') {
+			$('#contener-map')
+				.gmap3() // no options = no start map for now...
+				.latlng({
+					address: adr
+				})
+				.then(function (latlng) {
+					$("#lat_ga").val(latlng.lat());
+					$("#lng_ga").val(latlng.lng());
+				});
+		}
     }
     /**
      * Save
@@ -314,6 +317,15 @@ var MC_plugins_gmap = (function ($, undefined) {
             }
         }
     }
+
+    function watch(field) {
+    	field.keypress(function () {
+			updateTimer('', 'MC_plugins_gmap.mapRelated();');
+		}).change(function () {
+			updateTimer(100, 'MC_plugins_gmap.mapRelated();');
+		});
+	}
+
     return {
         //Fonction Public
         runList: function (baseadmin, getlang) {
@@ -347,11 +359,9 @@ var MC_plugins_gmap = (function ($, undefined) {
             del(getlang,'address','#del_address','#deleteModal');
             save(getlang,'address','#forms_plugins_gmap_related','#add-address');
             if ($("#contener-map").length != 0) {
-                $('#adress_ga').keypress(function () {
-                    updateTimer('', 'MC_plugins_gmap.mapRelated();');
-                }).change(function () {
-                    updateTimer(100, 'MC_plugins_gmap.mapRelated();');
-                });
+                watch($('#adress_ga'));
+                watch($('#city_ga'));
+                watch($('#postcode_ga'));
             }
         }
     };

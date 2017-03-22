@@ -34,6 +34,7 @@ class plugins_gmap_admin extends database_plugins_gmap{
 	 */
 	$society_map,
 	$adress_map,
+	$postcode_map,
 	$city_map,
 	$country_map,
 	$marker,
@@ -51,6 +52,7 @@ class plugins_gmap_admin extends database_plugins_gmap{
 	public
 	$society_ga,
 	$adress_ga,
+	$postcode_ga,
 	$city_ga,
 	$country_ga,
 	$lat_ga,
@@ -95,6 +97,9 @@ class plugins_gmap_admin extends database_plugins_gmap{
 		if(magixcjquery_filter_request::isPost('adress_map')){
 			$this->adress_map = (string) magixcjquery_form_helpersforms::inputClean($_POST['adress_map']);
 		}
+		if(magixcjquery_filter_request::isPost('postcode_map')){
+			$this->postcode_map = (string) magixcjquery_form_helpersforms::inputClean($_POST['postcode_map']);
+		}
 		if(magixcjquery_filter_request::isPost('city_map')){
 			$this->city_map = (string) magixcjquery_form_helpersforms::inputClean($_POST['city_map']);
 		}
@@ -126,6 +131,9 @@ class plugins_gmap_admin extends database_plugins_gmap{
 		}
 		if(magixcjquery_filter_request::isPost('adress_ga')){
 			$this->adress_ga = (string) magixcjquery_form_helpersforms::inputClean($_POST['adress_ga']);
+		}
+		if(magixcjquery_filter_request::isPost('postcode_ga')){
+			$this->postcode_ga = (string) magixcjquery_form_helpersforms::inputClean($_POST['postcode_ga']);
 		}
 		if(magixcjquery_filter_request::isPost('city_ga')){
 			$this->city_ga = (string) magixcjquery_form_helpersforms::inputClean($_POST['city_ga']);
@@ -331,6 +339,7 @@ class plugins_gmap_admin extends database_plugins_gmap{
                                 'edit'		=>	$this->edit,
                                 'society'	=>	$this->society_ga,
                                 'address'	=>	$this->adress_ga,
+                                'postcode'	=>	$this->postcode_ga,
                                 'city'		=>	$this->city_ga,
                                 'country'	=>	$this->country_ga,
                                 'lat'		=>	$this->lat_ga,
@@ -368,6 +377,7 @@ class plugins_gmap_admin extends database_plugins_gmap{
                             'api'	    =>	$this->api_key,
                             'society'	=>	$this->society_map,
                             'address'	=>	$this->adress_map,
+                            'postcode'	=>	$this->postcode_map,
                             'city'		=>	$this->city_map,
                             'country'	=>	$this->country_map,
                             'lat'		=>	$this->lat_map,
@@ -648,12 +658,13 @@ class database_plugins_gmap{
                     ':content_map'	=>	$data['content']
                 ));
             }elseif($data['type'] === 'address'){
-                $sql = 'INSERT INTO mc_plugins_gmap_adress (society_ga,adress_ga,city_ga,country_ga,lat_ga,lng_ga,idgmap)
-		        VALUE(:society_ga,:adress_ga,:city_ga,:country_ga,:lat_ga,:lng_ga,:edit)';
+                $sql = 'INSERT INTO mc_plugins_gmap_adress (society_ga,adress_ga,postcode_ga,city_ga,country_ga,lat_ga,lng_ga,idgmap)
+		        VALUE(:society_ga,:adress_ga,:postcode_ga,:city_ga,:country_ga,:lat_ga,:lng_ga,:edit)';
                 magixglobal_model_db::layerDB()->insert($sql,array(
                     ':edit'		    =>	$data['edit'],
                     ':society_ga'	=>	$data['society'],
                     ':adress_ga'	=>	$data['address'],
+                    ':postcode_ga'	=>	$data['postcode'],
                     ':city_ga'		=>	$data['city'],
                     ':country_ga'	=>	$data['country'],
                     ':lat_ga'		=>	$data['lat'],
@@ -684,6 +695,8 @@ class database_plugins_gmap{
 			SET config_value="'.$data['society'].'" WHERE config_id = "society_map"',
                     'UPDATE mc_plugins_gmap_config 
 			SET config_value="'.$data['address'].'" WHERE config_id = "adress_map"',
+                    'UPDATE mc_plugins_gmap_config  
+			SET config_value="'.$data['poscode'].'" WHERE config_id = "poscode_map"',
                     'UPDATE mc_plugins_gmap_config 
 			SET config_value="'.$data['city'].'" WHERE config_id = "city_map"',
                     'UPDATE mc_plugins_gmap_config 

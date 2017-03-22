@@ -32,6 +32,12 @@
             </div>
         </div>
         <div class="form-group">
+            <label for="postcode_map" class="col-sm-2 control-label">Code postal :</label>
+            <div class="col-sm-7">
+                <input type="text" class="form-control" id="postcode_map" name="postcode_map" value="{$getConfigData.postcode_map}" size="50" />
+            </div>
+        </div>
+        <div class="form-group">
             <label for="adress_map" class="col-sm-2 control-label">Adresse :</label>
             <div class="col-sm-7">
                 <input type="text" class="form-control" id="adress_map" name="adress_map" value="{$getConfigData.adress_map}" size="50" />

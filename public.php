@@ -30,7 +30,7 @@ class plugins_gmap_public extends database_plugins_gmap{
 	 * @access public
 	 * Constructor
 	 */
-	function __construct(){
+	function __construct() {
 	    $this->template = new frontend_controller_plugins();
 		if(magixcjquery_filter_request::isGet('json_multi_data')){
 			$this->json_multi_data = (string) magixcjquery_form_helpersforms::inputClean($_GET['json_multi_data']);
@@ -42,10 +42,8 @@ class plugins_gmap_public extends database_plugins_gmap{
      * Chargement des données de la carte
      * @param void $setData
      */
-	private function setMapConfig($setData){
-		$config = parent::fetch(array(
-            'type'      =>  'config'
-        ));
+	private function setMapConfig($setData) {
+		$config = parent::fetch(array('type' => 'config'));
         $configId = '';
         $configValue = '';
         foreach($config as $key){
@@ -53,59 +51,59 @@ class plugins_gmap_public extends database_plugins_gmap{
             $configValue[] = $key['config_value'];
         }
         $setConfig = array_combine($configId,$configValue);
-        $setData = array(
-            'name_map'      =>  $setData['name_map'],
-            'content_map'   =>  $setData['content_map']
-        );
-        $dataMap = array_merge($setConfig, $setData);
-        $this->template->assign('config_map',$dataMap);
+		$setConfig['name_map'] = $setData['name_map'];
+		$setConfig['content_map'] = $setData['content_map'];
+		$this->template->assign('config_map',$setConfig);
+
+		if($setConfig['multi_marker']) {
+			$setAddress = parent::fetch(array(
+				'type'      =>  'address',
+				'id'    =>  $setData['idgmap']
+			));
+
+			if($setAddress != null) {
+				$map = [];
+				foreach ($setAddress as $s){
+					$map[]= '{"latLng":['.$s['lat_ga'].','.$s['lng_ga'].']'.
+						',"data":'.'{'.'"society":'.json_encode($s['society_ga']).
+						',"country":'.json_encode($s['country_ga']).',"city":'.json_encode($s['city_ga']).',"postcode":'.json_encode($s['postcode_ga']).',"adress":'
+						.json_encode($s['adress_ga']).'}}';
+				}
+				$setConfig['markers'] = '['.implode(',',$map).']';
+			}
+			else {
+				$setConfig['markers'] = '[{"lat":null,"lng":null,"data":{"society":null,"country":null,"city":null,"adress":null}}]';
+			}
+		}
+
+		$config = [];
+		foreach ($setConfig as $k => $v) {
+			if($k != 'markers')
+				$v = json_encode($v);
+			$config[]= $k.':'.$v;
+		}
+		$this->template->assign('config_gmap','{'.implode(',',$config).'}');
 	}
 
-    /**
-     * @param $setData
-     * Retourne la configuration de gmap avec une requête JSON
-     */
-	private function setJsonData($setData){
-        $json = new magixglobal_model_json();
-        $setAddress = parent::fetch(array(
-            'type'      =>  'address',
-            'id'    =>  $setData['idgmap']
-        ));
-		if($setAddress != null){
-			foreach ($setAddress as $s){
-                $map[]= '{"latLng":['.$s['lat_ga'].','.$s['lng_ga'].']'.
-                    ',"data":'.'{'.'"society":'.json_encode($s['society_ga']).
-                    ',"country":'.json_encode($s['country_ga']).',"city":'.json_encode($s['city_ga']).',"adress":'
-                    .json_encode($s['adress_ga']).'}}';
-			}
-			$json->encode($map,array('{"multi_adress":[',']}'));
-		}else{
-			print '[{"lat":null,"lng":null,"data":{"society":null,"country":null,"city":null,"adress":null}}]';
-		}
-	}
 	/**
 	 * @access public
 	 * Execute le plugin dans la partie public
 	 */
-	public function run(){
-        $header= new magixglobal_model_header();
+	public function run() {
         $this->template->assign('plugin_status',parent::c_show_table());
 		$this->template->configLoad();
-		if(parent::c_show_table() != 0){
+
+		if(parent::c_show_table() != 0) {
 			$setData = parent::fetch(array(
                 'type'      =>  'page',
                 'iso'    =>  $this->template->getLanguage()
             ));
-			if($this->json_multi_data){
-                $header->set_json_headers();
-				$this->setJsonData($setData);
-			}else{
-				$this->setMapConfig($setData);
-                $getMapConfig = $this->template->fetch('map.tpl');
-                $this->template->assign('getMapConfig',$getMapConfig);
-                $this->template->display('index.tpl');
-			}
-		}else{
+			$this->setMapConfig($setData);
+			$getMapConfig = $this->template->fetch('map.tpl');
+			$this->template->assign('getMapConfig',$getMapConfig);
+			$this->template->display('index.tpl');
+		}
+		else {
             $getMapConfig = $this->template->fetch('map.tpl');
             $this->template->assign('getMapConfig',$getMapConfig);
             $this->template->display('index.tpl');

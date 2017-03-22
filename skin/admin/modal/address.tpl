@@ -33,6 +33,12 @@
                         </div>
                     </div>
                     <div class=" form-group col-xs-12">
+                        <label for="postcode_ga" class="col-sm-3 control-label">Code postal :</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="postcode_ga" name="postcode_ga" value="{$related.city_ga}" size="50" />
+                        </div>
+                    </div>
+                    <div class=" form-group col-xs-12">
                         <label for="adress_ga" class="col-sm-3 control-label">Adresse :</label>
                         <div class="col-sm-9">
                             <input type="text" class="form-control" id="adress_ga" name="adress_ga" value="{$related.adress_ga}" size="50" />

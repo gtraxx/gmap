@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS `mc_plugins_gmap_adress` (
   `idgmap` SMALLINT(3) NOT NULL,
   `society_ga` VARCHAR(50) NOT NULL,
   `adress_ga` VARCHAR(175) NOT NULL,
+  `postcode_ga` VARCHAR(12) NOT NULL,
   `country_ga` VARCHAR(30) NOT NULL,
   `city_ga` VARCHAR(40) NOT NULL,
   `lat_ga` double NOT NULL,
@@ -29,12 +30,13 @@ CREATE TABLE IF NOT EXISTS `mc_plugins_gmap_adress` (
 INSERT INTO `mc_plugins_gmap_config` (`idgmapconfig`, `config_id`, `config_value`) VALUES
 (NULL, 'society_map', NULL),
 (NULL, 'adress_map', NULL),
+(NULL, 'postcode_map', NULL),
 (NULL, 'country_map', NULL),
 (NULL, 'city_map', NULL),
 (NULL, 'marker', 'red-dot.png'),
 (NULL, 'route_map', '0'),
 (NULL, 'lat_map', NULL),
 (NULL, 'lng_map', NULL),
-(NULL, 'gmap_version', '2.8'),
+(NULL, 'gmap_version', '2.9'),
 (NULL, 'multi_marker', '0'),
 (NULL, 'api_key', NULL);
