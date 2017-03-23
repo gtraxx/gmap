@@ -74,6 +74,12 @@
             {/if}
             </div>
         </div>
+        <div class="form-group">
+            <label for="link_map" class="col-sm-2 control-label">Lien :</label>
+            <div class="col-sm-7">
+                <input type="text" class="form-control" id="link_map" name="link_map" value="{$getConfigData.link_map}" size="50" />
+            </div>
+        </div>
         <div class="form-group map-position">
             <label class="col-sm-2 control-label">Position :</label>
             <div class="col-sm-10">

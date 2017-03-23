@@ -55,7 +55,7 @@ var MC_plugins_gmap = (function ($, undefined) {
      * @param id
      * @param modal
      */
-    function save(getlang,type,id,modal){
+    function save(getlang,type,id,modal,subaction){
         if(type == 'add'){
             // *** Set required fields for validation
             $(id).validate({
@@ -197,6 +197,42 @@ var MC_plugins_gmap = (function ($, undefined) {
                                 $('#no-entry').before(data.result);
                                 updateList('address');
                             }
+                        }
+                    });
+                    return false;
+                }
+            });
+        }else if(type == 'addressedit'){
+            $(id).validate({
+                onsubmit: true,
+                event: 'submit',
+                rules: {
+                    society_ga: {
+                        required: true
+                    },
+                    country_ga: {
+                        required: true
+                    },
+                    city_ga: {
+                        required: true
+                    },
+                    adress_ga: {
+                        required: true,
+                        minlength: 2
+                    }
+                },
+                submitHandler: function (form) {
+                    $.nicenotify({
+                        ntype: "submit",
+                        uri: '/' + baseadmin + '/plugins.php?name=gmap&getlang=' + getlang + '&action=edit&edit=' + edit + '&tab=multimarkers&id='+subaction,
+                        typesend: 'post',
+                        idforms: $(form),
+                        //noticedata: $(form).serialize(),
+                        successParams:function(data){
+                            window.setTimeout(function() { $(".alert-success").alert('close'); }, 4000);
+                            $.nicenotify.initbox(data,{
+                                display:true
+                            });
                         }
                     });
                     return false;
@@ -352,12 +388,20 @@ var MC_plugins_gmap = (function ($, undefined) {
             loadMapRelated();
         },
         runEdit: function (baseadmin, getlang, edit) {
-            save(getlang,'edit','#forms_plugins_gmap_edit',null);
+            save(getlang,'edit','#forms_plugins_gmap_edit',null,null);
         },
         runRelated: function (baseadmin, getlang, edit) {
             updateList('address');
             del(getlang,'address','#del_address','#deleteModal');
-            save(getlang,'address','#forms_plugins_gmap_related','#add-address');
+            save(getlang,'address','#forms_plugins_gmap_related','#add-address',null);
+            if ($("#contener-map").length != 0) {
+                watch($('#adress_ga'));
+                watch($('#city_ga'));
+                watch($('#postcode_ga'));
+            }
+        },
+        runRelatedEdit: function(baseadmin, getlang, edit, subaction) {
+            save(getlang,'addressedit','#forms_plugins_gmap_related_edit','#add-address',subaction);
             if ($("#contener-map").length != 0) {
                 watch($('#adress_ga'));
                 watch($('#city_ga'));

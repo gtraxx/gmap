@@ -1,3 +1,8 @@
+Version 3.0
+* Add link in config and related address
+* Add update for related address
+* Fix bug postcode_map
+
 Version 2.9
 * Update Less
 * Add new fonctionnality with google map

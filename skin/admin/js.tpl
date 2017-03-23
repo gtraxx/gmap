@@ -13,7 +13,12 @@
                 {else}
                     {if $smarty.get.edit}
                         {if $smarty.get.tab eq 'multimarkers'}
-                        MC_plugins_gmap.runRelated(baseadmin,getlang,edit);
+                            {if $smarty.get.id}
+                            var subaction = "{$smarty.get.id}";
+                            MC_plugins_gmap.runRelatedEdit(baseadmin,getlang,edit,subaction);
+                            {else}
+                            MC_plugins_gmap.runRelated(baseadmin,getlang,edit);
+                            {/if}
                         {else}
                         MC_plugins_gmap.runEdit(baseadmin,getlang,edit);
                         {/if}

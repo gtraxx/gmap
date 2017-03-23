@@ -21,8 +21,14 @@ var gmap = (function ($, undefined) {
     	var self = this;
     	self.config = config;
 
+        if(config.link_map === '' || config.link_map === null){
+            var society_map = config.society_map;
+        }else{
+            var society_map = '<a href="'+config.link_map+'">'+config.society_map+'</a>';
+		}
+
         self.origin = {
-            OriginContent : config.society_map,
+            OriginContent : society_map,
             OriginAddress : config.adress_map,
             OriginCity : config.postcode_map + ' ' + config.city_map,
             OriginCountry : config.country_map,
@@ -59,7 +65,12 @@ var gmap = (function ($, undefined) {
 				function (markers) {*/
 					$.each(config.markers, function(key, val){
 						var latLng = [val.latLng[0], val.latLng[1]];
-						var content = val.data.society+'<br />'+val.data.adress+'<br />'+val.data.postcode+' '+val.data.city+', '+val.data.country;
+						if(val.data.link === '' || val.data.link === null){
+                            var society = val.data.society;
+						}else{
+                            var society = '<a href="'+val.data.link+'">'+val.data.society+'</a>';
+						}
+						var content = society+'<br />'+val.data.adress+'<br />'+val.data.postcode+' '+val.data.city+', '+val.data.country;
 						self.markers.push({
 							position: latLng,
 							//address: val.data.adress+', '+val.data.country,

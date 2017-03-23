@@ -18,6 +18,7 @@
     {if !$smarty.get.tab}
         {include file="forms/edit.tpl"}
     {elseif $smarty.get.tab eq "multimarkers"}
+        {if !$smarty.get.id}
         <p class="btn-row" id="addbtn">
             <a class="toggleModal btn btn-primary" data-toggle="modal" data-target="#add-address" href="#">
                 <span class="fa fa-plus"></span>
@@ -33,6 +34,7 @@
                 <th>Code postal</th>
                 <th>Ville</th>
                 <th>Pays</th>
+                <th><span class="fa fa-edit"></span></th>
                 <th><span class="fa fa-trash-o"></span></th>
             </tr>
             </thead>
@@ -42,6 +44,9 @@
             </tbody>
         </table>
         {include file="modal/address.tpl"}
+        {else}
+            {include file="forms/address.tpl"}
+        {/if}
     {/if}
 {/block}
 {block name="modal"}

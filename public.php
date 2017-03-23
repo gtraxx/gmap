@@ -65,7 +65,7 @@ class plugins_gmap_public extends database_plugins_gmap{
 				$map = [];
 				foreach ($setAddress as $s){
 					$map[]= '{"latLng":['.$s['lat_ga'].','.$s['lng_ga'].']'.
-						',"data":'.'{'.'"society":'.json_encode($s['society_ga']).
+						',"data":'.'{'.'"society":'.json_encode($s['society_ga']).',"link":'.json_encode($s['link_ga']).
 						',"country":'.json_encode($s['country_ga']).',"city":'.json_encode($s['city_ga']).',"postcode":'.json_encode($s['postcode_ga']).',"adress":'
 						.json_encode($s['adress_ga']).'}}';
 				}

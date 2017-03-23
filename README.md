@@ -1,5 +1,14 @@
 ## Gmap pour Magix CMS
 
+###License
+
+[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0) 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+###version 
+
+[![release](https://img.shields.io/github/release/gtraxx/gmap.svg)](https://github.com/gtraxx/gmap/releases/latest)
+
+
 #### Créer et distribuer par [Magix CMS](http://www.magix-cms.com)
 
 ## Installation
@@ -17,10 +26,13 @@
  * Une fois dans le plugin, laisser faire l'auto update
  
 #### Configuration
-![Configuration du plugin gmap dans Magix CMS](https://cloud.githubusercontent.com/assets/356674/12264692/c1be8efe-b938-11e5-9b60-30dcb2a17132.png "Configuration du plugin gmap dans Magix CMS")
+![magixcms-gmap-3 0-config](https://cloud.githubusercontent.com/assets/356674/24237713/b10ae8ca-0fa7-11e7-92a9-be465a3805e7.png)
 #### Gestion de la page
 ![Page du plugin gmap dans Magix CMS](https://cloud.githubusercontent.com/assets/356674/12264693/c1c4292c-b938-11e5-8cbb-02795b026ff0.png "Page du plugin gmap dans Magix CMS")
+#### Plan d'accès
+![magixcms-gmap-3 0-plan](https://cloud.githubusercontent.com/assets/356674/24237808/16e0fb80-0fa8-11e7-8257-aa066320e56d.png)
 
+![magixcms-gmap-3 0-plan-route](https://cloud.githubusercontent.com/assets/356674/24237845/558da1d0-0fa8-11e7-921e-58f64cd74a61.png)
 ## Note
  * Pour avoir une mise en page en rapport avec votre charte graphique, 
 vous pouvez éditer le fichier index.tpl dans le dossier /plugin/gmap/skin/public/
@@ -31,31 +43,21 @@ renommé le dossier public en **gmap**, ensuite vous pouvez éditer les fichiers
 ### SMARTY/JAVASCRIPT
 ```javascript
 {block name="foot" append}
+    {script src="/min/?g=form" concat=$concat type="javascript"}
+    {capture name="formjs"}{strip}
+        /min/?f=skin/{template}/js/form.min.js
+    {/strip}{/capture}
+    {script src=$smarty.capture.formjs concat=$concat type="javascript" load='async'}
     {script src="/min/?f=plugins/gmap/js/perfect-scrollbar.min.js,plugins/gmap/js/gmap3-7.2.min.js,plugins/gmap/js/public.js" concat=$concat type="javascript"}
     {if $plugin_status != 0}
         <script type="text/javascript">
-            $(function(){
-                var iso = '{getlang}';
-                if (typeof gmap == "undefined"){
-                    console.log("gmap is not defined");
-                }else{
-                    {if $config_map.multi_marker eq '1'}
-                    gmap.runMultiMarker(iso);
-                    {else}
-                    gmap.run(iso);
-                    $('.subdirection').on('click',function(){
-                        var checkRoute = setInterval(function () {
-                            var fill = $("#r-directions .adp").html();
-                            if (fill !== undefined) {
-                                // Custom Scrollbar
-                                $('#r-directions .adp').perfectScrollbar();
-                                clearInterval(checkRoute);
-                            }
-                        }, 50);
-                    });
-                    {/if}
-                }
-            });
+			$(function(){
+				if (typeof gmap == "undefined"){
+					console.log("gmap is not defined");
+				}else{
+					gmap.run({$config_gmap},{literal}{scrollwheel: false}{/literal});
+				}
+			});
         </script>
     {/if}
 {/block}
@@ -74,7 +76,7 @@ Copyright (C) 2008 - 2017 magix-cms.com support[at]magix-cms[point]com | contact
 
 AUTHORS :
 
- * Gerits Aurelien (Author - Developer) contact[at]aurelien-gerits[point]be - aurelien[at]magix-cms[point]com
+ * Gerits Aurelien (Author - Developer) aurelien[at]magix-cms[point]com
 
 SPECIAL THANKS
 jean-baptiste demonte (http://gmap3.net/)

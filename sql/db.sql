@@ -39,4 +39,5 @@ INSERT INTO `mc_plugins_gmap_config` (`idgmapconfig`, `config_id`, `config_value
 (NULL, 'lng_map', NULL),
 (NULL, 'gmap_version', '2.9'),
 (NULL, 'multi_marker', '0'),
-(NULL, 'api_key', NULL);
+(NULL, 'api_key', NULL),
+(NULL, 'link_map', NULL);

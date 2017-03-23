@@ -24,7 +24,7 @@ class plugins_gmap_admin extends database_plugins_gmap{
 	/**
 	 * Ajouter ou modifier une carte
 	 */
-	$getlang,$action,$edit,$tab,
+	$getlang,$action,$subaction,$edit,$tab,
         $delete,
     $api_key,
 	$name_map,
@@ -40,7 +40,7 @@ class plugins_gmap_admin extends database_plugins_gmap{
 	$marker,
 	$route_map,$multi_marker,
 	$lat_map,
-	$lng_map,
+	$lng_map,$link_map,
 	/**
 	 * Paramètre pour la suppresion d'une carte
 	 */
@@ -56,7 +56,7 @@ class plugins_gmap_admin extends database_plugins_gmap{
 	$city_ga,
 	$country_ga,
 	$lat_ga,
-	$lng_ga,$delete_rel_map;
+	$lng_ga,$link_ga,$delete_rel_map,$id;
     public static $notify = array('plugin'=>'true','template'=>'message-gmap.tpl','method'=>'display','assignFetch'=>'notifier');
 	/**
 	 * Construct class
@@ -72,6 +72,9 @@ class plugins_gmap_admin extends database_plugins_gmap{
         if(magixcjquery_filter_request::isGet('action')){
             $this->action = magixcjquery_form_helpersforms::inputClean($_GET['action']);
         }
+        if(magixcjquery_filter_request::isGet('subaction')){
+            $this->subaction = magixcjquery_form_helpersforms::inputClean($_GET['subaction']);
+        }
         if(magixcjquery_filter_request::isGet('getlang')){
             $this->getlang = magixcjquery_filter_isVar::isPostNumeric($_GET['getlang']);
         }
@@ -84,6 +87,9 @@ class plugins_gmap_admin extends database_plugins_gmap{
         //Formulaire
         if(magixcjquery_filter_request::isPost('api_key')){
             $this->api_key = magixcjquery_form_helpersforms::inputClean($_POST['api_key']);
+        }
+        if(magixcjquery_filter_request::isGet('id')){
+            $this->id = magixcjquery_form_helpersforms::inputClean($_GET['id']);
         }
 		if(magixcjquery_filter_request::isPost('name_map')){
 			$this->name_map = (string) magixcjquery_form_helpersforms::inputClean($_POST['name_map']);
@@ -112,6 +118,9 @@ class plugins_gmap_admin extends database_plugins_gmap{
 		if(magixcjquery_filter_request::isPost('lng_map')){
 			$this->lng_map = (string) magixcjquery_form_helpersforms::inputClean($_POST['lng_map']);
 		}
+        if(magixcjquery_filter_request::isPost('link_map')){
+            $this->link_map = magixcjquery_form_helpersforms::inputClean($_POST['link_map']);
+        }
 		if(magixcjquery_filter_request::isPost('marker')){
 			$this->marker = (string) magixcjquery_form_helpersforms::inputClean($_POST['marker']);
 		}
@@ -147,6 +156,9 @@ class plugins_gmap_admin extends database_plugins_gmap{
 		if(magixcjquery_filter_request::isPost('lng_ga')){
 			$this->lng_ga = (string) magixcjquery_form_helpersforms::inputClean($_POST['lng_ga']);
 		}
+        if(magixcjquery_filter_request::isPost('link_ga')){
+            $this->link_ga = magixcjquery_form_helpersforms::inputClean($_POST['link_ga']);
+        }
 		if(magixcjquery_filter_request::isPost('delete_rel_map')){
 			$this->delete_rel_map = (integer) magixcjquery_filter_isVar::isPostNumeric($_POST['delete_rel_map']);
 		}
@@ -312,6 +324,20 @@ class plugins_gmap_admin extends database_plugins_gmap{
     }
 
     /**
+     * @access private
+     * Charge les données d'un marker pour l'édition (Multi marker uniquement)
+     */
+    private function getAddressData(){
+        $data = parent::fetch(array(
+            'context'   =>  'one',
+            'type'      =>  'address',
+            'id'      =>  $this->id
+        ));
+        $this->template->assign('getAddressData',
+            $data
+        );
+    }
+    /**
      * Execute la sauvegarde des données
      * @param $data
      */
@@ -343,7 +369,8 @@ class plugins_gmap_admin extends database_plugins_gmap{
                                 'city'		=>	$this->city_ga,
                                 'country'	=>	$this->country_ga,
                                 'lat'		=>	$this->lat_ga,
-                                'lng'		=>	$this->lng_ga
+                                'lng'		=>	$this->lng_ga,
+                                'link'		=>	$this->link_ga
                             ));
                             $this->getLastItemData('address');
                             $this->message->json_post_response(true,'save',$this->template->fetch('loop/items-address.tpl'),self::$notify);
@@ -381,7 +408,8 @@ class plugins_gmap_admin extends database_plugins_gmap{
                             'city'		=>	$this->city_map,
                             'country'	=>	$this->country_map,
                             'lat'		=>	$this->lat_map,
-                            'lng'		=>	$this->lng_map
+                            'lng'		=>	$this->lng_map,
+                            'link'		=>	$this->link_map
                         ));
                         $this->message->getNotify('update');
                     }
@@ -392,6 +420,22 @@ class plugins_gmap_admin extends database_plugins_gmap{
                             'edit'      =>  $this->edit,
                             'name'      =>$this->name_map,
                             'content'   =>$this->content_map
+                        ));
+                        $this->message->getNotify('update');
+                    }
+                }elseif($data['type'] === 'address'){
+                    if(isset($this->adress_ga)) {
+                        parent::update(array(
+                            'type'     => 'address',
+                            'id'       => $this->id,
+                            'society'  => $this->society_ga,
+                            'address'  => $this->adress_ga,
+                            'postcode' => $this->postcode_ga,
+                            'city'     => $this->city_ga,
+                            'country'  => $this->country_ga,
+                            'lat'      => $this->lat_ga,
+                            'lng'      => $this->lng_ga,
+                            'link'		=>	$this->link_ga
                         ));
                         $this->message->getNotify('update');
                     }
@@ -467,17 +511,30 @@ class plugins_gmap_admin extends database_plugins_gmap{
                                             'type'      =>'page'
                                         ));
                                     }elseif($this->tab == 'multimarkers'){
-                                        if(isset($this->adress_ga)){
-                                            $header->set_json_headers();
-                                            $this->save(array(
-                                                'context'   => 'add',
-                                                'type'      =>'address'
-                                            ));
+                                        if(isset($this->id)){
+                                            if(isset($this->adress_ga)){
+                                                $this->save(array(
+                                                    'context'   => 'update',
+                                                    'type'      =>'address'
+                                                ));
+                                            }else{
+                                                $this->getAddressData();
+                                                $this->template->assign('countryTools',$this->country->setItemsData());
+                                                $this->template->display('edit.tpl');
+                                            }
                                         }else{
-                                            $this->getData();
-                                            $this->getItemsData('address');
-                                            $this->template->assign('countryTools',$this->country->setItemsData());
-                                            $this->template->display('edit.tpl');
+                                            if(isset($this->adress_ga)){
+                                                $header->set_json_headers();
+                                                $this->save(array(
+                                                    'context'   => 'add',
+                                                    'type'      =>'address'
+                                                ));
+                                            }else{
+                                                $this->getData();
+                                                $this->getItemsData('address');
+                                                $this->template->assign('countryTools',$this->country->setItemsData());
+                                                $this->template->display('edit.tpl');
+                                            }
                                         }
                                     }else{
                                         $this->getData();
@@ -638,6 +695,12 @@ class database_plugins_gmap{
                     return magixglobal_model_db::layerDB()->selectOne($sql,array(
                         ':config_id'=>$data['id']
                     ));
+                }elseif(($data['type'] === 'address')){
+                    $sql ='SELECT addr.* FROM mc_plugins_gmap_adress AS addr
+		            WHERE addr.id_adress = :id';
+                    return magixglobal_model_db::layerDB()->selectOne($sql,array(
+                        ':id'=> $data['id']
+                    ));
                 }
             }
         }
@@ -658,8 +721,8 @@ class database_plugins_gmap{
                     ':content_map'	=>	$data['content']
                 ));
             }elseif($data['type'] === 'address'){
-                $sql = 'INSERT INTO mc_plugins_gmap_adress (society_ga,adress_ga,postcode_ga,city_ga,country_ga,lat_ga,lng_ga,idgmap)
-		        VALUE(:society_ga,:adress_ga,:postcode_ga,:city_ga,:country_ga,:lat_ga,:lng_ga,:edit)';
+                $sql = 'INSERT INTO mc_plugins_gmap_adress (society_ga,adress_ga,postcode_ga,city_ga,country_ga,lat_ga,lng_ga,link_ga,idgmap)
+		        VALUE(:society_ga,:adress_ga,:postcode_ga,:city_ga,:country_ga,:lat_ga,:lng_ga,:link_ga,:edit)';
                 magixglobal_model_db::layerDB()->insert($sql,array(
                     ':edit'		    =>	$data['edit'],
                     ':society_ga'	=>	$data['society'],
@@ -668,7 +731,8 @@ class database_plugins_gmap{
                     ':city_ga'		=>	$data['city'],
                     ':country_ga'	=>	$data['country'],
                     ':lat_ga'		=>	$data['lat'],
-                    ':lng_ga'		=>	$data['lng']
+                    ':lng_ga'		=>	$data['lng'],
+                    ':link_ga'		=>	$data['link']
                 ));
             }
         }
@@ -696,7 +760,7 @@ class database_plugins_gmap{
                     'UPDATE mc_plugins_gmap_config 
 			SET config_value="'.$data['address'].'" WHERE config_id = "adress_map"',
                     'UPDATE mc_plugins_gmap_config  
-			SET config_value="'.$data['poscode'].'" WHERE config_id = "poscode_map"',
+			SET config_value="'.$data['postcode'].'" WHERE config_id = "postcode_map"',
                     'UPDATE mc_plugins_gmap_config 
 			SET config_value="'.$data['city'].'" WHERE config_id = "city_map"',
                     'UPDATE mc_plugins_gmap_config 
@@ -712,9 +776,26 @@ class database_plugins_gmap{
                     'UPDATE mc_plugins_gmap_config 
 			SET config_value="'.$data['lat'].'" WHERE config_id = "lat_map"',
                     'UPDATE mc_plugins_gmap_config 
-			SET config_value="'.$data['lng'].'" WHERE config_id = "lng_map"'
+			SET config_value="'.$data['lng'].'" WHERE config_id = "lng_map"',
+                    'UPDATE mc_plugins_gmap_config 
+			SET config_value="'.$data['link'].'" WHERE config_id = "link_map"'
                 );
                 magixglobal_model_db::layerDB()->transaction($sql);
+            }elseif($data['type'] === 'address'){
+                $sql = 'UPDATE mc_plugins_gmap_adress 
+                SET society_ga=:society_ga,adress_ga=:adress_ga,postcode_ga=:postcode_ga,city_ga=:city_ga,country_ga=:country_ga,lat_ga=:lat_ga,lng_ga=:lng_ga,link_ga=:link_ga
+		        WHERE id_adress = :id';
+                magixglobal_model_db::layerDB()->update($sql,array(
+                    ':id'		    =>	$data['id'],
+                    ':society_ga'	=>	$data['society'],
+                    ':adress_ga'	=>	$data['address'],
+                    ':postcode_ga'	=>	$data['postcode'],
+                    ':city_ga'		=>	$data['city'],
+                    ':country_ga'	=>	$data['country'],
+                    ':lat_ga'		=>	$data['lat'],
+                    ':lng_ga'		=>	$data['lng'],
+                    ':link_ga'		=>	$data['link']
+                ));
             }
         }
     }
