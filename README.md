@@ -1,11 +1,11 @@
 ## Gmap pour Magix CMS
 
-###License
+### License
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0) 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-###version 
+### version 
 
 [![release](https://img.shields.io/github/release/gtraxx/gmap.svg)](https://github.com/gtraxx/gmap/releases/latest)
 
