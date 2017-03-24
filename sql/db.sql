@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS `mc_plugins_gmap_adress` (
   `city_ga` VARCHAR(40) NOT NULL,
   `lat_ga` double NOT NULL,
   `lng_ga` double NOT NULL,
+  `link_ga` varchar(200) DEFAULT NULL,
   PRIMARY KEY (`id_adress`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
@@ -37,7 +38,7 @@ INSERT INTO `mc_plugins_gmap_config` (`idgmapconfig`, `config_id`, `config_value
 (NULL, 'route_map', '0'),
 (NULL, 'lat_map', NULL),
 (NULL, 'lng_map', NULL),
-(NULL, 'gmap_version', '2.9'),
+(NULL, 'gmap_version', '3.0'),
 (NULL, 'multi_marker', '0'),
 (NULL, 'api_key', NULL),
 (NULL, 'link_map', NULL);

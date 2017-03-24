@@ -53,7 +53,7 @@
     {include file="modal/delete-address.tpl"}
 {/block}
 {block name='javascript' prepend}
-    <script src="http://maps.google.com/maps/api/js?language=fr{if $config.api_key != '' OR $config.api_key != NULL}&amp;key={$config.api_key}{/if}" type="text/javascript"></script>
+    <script src="http://maps.google.com/maps/api/js?language=fr{if $getConfigData.api_key != '' OR $getConfigData.api_key != NULL}&amp;key={$getConfigData.api_key}{/if}" type="text/javascript"></script>
 {/block}
 {block name='javascript'}
     {include file="js.tpl"}
