@@ -411,6 +411,7 @@ class plugins_gmap_admin extends database_plugins_gmap
 						}
 					}
 					else {
+                        $this->getItems('addresses');
 						$this->template->display('list.tpl');
 					}
 				}
