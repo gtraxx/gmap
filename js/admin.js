@@ -1,5 +1,4 @@
 var MC_plugins_gmap = (function ($, undefined) {
-    //Fonction Private
     /**
      * updateTimer
      * @param ts
@@ -10,403 +9,203 @@ var MC_plugins_gmap = (function ($, undefined) {
         this.timer = setTimeout(func, ts ? ts : 1000);
     }
 
+	/**
+	 * watch fields
+	 * @param field
+	 */
+	function watch(field) {
+		field.keypress(function () {
+			updateTimer('', 'MC_plugins_gmap.initMapConfig();');
+		}).change(function () {
+			updateTimer(100, 'MC_plugins_gmap.initMapConfig();');
+		});
+	}
+
     /**
-     * Chargement des données geographique dans la configuration
+     * Retreive lat and lng of the address
      */
     function loadMapConfig(){
-        var infocontent = $('#adress_map').val() + '<br />' + $('#city_map').val() + ' ' + $('#country_map').val();
-        //var adr = $('#adress_map').val() + ', ' + $('#country_map').val();
-        var adr = $('#adress_map').val()+' '+ $('#city_map').val() + ', ' + $('#country_map').val();
-        //alert(adr);
-        $('#contener-map')
-            .gmap3()
-            .latlng({
-                address: adr
-            }).then(function(latlng){
-            $("#lat_map").val(latlng.lat());
-            $("#lng_map").val(latlng.lng());
-        });
-    }
+    	var addr = $('#address').val(),
+			postc = $('#postcode').val(),
+			city = $('#city').val();
 
-    /**
-     * Chargement des données geographique des adresses supplémentaires (Multi Marker)
-     */
-    function loadMapRelated() {
-        var infocontent = $('#adress_ga').val() + '<br />' + $('#city_ga').val() + ' ' + $('#country_ga').val();
-        var adr = $('#adress_ga').val() +', ' + $('#postcode_ga').val() + ' ' + $('#city_ga').val() + ', ' + $('#country_ga').val();
-        console.log(adr);
-        //alert(adr);
-		if($('#adress_ga').val() !== '' && $('#postcode_ga').val() !== '' && $('#city_ga').val() !== '') {
+    	if( addr !== '' && postc !== '' && city !== '' ) {
+			var adr = addr +', '+ postc +' '+ city + ', ' + $('#country').val();
+
 			$('#contener-map')
-				.gmap3() // no options = no start map for now...
+				.gmap3()
 				.latlng({
 					address: adr
-				})
-				.then(function (latlng) {
-					$("#lat_ga").val(latlng.lat());
-					$("#lng_ga").val(latlng.lng());
-				});
+				}).then(function(latlng){
+				$("#lat").val(latlng.lat());
+				$("#lng").val(latlng.lng());
+			});
 		}
     }
-    /**
-     * Save
-     * @param getlang
-     * @param type
-     * @param id
-     * @param modal
-     */
-    function save(getlang,type,id,modal,subaction){
-        if(type == 'add'){
-            // *** Set required fields for validation
-            $(id).validate({
-                onsubmit: true,
-                event: 'submit',
-                rules: {
-                    name_map: {
-                        required: true,
-                        minlength: 2
-                    }
-                },
-                submitHandler: function (form) {
-                    $.nicenotify({
-                        ntype: "submit",
-                        uri: '/' + baseadmin + '/plugins.php?name=gmap&getlang=' + getlang + '&action=add',
-                        typesend: 'post',
-                        idforms: $(form),
-                        resetform: true,
-                        datatype: 'json',
-                        //noticedata: $(form).serialize(),
-                        successParams:function(data){
-                            $(modal).modal('hide');
-                            window.setTimeout(function() { $(".alert-success").alert('close'); }, 4000);
-                            $.nicenotify.initbox(data.notify,{
-                                display:true
-                            });
-                            if(data.statut && data.result != null) {
-                                $('#no-entry').before(data.result);
-                                updateList('page');
-                            }
-                        }
-                    });
-                    return false;
-                }
-            });
-        }else if(type == 'edit'){
-            // *** Set required fields for validation
-            $(id).validate({
-                onsubmit: true,
-                event: 'submit',
-                rules: {
-                    name_map: {
-                        required: true,
-                        minlength: 2
-                    }
-                },
-                submitHandler: function(form) {
-                    $.nicenotify({
-                        ntype: "submit",
-                        uri: '/'+baseadmin+'/plugins.php?name=gmap&getlang='+getlang+'&action=edit&edit=' + edit,
-                        typesend: 'post',
-                        idforms: $(form),
-                        resetform: false,
-                        successParams:function(data){
-                            window.setTimeout(function() { $(".alert-success").alert('close'); }, 4000);
-                            $.nicenotify.initbox(data,{
-                                display:true
-                            });
-                        }
-                    });
-                    return false;
-                }
-            });
-        } else if(type == 'config'){
-            $(id).validate({
-                onsubmit: true,
-                event: 'submit',
-                rules: {
-                    society_map: {
-                        required: true,
-                        minlength: 2
-                    },
-                    country_map: {
-                        required: true
-                    },
-                    adress_map: {
-                        required: true,
-                        minlength: 2
-                    },
-                    lat_map: {
-                        required: true
-                    },
-                    lng_map: {
-                        required: true
-                    }
-                },
-                submitHandler: function(form) {
-                    $.nicenotify({
-                        ntype: "submit",
-                        uri: '/'+baseadmin+'/plugins.php?name=gmap&getlang=' + getlang + '&tab=config',
-                        typesend: 'post',
-                        idforms: $(form),
-                        resetform: false,
-                        successParams:function(data){
-                            window.setTimeout(function() { $(".alert-success").alert('close'); }, 4000);
-                            $.nicenotify.initbox(data,{
-                                display:true
-                            });
-                        }
-                    });
-                    return false;
-                }
-            });
-        }else if(type == 'address'){
-            $(id).validate({
-                onsubmit: true,
-                event: 'submit',
-                rules: {
-                    society_ga: {
-                        required: true
-                    },
-                    country_ga: {
-                        required: true
-                    },
-                    city_ga: {
-                        required: true
-                    },
-                    adress_ga: {
-                        required: true,
-                        minlength: 2
-                    }
-                },
-                submitHandler: function (form) {
-                    $.nicenotify({
-                        ntype: "submit",
-                        uri: '/' + baseadmin + '/plugins.php?name=gmap&getlang=' + getlang + '&action=edit&edit=' + edit + '&tab=multimarkers',
-                        typesend: 'post',
-                        idforms: $(form),
-                        resetform: true,
-                        datatype: 'json',
-                        //noticedata: $(form).serialize(),
-                        successParams:function(data){
-                            $(modal).modal('hide');
-                            window.setTimeout(function() { $(".alert-success").alert('close'); }, 4000);
-                            $.nicenotify.initbox(data.notify,{
-                                display:true
-                            });
-                            if(data.statut && data.result != null) {
-                                $('#no-entry').before(data.result);
-                                updateList('address');
-                            }
-                        }
-                    });
-                    return false;
-                }
-            });
-        }else if(type == 'addressedit'){
-            $(id).validate({
-                onsubmit: true,
-                event: 'submit',
-                rules: {
-                    society_ga: {
-                        required: true
-                    },
-                    country_ga: {
-                        required: true
-                    },
-                    city_ga: {
-                        required: true
-                    },
-                    adress_ga: {
-                        required: true,
-                        minlength: 2
-                    }
-                },
-                submitHandler: function (form) {
-                    $.nicenotify({
-                        ntype: "submit",
-                        uri: '/' + baseadmin + '/plugins.php?name=gmap&getlang=' + getlang + '&action=edit&edit=' + edit + '&tab=multimarkers&id='+subaction,
-                        typesend: 'post',
-                        idforms: $(form),
-                        //noticedata: $(form).serialize(),
-                        successParams:function(data){
-                            window.setTimeout(function() { $(".alert-success").alert('close'); }, 4000);
-                            $.nicenotify.initbox(data,{
-                                display:true
-                            });
-                        }
-                    });
-                    return false;
-                }
-            });
-        }
-    }
-    function del(getlang,type,id,modal){
-        if(type == 'page'){
-            // *** Set required fields for validation
-            $(id).validate({
-                onsubmit: true,
-                event: 'submit',
-                rules: {
-                    delete: {
-                        required: true,
-                        number: true,
-                        minlength: 1
-                    }
-                },
-                submitHandler: function(form) {
-                    $.nicenotify({
-                        ntype: "submit",
-                        uri: '/'+baseadmin+'/plugins.php?name=gmap&getlang='+getlang+'&action=remove',
-                        typesend: 'post',
-                        idforms: $(form),
-                        resetform: true,
-                        successParams:function(data){
-                            $(modal).modal('hide');
-                            window.setTimeout(function() { $(".alert-success").alert('close'); }, 4000);
-                            $.nicenotify.initbox(data,{
-                                display:true
-                            });
-                            $('#item_'+$('#delete').val()).remove();
-                            updateList(type);
-                        }
-                    });
-                    return false;
-                }
-            });
-        }else if(type == 'address'){
-            // *** Set required fields for validation
-            $(id).validate({
-                onsubmit: true,
-                event: 'submit',
-                rules: {
-                    delete_rel_map: {
-                        required: true,
-                        number: true,
-                        minlength: 1
-                    }
-                },
-                submitHandler: function(form) {
-                    $.nicenotify({
-                        ntype: "submit",
-                        uri: '/'+baseadmin+'/plugins.php?name=gmap&getlang='+getlang+'&action=remove',
-                        typesend: 'post',
-                        idforms: $(form),
-                        resetform: true,
-                        successParams:function(data){
-                            $(modal).modal('hide');
-                            window.setTimeout(function() { $(".alert-success").alert('close'); }, 4000);
-                            $.nicenotify.initbox(data,{
-                                display:true
-                            });
-                            $('#item_'+$('#delete-address').val()).remove();
-                            updateList(type);
-                        }
-                    });
-                    return false;
-                }
-            });
-        }
-    }
 
-    /**
-     * Update List
-     * @param type
-     */
-    function updateList(type) {
-        if(type == 'page') {
-            var rows = $('#list_page tr');
-            if (rows.length > 1) {
-                $('#no-entry').addClass('hide');
+	/**
+	 * Replace the submit button by a loader icon.
+	 * @param {string} f - id of the form.
+	 * @param {boolean} [closeForm=true] - hide the form.
+	 */
+	function displayLoader(f,closeForm) {
+		$('input[type="submit"], button[type="submit"]').hide();
+		closeForm = typeof closeForm !== 'undefined' ? closeForm : true;
+		var loader = $(document.createElement("div")).addClass("loader")
+			.append(
+				$(document.createElement("i")).addClass("fa fa-spinner fa-pulse fa-2x fa-fw"),
+				$(document.createElement("span")).append("Chargement en cours...").addClass("sr-only")
+			);
+		if(closeForm) $(f).collapse();
+		$('.mc-message').before(loader);
+	}
 
-                $('a.toggleModal').off();
-                $('a.toggleModal').click(function () {
-                    if ($(this).attr('href') != '#') {
-                        var id = $(this).attr('href').slice(1);
+	/**
+	 * Remove the loader icon.
+	 * @param {string} f - id of the form.
+	 * @param {boolean} [closeForm=true] - hide the form.
+	 */
+	function removeLoader(f,closeForm) {
+		closeForm = typeof closeForm !== 'undefined' ? closeForm : true;
+		if(closeForm) $(f).collapse('hide');
+		$('.loader').remove();
+		$('input[type="submit"], button[type="submit"]').show();
+	}
 
-                        $('#delete').val(id);
-                    }
-                });
+	/**
+	 * Initialise the display of notice message
+	 * @param {html} m - message to display.
+	 * @param {int|boolean} [timeout=false] - Time before hiding the message.
+	 */
+	function initAlert(m,timeout) {
+		timeout = typeof timeout !== 'undefined' ? timeout : false;
+		$.nicenotify.initbox(m,{ display:true });
+		if(timeout) window.setTimeout(function () { $('.mc-message .alert').alert('close'); }, timeout);
+	}
 
-                if (rows.length >= 1) {
-                    $('#addbtn').addClass('hide');
-                } else {
-                    $('#addbtn').removeClass('hide');
-                }
-            } else {
-                $('#no-entry').removeClass('hide');
-                $('#addbtn').removeClass('hide');
-            }
-        }else if(type == 'address'){
-            var rows = $('#list_page tr');
-            if (rows.length > 1) {
-                $('#no-entry').addClass('hide');
+	/**
+	 * Assign the correct success handler depending of the validation class attached to the form
+	 * @param {string} f - id of the form.
+	 */
+	function successHandler(f) {
+		// --- Default options of the ajax request
+		var options = {
+			ntype: "submit",
+			uri: $(f).attr('action'),
+			typesend: 'post',
+			idforms: $(f),
+			resetform: false,
+			beforeParams: function () {
+				displayLoader(f, false);
+			},
+			successParams: function (d) {
+				removeLoader(f, false);
+				if(d.debug !== undefined && d.debug !== '') {
+					initAlert(d.debug);
+				}
+				else if(d.notify !== undefined && d.notify !== '') {
+					initAlert(d.notify,4000);
+				}
+			}
+		};
 
-                $('a.toggleModal').off();
-                $('a.toggleModal').click(function () {
-                    if ($(this).attr('href') != '#') {
-                        var id = $(this).attr('href').slice(1);
-                        $('#delete-address').val(id);
-                    }
-                });
-            } else {
-                $('#no-entry').removeClass('hide');
-            }
-        }
-    }
+		// --- Rules form classic add form
+		if($(f).hasClass('add_form')) {
+			options.resetform = true;
+		}
+		else if($(f).hasClass('delete_form')) {
+			options.resetform = true;
+			options.successParams = function (d) {
+				$('#delete_modal').modal('hide');
+				removeLoader(f, false);
+				if(d.debug !== undefined && d.debug !== '') {
+					initAlert(d.debug);
+				}
+				else if(d.notify !== undefined && d.notify !== '') {
+					initAlert(d.notify,4000);
+					$('#address_' + d.result.id).remove();
+					var nbr = $('#table_adress').find('tr').length;
+					if(nbr < 2) {
+						$('#no-entry').removeClass('hide');
+					}
+				}
+			}
+		}
 
-    function watch(field) {
-    	field.keypress(function () {
-			updateTimer('', 'MC_plugins_gmap.mapRelated();');
-		}).change(function () {
-			updateTimer(100, 'MC_plugins_gmap.mapRelated();');
+		// --- Initialise the ajax request
+		$.nicenotify(options);
+	}
+
+	/**
+	 * Initialise the rules of validation for the form(s) matching the selector passed throught the form parameter
+	 * @param {string} form - id of the form.
+	 */
+	function initValidation(form) {
+		form = typeof form !== 'undefined' ? form : '.validate_form';
+		sub = typeof sub !== 'undefined' ? sub : false;
+
+		// --- Global validation rules
+		$(form).each(function(){
+			$(this).removeData();
+			$(this).off();
+			$(this).validate({
+				ignore: [],
+				onsubmit: true,
+				event: 'submit',
+				submitHandler: function(f,e) {
+					e.preventDefault();
+					successHandler(f);
+					return false;
+				}
+			});
 		});
 	}
 
     return {
-        //Fonction Public
-        runList: function (baseadmin, getlang) {
-            updateList('page');
-            save(getlang,'add','#forms_plugins_gmap_add','#add-page');
-            del(getlang,'page','#del_gmap','#deleteModal');
-        },
-        mapConfig: function () {
-            loadMapConfig();
-        },
-        runConfig: function (baseadmin, getlang) {
-            save(getlang,'config','#forms_plugins_gmap_config',null);
-            if ($("#contener-map").length != 0) {
-                $('#adress_map').keypress(function () {
-                    //console.log("keypress ok");
-                    updateTimer('', 'MC_plugins_gmap.mapConfig();');
-                }).change(function () {
-                    //console.log("keypress change ok");
-                    updateTimer(100, 'MC_plugins_gmap.mapConfig();');
-                });
-            }
-        },
-        mapRelated: function () {
-            loadMapRelated();
-        },
-        runEdit: function (baseadmin, getlang, edit) {
-            save(getlang,'edit','#forms_plugins_gmap_edit',null,null);
-        },
-        runRelated: function (baseadmin, getlang, edit) {
-            updateList('address');
-            del(getlang,'address','#del_address','#deleteModal');
-            save(getlang,'address','#forms_plugins_gmap_related','#add-address',null);
-            if ($("#contener-map").length != 0) {
-                watch($('#adress_ga'));
-                watch($('#city_ga'));
-                watch($('#postcode_ga'));
-            }
-        },
-        runRelatedEdit: function(baseadmin, getlang, edit, subaction) {
-            save(getlang,'addressedit','#forms_plugins_gmap_related_edit','#add-address',subaction);
-            if ($("#contener-map").length != 0) {
-                watch($('#adress_ga'));
-                watch($('#city_ga'));
-                watch($('#postcode_ga'));
-            }
-        }
+    	run: function () {
+			initValidation();
+
+			$(function() {
+				$( 'a.toggleModal' ).click(function(){
+					if($(this).attr('href') != '#'){
+						var id = $(this).attr('href').slice(1);
+
+						$('#id').val(id);
+					}
+				});
+
+				$(".ui-sortable").sortable({
+					items: "> tr",
+					placeholder: "ui-state-highlight",
+					cursor: "move",
+					axis: "y",
+					update: function () {
+						var serial = $(".ui-sortable").sortable('serialize');
+						$.nicenotify({
+							ntype: "ajax",
+							uri: '/' + baseadmin + '/plugins.php?name=gmap&getlang=' + getlang + '&tab=address&action=order',
+							typesend: 'post',
+							noticedata: serial,
+							successParams: function (e) {
+								$.nicenotify.initbox(e, {
+									display: false
+								});
+							}
+						});
+					}
+				});
+				$(".ui-sortable").disableSelection();
+			});
+		},
+		addAddress: function () {
+			if ($("#contener-map").length != 0) {
+				watch($('#adress'));
+				watch($('#city'));
+				watch($('#postcode'));
+			}
+		},
+		initMapConfig: function () {
+			loadMapConfig();
+		}
     };
 })(jQuery);

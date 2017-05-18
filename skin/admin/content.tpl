@@ -1,13 +1,14 @@
 {extends file="layout.tpl"}
+{block name="styleSheet" append}
+    {include file="css.tpl"}
+{/block}
 {block name='body:id'}plugins-{$pluginName}{/block}
 {block name="article:content"}
     {include file="section/nav.tpl"}
-    <h1>{$pluginName|ucfirst} Plugin <small>- {#about_plugin#|ucfirst}</small></h1>
-    <div class="row">
-        <div class="col-xs-12 col-sm-6">
-            {$pluginInfo}
-        </div>
-    </div>
+    <!-- Notifications Messages -->
+    <div class="mc-message clearfix"></div>
+
+    {include file="forms/content.tpl"}
 {/block}
 {block name='javascript'}
     {include file="js.tpl"}

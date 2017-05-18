@@ -1,17 +1,24 @@
 {if $plugin_status != 0}
-    {if $config_map.name_map != null}
-        <h1{if empty($config_map.content_map)} class="sr-only"{/if}>{$config_map.name_map}</h1>
-        {if $config_map.content_map != null}
-            <div class="gmap-content container">
-                {$config_map.content_map}
-            </div>
+    {if !empty($addresses)}
+        {if isset($page) && !empty($page)}
+            <h1{if empty($page.content)} class="sr-only"{/if}>
+                {if isset($page.title) && !empty($page.title)}
+                    {$page.title}
+                {else}
+                    {#access_plan#}
+                {/if}
+            </h1>
+            {if isset($page.content) && !empty($page.content)}
+                <div class="gmap-content container">
+                {$page.content}
+                </div>
+            {/if}
         {/if}
         <div class="map">
             <div>
                 <div id="map_adress" class="gmap3"></div>
             </div>
             <div id="gmap-address">
-                {if $config_map.route_map eq '1'}
                 <div id="searchdir" class="collapse">
                     <form class="form-search">
                         <div class="input-group">
@@ -24,32 +31,44 @@
                         </div>
                     </form>
                 </div>
-                {/if}
                 <div class="alert alert-primary" itemscope itemtype="http://data-vocabulary.org/Organization">
-                    {if $config_map.route_map eq '1'}
                     <a id="showform" class="btn btn-lg pull-right collapsed" type="button" data-toggle="collapse" data-target="#searchdir" aria-expanded="false" aria-controls="searchdir">
                         <span class="fa fa-arrow-circle-right"></span>
                     </a>
                     <button id="hidepanel" class="btn btn-default btn-box">
                         <span class="fa fa-caret-left"></span>
                     </button>
-                    {/if}
-                    <meta itemprop="name" content="{$config_map.society_map}" />
+                    <meta itemprop="name" content="{$addresses[0].company}" />
                     <div id="address" itemprop="address" itemscope itemtype="http://schema.org/PostalAddress">
                         <span class="fa fa-map-marker"></span>
-                        <span class="address" itemprop="streetAddress">{$config_map.adress_map}</span>,
+                        <span class="address" itemprop="streetAddress">{$addresses[0].address}</span>,
                         <span itemprop="addressLocality">
-                            <span class="city">{$config_map.postcode_map} {$config_map.city_map}</span>, <span class="country">{$config_map.country_map}</span>
+                            <span class="city">{$addresses[0].postcode} {$addresses[0].city}</span>, <span class="country">{$addresses[0].country}</span>
                         </span>
                         <div itemprop="address" itemscope itemtype="http://schema.org/GeoCoordinates">
-                            <meta itemprop="latitude" content="{$config_map.lat_map}" />
-                            <meta itemprop="longitude" content="{$config_map.lng_map}" />
+                            <meta itemprop="latitude" content="{$addresses[0].lat}" />
+                            <meta itemprop="longitude" content="{$addresses[0].lng}" />
                         </div>
                     </div>
                 </div>
-                {if $config_map.route_map eq '1'}
                 <div id="r-directions"></div>
-                {/if}
+            </div>
+        </div>
+
+        <div id="addresses" class="container">
+            <div class="row">
+                {foreach $addresses as $addr}
+                    <div class="col-xs-12 col-sm-6">
+                        <ul>
+                            <li>{$addr.company}</li>
+                            <li>{$addr.address}, {$addr.postcode} {$addr.city}, {$addr.country}</li>
+                            <li>{$addr.link}</li>
+                        </ul>
+                        <p>
+                            <a href="#" class="select-marker" data-marker="{$addr@index}">See on map</a>
+                        </p>
+                    </div>
+                {/foreach}
             </div>
         </div>
     {else}

@@ -13,813 +13,492 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-
+#
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 # -- END LICENSE BLOCK -----------------------------------
-class plugins_gmap_admin extends database_plugins_gmap{
-    protected $message,$template,$country,$translation;
-	public 
+
+require_once('db/gmap.php');
+
+class plugins_gmap_admin extends database_plugins_gmap
+{
+	protected $template, $header, $message, $country, $translation;
+	public static $notify = array('plugin'=>'true','template'=>'message-gmap.tpl','method'=>'display','assignFetch'=>'notifier');
+
 	/**
-	 * Ajouter ou modifier une carte
+	 * Global
+	 * @var bool
 	 */
-	$getlang,$action,$subaction,$edit,$tab,
-        $delete,
-    $api_key,
-	$name_map,
-	$content_map,
+	public $getlang, $action, $edit, $tab;
+
 	/**
-	 * Les données de configuration par défaut ou adresse de base du plugins
+	 * Configuration
+	 * @var array
 	 */
-	$society_map,
-	$adress_map,
-	$postcode_map,
-	$city_map,
-	$country_map,
-	$marker,
-	$route_map,$multi_marker,
-	$lat_map,
-	$lng_map,$link_map,
+	public $config;
+
 	/**
-	 * Paramètre pour la suppresion d'une carte
+	 * Page title and content
+	 * @var array
 	 */
-	$deletemap;
+	public $page;
+
 	/**
-	 * Carte relative
-	 * 
+	 * Address information
+	 * @var array
 	 */
-	public
-	$society_ga,
-	$adress_ga,
-	$postcode_ga,
-	$city_ga,
-	$country_ga,
-	$lat_ga,
-	$lng_ga,$link_ga,$delete_rel_map,$id;
-    public static $notify = array('plugin'=>'true','template'=>'message-gmap.tpl','method'=>'display','assignFetch'=>'notifier');
+	public $address, $id;
+
 	/**
-	 * Construct class
+	 * plugins_gmap_admin constructor.
 	 */
-	public function __construct(){
-        if(class_exists('backend_model_message')){
-            $this->message = new backend_model_message();
-        }
-        $this->template = new backend_controller_plugins();
-        $this->country = new backend_controller_country();
-        $this->translation = new backend_controller_template();
-        //Global
-        if(magixcjquery_filter_request::isGet('action')){
-            $this->action = magixcjquery_form_helpersforms::inputClean($_GET['action']);
-        }
-        if(magixcjquery_filter_request::isGet('subaction')){
-            $this->subaction = magixcjquery_form_helpersforms::inputClean($_GET['subaction']);
-        }
-        if(magixcjquery_filter_request::isGet('getlang')){
-            $this->getlang = magixcjquery_filter_isVar::isPostNumeric($_GET['getlang']);
-        }
-        if(magixcjquery_filter_request::isGet('edit')){
-            $this->edit = magixcjquery_filter_isVar::isPostNumeric($_GET['edit']);
-        }
-        if(magixcjquery_filter_request::isGet('tab')){
-            $this->tab = magixcjquery_form_helpersforms::inputClean($_GET['tab']);
-        }
-        //Formulaire
-        if(magixcjquery_filter_request::isPost('api_key')){
-            $this->api_key = magixcjquery_form_helpersforms::inputClean($_POST['api_key']);
-        }
-        if(magixcjquery_filter_request::isGet('id')){
-            $this->id = magixcjquery_form_helpersforms::inputClean($_GET['id']);
-        }
-		if(magixcjquery_filter_request::isPost('name_map')){
-			$this->name_map = (string) magixcjquery_form_helpersforms::inputClean($_POST['name_map']);
+	public function __construct()
+	{
+		// --- Global
+		if (class_exists('magixglobal_model_header')) {
+			$this->header = new magixglobal_model_header();
 		}
-		if(magixcjquery_filter_request::isPost('content_map')){
-			$this->content_map = (string) magixcjquery_form_helpersforms::inputCleanQuote($_POST['content_map']);
+		if (class_exists('backend_model_message')) {
+			$this->message = new backend_model_message();
 		}
-		if(magixcjquery_filter_request::isPost('society_map')){
-			$this->society_map = (string) magixcjquery_form_helpersforms::inputClean($_POST['society_map']);
+		if (class_exists('backend_controller_plugins')) {
+			$this->template = new backend_controller_plugins();
 		}
-		if(magixcjquery_filter_request::isPost('adress_map')){
-			$this->adress_map = (string) magixcjquery_form_helpersforms::inputClean($_POST['adress_map']);
+		if (class_exists('backend_controller_country')) {
+			$this->country = new backend_controller_country();
 		}
-		if(magixcjquery_filter_request::isPost('postcode_map')){
-			$this->postcode_map = (string) magixcjquery_form_helpersforms::inputClean($_POST['postcode_map']);
+		if (class_exists('backend_controller_template')) {
+			$this->translation = new backend_controller_template();
 		}
-		if(magixcjquery_filter_request::isPost('city_map')){
-			$this->city_map = (string) magixcjquery_form_helpersforms::inputClean($_POST['city_map']);
+
+		$filterRequest = new magixcjquery_filter_request();
+		$helpersforms = new magixcjquery_form_helpersforms();
+		$filterIsVar = new magixcjquery_filter_isVar();
+
+		// --- Get
+		if ($filterRequest->isGet('getlang')) {
+			$this->getlang = $filterIsVar->isPostNumeric($_GET['getlang']);
 		}
-		if(magixcjquery_filter_request::isPost('country_map')){
-			$this->country_map = (string) magixcjquery_form_helpersforms::inputClean($_POST['country_map']);
+		if ($filterRequest->isGet('action')) {
+			$this->action = $helpersforms->inputClean($_GET['action']);
 		}
-		if(magixcjquery_filter_request::isPost('lat_map')){
-			$this->lat_map = (string) magixcjquery_form_helpersforms::inputClean($_POST['lat_map']);
+		if ($filterRequest->isGet('edit')) {
+			$this->edit = $filterIsVar->isPostNumeric($_GET['edit']);
 		}
-		if(magixcjquery_filter_request::isPost('lng_map')){
-			$this->lng_map = (string) magixcjquery_form_helpersforms::inputClean($_POST['lng_map']);
+		if ($filterRequest->isGet('tab')) {
+			$this->tab = $helpersforms->inputClean($_GET['tab']);
 		}
-        if(magixcjquery_filter_request::isPost('link_map')){
-            $this->link_map = magixcjquery_form_helpersforms::inputClean($_POST['link_map']);
-        }
-		if(magixcjquery_filter_request::isPost('marker')){
-			$this->marker = (string) magixcjquery_form_helpersforms::inputClean($_POST['marker']);
+
+		// --- Post
+		// - Config
+		if ($filterRequest->isPost('config')) {
+			$this->config = $helpersforms->arrayClean($_POST['config']);
 		}
-		if(magixcjquery_filter_request::isPost('route_map')){
-			$this->route_map = '1';
+		// - Content
+		if ($filterRequest->isPost('page')) {
+			$page = $_POST['page'];
+			foreach($page as $k => $v) {
+				if ($k === 'content') {
+					$this->page[$k] = $helpersforms->inputCleanQuote($v);
+				}
+				else {
+					$this->page[$k] = $helpersforms->inputClean($v);
+				}
+			}
 		}
-		if(magixcjquery_filter_request::isPost('multi_marker')){
-			$this->multi_marker = '1';
+		// - Addresses
+		if ($filterRequest->isPost('address')) {
+			$this->address = $helpersforms->arrayClean($_POST['address']);
 		}
-        # DELETE PAGE
-		if(magixcjquery_filter_request::isPost('deletemap')){
-			$this->deletemap = (integer) magixcjquery_filter_isVar::isPostNumeric($_POST['deletemap']);
-		}
-		//Carte relative
-		if(magixcjquery_filter_request::isPost('society_ga')){
-			$this->society_ga = (string) magixcjquery_form_helpersforms::inputClean($_POST['society_ga']);
-		}
-		if(magixcjquery_filter_request::isPost('adress_ga')){
-			$this->adress_ga = (string) magixcjquery_form_helpersforms::inputClean($_POST['adress_ga']);
-		}
-		if(magixcjquery_filter_request::isPost('postcode_ga')){
-			$this->postcode_ga = (string) magixcjquery_form_helpersforms::inputClean($_POST['postcode_ga']);
-		}
-		if(magixcjquery_filter_request::isPost('city_ga')){
-			$this->city_ga = (string) magixcjquery_form_helpersforms::inputClean($_POST['city_ga']);
-		}
-		if(magixcjquery_filter_request::isPost('country_ga')){
-			$this->country_ga = (string) magixcjquery_form_helpersforms::inputClean($_POST['country_ga']);
-		}
-		if(magixcjquery_filter_request::isPost('lat_ga')){
-			$this->lat_ga = (string) magixcjquery_form_helpersforms::inputClean($_POST['lat_ga']);
-		}
-		if(magixcjquery_filter_request::isPost('lng_ga')){
-			$this->lng_ga = (string) magixcjquery_form_helpersforms::inputClean($_POST['lng_ga']);
-		}
-        if(magixcjquery_filter_request::isPost('link_ga')){
-            $this->link_ga = magixcjquery_form_helpersforms::inputClean($_POST['link_ga']);
-        }
-		if(magixcjquery_filter_request::isPost('delete_rel_map')){
-			$this->delete_rel_map = (integer) magixcjquery_filter_isVar::isPostNumeric($_POST['delete_rel_map']);
+		if ($filterRequest::isPost('id')) {
+			$this->id = $filterIsVar->isPostNumeric($_POST['id']);
 		}
 	}
 
-    /**
-     * @access private
-     * Installation des tables mysql du plugin
-     */
-    private function install_table($create){
-        if(parent::c_show_table() == 0){
-            $create->db_install_table('db.sql', 'request/install.tpl');
-        }else{
-            $magixfire = new magixcjquery_debug_magixfire();
-            //$magixfire->magixFireInfo('Les tables mysql sont installés', 'Statut des tables mysql du plugin');
-            return true;
-        }
-    }
 	/**
-	 * @access private
-	 * Retourne le chemin du fichier XML de gmap
+	 * @param array $arr
+	 * @return array
 	 */
-	private function load_local_file(){
-		return magixglobal_model_system::base_path().'/plugins/gmap/version.xml';
-	}
-	/**
-	 * @access private
-	 * Lit le numéro de version dans le fichier XML du plugin gmap
-	 */
-	private function read_local_version(){
-		try {
-			$xml = new SimpleXMLElement(self::load_local_file(),0, TRUE);
-			$v = $xml->number;
-		} catch (Exception $e){
-			magixglobal_model_system::magixlog('An error has occured :',$e);
+	private function keysToParams($arr)
+	{
+		foreach ($arr as $k => $v) {
+			$arr[':'.$k] = $v;
+			unset($arr[$k]);
 		}
-		return $v;
+		return $arr;
 	}
+
 	/**
 	 * @access private
-	 * Effectue le controle pour la migration vers une version supérieur
+	 * Installing mysql database plugin
 	 */
-	private function upgrade_version(){
-		$config= parent::fetch(array(
-            'context'   =>  'one',
-            'type'      =>  'config',
-            'id'        =>   'gmap_version'
-        ));
-		if($config['config_value'] == null){
-			backend_controller_plugins::create()->db_install_table('update_1.1.sql', 'request/update.tpl');
-		}elseif($config['config_value'] == '1.0'){
-			backend_controller_plugins::create()->db_install_table('update_1.1.sql', 'request/update.tpl');
-		}elseif($config['config_value'] < $this->read_local_version()){
-			backend_controller_plugins::create()->db_install_table('update_'.$this->read_local_version().'.sql', 'request/update.tpl');
-		}else{
-			//magixcjquery_debug_magixfire::magixFireInfo('Les tables mysql sont installés', 'Statut des tables mysql du plugin');
+	private function install_table()
+	{
+		if (parent::c_show_tables() == 0) {
+			$this->template->db_install_table('db.sql', 'request/install.tpl');
+		} else {
 			return true;
 		}
 	}
 
-    /**
-     * @access private
-     * Charge les données d'une carte pour l'édition
-     */
-	private function getData(){
-		$data = parent::fetch(array(
-            'context'   =>  'one',
-            'type'      =>  'page',
-            'edit'      =>  $this->edit
-        ));
-        $this->template->assign('getData',
-            array(
-                'name_map'      =>  $data['name_map'],
-                'content_map'   =>  $data['content_map']
-            )
-        );
+	/**
+	 * @access private
+	 * Retourne le chemin du fichier XML de gmap
+	 */
+	private function load_local_file()
+	{
+		return magixglobal_model_system::base_path() . '/plugins/gmap/version.xml';
+	}
+
+	/**
+	 * @access private
+	 * Lit le numéro de version dans le fichier XML du plugin gmap
+	 */
+	private function read_local_version()
+	{
+		try {
+			$xml = new SimpleXMLElement(self::load_local_file(), 0, TRUE);
+			$v = $xml->number;
+		} catch (Exception $e) {
+			magixglobal_model_system::magixlog('An error has occured :', $e);
+		}
+		return $v;
+	}
+
+	/**
+	 * @access private
+	 * Effectue le controle pour la migration vers une version supérieur
+	 */
+	private function upgrade_version()
+	{
+		return true;
+		$config = parent::fetchData(array(
+			'context' => 'one',
+			'type' => 'config',
+			'id' => 'gmap_version'
+		));
+		if ($config['config_value'] == null) {
+			backend_controller_plugins::create()->db_install_table('update_1.1.sql', 'request/update.tpl');
+		} elseif ($config['config_value'] == '1.0') {
+			backend_controller_plugins::create()->db_install_table('update_1.1.sql', 'request/update.tpl');
+		} elseif ($config['config_value'] < $this->read_local_version()) {
+			backend_controller_plugins::create()->db_install_table('update_' . $this->read_local_version() . '.sql', 'request/update.tpl');
+		} else {
+			//magixcjquery_debug_magixfire::magixFireInfo('Les tables mysql sont installés', 'Statut des tables mysql du plugin');
+			return true;
+		}
 	}
 
 	/**
 	 * @access private
 	 * Parcour le dossier marker dans le plugin pour retourner un tableau des images
 	 */
-	private function findMarker(){
+	private function findMarker()
+	{
 		$makefile = new magixcjquery_files_makefiles();
-		$markerCollection = $makefile->scanDir(magixglobal_model_system::base_path().'/plugins/gmap/markers/');
-        $this->template->assign('markerCollection',$markerCollection);
+		$markerCollection = $makefile->scanDir(magixglobal_model_system::base_path() . '/plugins/gmap/markers/');
+		$this->template->assign('markerCollection', $markerCollection);
 	}
+
 	/**
 	 * @access private
 	 * Charge les données de configuration pour l'édition
 	 */
-	private function setConfigData(){
-		$config = parent::fetch(array(
-            'context'   =>  'all',
-            'type'      =>  'config'
-        ));
-        $configId = '';
-        $configValue = '';
-        foreach($config as $key){
-            $configId[] = $key['config_id'];
-            $configValue[] = $key['config_value'];
-        }
-        $setConfig = array_combine($configId,$configValue);
-        $this->template->assign('getConfigData',$setConfig);
+	private function setConfigData()
+	{
+		$config = parent::fetchData(array('context' => 'all','type' => 'config'));
+		$configId = '';
+		$configValue = '';
+		foreach ($config as $key) {
+			$configId[] = $key['config_id'];
+			$configValue[] = $key['config_value'];
+		}
+		$setConfig = array_combine($configId, $configValue);
+		$this->template->assign('getConfigData', $setConfig);
 	}
 
-    /**
-     * Retourne la liste des records
-     * @param $type
-     * @return array
-     */
-    public function setItemsData($type){
-        if($type === 'page'){
-            return parent::fetch(array(
-                'context'   =>  'all',
-                'type'      =>  $type,
-                'idlang'    =>  $this->getlang
-            ));
-        }elseif($type === 'address'){
-            return parent::fetch(array(
-                'context'   =>  'all',
-                'type'      =>  $type,
-                'idgmap'    =>  $this->edit
-            ));
-        }
-    }
+	/**
+	 * Retrieve and return the data
+	 * @param string $context
+	 * @param string $type
+	 * @param string|int|null $id
+	 * @return mixed
+	 */
+	private function getItems($type, $id = null, $context = 'all') {
+		$params = array(':lang' => $this->getlang);
 
-    /**
-     * @param $type
-     */
-    public function getItemsData($type){
-        $data = $this->setItemsData($type);
-        $this->template->assign('getItemsData',$data);
-    }
+		if($id) {
+			$params[':id'] = $id;
+			$context = 'one';
+		}
 
-    /**
-     * Retourne le dernier record
-     * @param $type
-     * @return array
-     */
-    private function setLastItemData($type){
-        if($type === 'page') {
-            return parent::fetch(array(
-                'context' => 'all',
-                'type' => 'lastPage',
-                'idlang' => $this->getlang
-            ));
-        }elseif($type === 'address'){
-            return parent::fetch(array(
-                'context'   =>  'all',
-                'type'      =>  'lastAddress',
-                'idgmap'    =>  $this->edit
-            ));
-        }
-    }
+		$data = parent::fetchData(array('context'=>$context,'type'=>$type),$params);
+		$this->template->assign($type,$data);
+		return $data;
+	}
 
-    /**
-     * @param $type
-     */
-    private function getLastItemData($type){
-        $data = $this->setLastItemData($type);
-        $this->template->assign('getItemsData',$data);
-    }
+	/**
+	 * Insert data
+	 * @param array $config
+	 */
+	private function add($config)
+	{
+		switch ($config['type']) {
+			case 'address':
+			case 'page':
+				parent::insert($config);
+				$this->header->set_json_headers();
+				$this->message->json_post_response(true,'save',null, self::$notify);
+				break;
+		}
+	}
 
-    /**
-     * @access private
-     * Charge les données d'un marker pour l'édition (Multi marker uniquement)
-     */
-    private function getAddressData(){
-        $data = parent::fetch(array(
-            'context'   =>  'one',
-            'type'      =>  'address',
-            'id'      =>  $this->id
-        ));
-        $this->template->assign('getAddressData',
-            $data
-        );
-    }
-    /**
-     * Execute la sauvegarde des données
-     * @param $data
-     */
-    private function save($data){
-        switch($data['context']){
-            case 'add':
-                if($data['type'] === 'page'){
-                    if(isset($this->name_map)){
-                        if(!empty($this->name_map)){
-                            parent::add(array(
-                                'type'      =>'page',
-                                'idlang'    =>$this->getlang,
-                                'name'      =>$this->name_map,
-                                'content'   =>$this->content_map
-                            ));
-                            $this->getLastItemData('page');
-                            $this->message->json_post_response(true,'save',$this->template->fetch('loop/items-page.tpl'),self::$notify);
-                        }
-                    }
-                }elseif($data['type'] === 'address'){
-                    if(isset($this->adress_ga)){
-                        if(!empty($this->adress_ga)){
-                            parent::add(array(
-                                'type'      =>'address',
-                                'edit'		=>	$this->edit,
-                                'society'	=>	$this->society_ga,
-                                'address'	=>	$this->adress_ga,
-                                'postcode'	=>	$this->postcode_ga,
-                                'city'		=>	$this->city_ga,
-                                'country'	=>	$this->country_ga,
-                                'lat'		=>	$this->lat_ga,
-                                'lng'		=>	$this->lng_ga,
-                                'link'		=>	$this->link_ga
-                            ));
-                            $this->getLastItemData('address');
-                            $this->message->json_post_response(true,'save',$this->template->fetch('loop/items-address.tpl'),self::$notify);
-                        }
-                    }
-                }
-                break;
-            case 'update':
-                if($data['type'] === 'config'){
-                    if(isset($this->lat_map) AND isset($this->lng_map)){
-                        if(!empty($this->marker)){
-                            $marker = $this->marker;
-                        }else{
-                            $marker = null;
-                        }
-                        if(!isset($this->route_map)){
-                            $route_map = '0';
-                        }else{
-                            $route_map = $this->route_map;
-                        }
-                        if(!isset($this->multi_marker)){
-                            $multi_marker = '0';
-                        }else{
-                            $multi_marker = $this->multi_marker;
-                        }
-                        parent::update(array(
-                            'type'      =>  'config',
-                            'marker'	=>	$marker,
-                            'multi'	    =>	$multi_marker,
-                            'route'	    =>	$route_map,
-                            'api'	    =>	$this->api_key,
-                            'society'	=>	$this->society_map,
-                            'address'	=>	$this->adress_map,
-                            'postcode'	=>	$this->postcode_map,
-                            'city'		=>	$this->city_map,
-                            'country'	=>	$this->country_map,
-                            'lat'		=>	$this->lat_map,
-                            'lng'		=>	$this->lng_map,
-                            'link'		=>	$this->link_map
-                        ));
-                        $this->message->getNotify('update');
-                    }
-                }elseif($data['type'] === 'page'){
-                    if(isset($this->name_map)){
-                        parent::update(array(
-                            'type'      =>  'page',
-                            'edit'      =>  $this->edit,
-                            'name'      =>$this->name_map,
-                            'content'   =>$this->content_map
-                        ));
-                        $this->message->getNotify('update');
-                    }
-                }elseif($data['type'] === 'address'){
-                    if(isset($this->adress_ga)) {
-                        parent::update(array(
-                            'type'     => 'address',
-                            'id'       => $this->id,
-                            'society'  => $this->society_ga,
-                            'address'  => $this->adress_ga,
-                            'postcode' => $this->postcode_ga,
-                            'city'     => $this->city_ga,
-                            'country'  => $this->country_ga,
-                            'lat'      => $this->lat_ga,
-                            'lng'      => $this->lng_ga,
-                            'link'		=>	$this->link_ga
-                        ));
-                        $this->message->getNotify('update');
-                    }
-                }
-                break;
-        }
-    }
-    /**
-     * Suppression de l'enregistrement
-     * @access private
-     * @param $type
-     * @param $id
-     */
-    private function delete($type,$id){
-        if(isset($id)){
-            parent::remove(array(
-                'type'=>$type,
-                'id'=>$id
-            ));
-        }
-    }
+	/**
+	 * Update data
+	 * @param array $config
+	 */
+	private function upd($config)
+	{
+		switch ($config['type']) {
+			case 'address':
+			case 'config':
+			case 'page':
+				parent::update($config);
+				$this->header->set_json_headers();
+				$this->message->json_post_response(true,'save',null, self::$notify);
+				break;
+		}
+	}
+
+	/**
+	 * Delete a record
+	 * @param $config
+	 */
+	private function del($config)
+	{
+		switch ($config['type']) {
+			case 'address':
+				parent::delete($config);
+				$this->header->set_json_headers();
+				$this->message->json_post_response(true,'delete',array('id' => $this->id));
+				break;
+		}
+	}
+
+
+	/**
+	 * Execute Update AJAX FOR order
+	 * @access private
+	 *
+	 */
+	private function update_order(){
+		if(isset($this->address)){
+			$p = $this->address;
+			for ($i = 0; $i < count($p); $i++) {
+				$config = array(
+					'type' => 'order',
+					'data' => array(
+						':i' => $i,
+						':id' => $p[$i]
+					)
+				);
+				parent::update($config);
+			}
+		}
+	}
+
 	/**
 	 * Affiche les pages de l'administration du plugin
 	 * @access public
 	 */
-	public function run(){
-        $header= new magixglobal_model_header();
-		//Installation des tables mysql
-        if(self::install_table($this->template) == true){
-            if(magixcjquery_filter_request::isGet('getlang')){
-                if(self::upgrade_version() === true){
-                    $this->translation->addConfigFile(
-                        array(
-                            'country/tools'
-                        ),array(
-                        'country_iso_',
-                    ),false
-                    );
-                    if($this->tab == 'config'){
-                        if(isset($this->lat_map)){
-                            $this->save(array(
-                                'context'   => 'update',
-                                'type'      =>'config'
-                            ));
-                        }else{
-                            $this->setConfigData();
-                            $this->template->assign('countryTools',$this->country->setItemsData());
-                            $this->findMarker();
-                            // Retourne la page index.tpl
-                            $this->template->display('list.tpl');
-                        }
-                    }elseif($this->tab == 'about'){
-                        $this->template->display('about.tpl');
-                    }else{
-                        if(isset($this->action)){
-                            if($this->action == 'list'){
-                                // Retourne la page index.tpl
-                                $this->getItemsData('page');
-                                $this->template->display('list.tpl');
-                            }elseif($this->action == 'add'){
-                                if(isset($this->name_map)){
-                                    $header->set_json_headers();
-                                    $this->save(array(
-                                        'context'   => 'add',
-                                        'type'      =>'page'
-                                    ));
-                                }
-                            }elseif($this->action == 'edit'){
-                                if(isset($this->edit)){
-                                    if(isset($this->name_map)){
-                                        $this->save(array(
-                                            'context'   => 'update',
-                                            'type'      =>'page'
-                                        ));
-                                    }elseif($this->tab == 'multimarkers'){
-                                        if(isset($this->id)){
-                                            if(isset($this->adress_ga)){
-                                                $this->save(array(
-                                                    'context'   => 'update',
-                                                    'type'      =>'address'
-                                                ));
-                                            }else{
-                                                $this->getAddressData();
-                                                $this->template->assign('countryTools',$this->country->setItemsData());
-                                                $this->template->display('edit.tpl');
-                                            }
-                                        }else{
-                                            if(isset($this->adress_ga)){
-                                                $header->set_json_headers();
-                                                $this->save(array(
-                                                    'context'   => 'add',
-                                                    'type'      =>'address'
-                                                ));
-                                            }else{
-                                                $this->getData();
-                                                $this->getItemsData('address');
-                                                $this->template->assign('countryTools',$this->country->setItemsData());
-                                                $this->template->display('edit.tpl');
-                                            }
-                                        }
-                                    }else{
-                                        $this->getData();
-                                        $this->template->display('edit.tpl');
-                                    }
-                                }
-                            }elseif($this->action == 'remove'){
-                                if(isset($this->deletemap)){
-                                    $this->delete('page',$this->deletemap);
-                                }elseif(isset($this->delete_rel_map)){
-                                    $this->delete('address',$this->delete_rel_map);
-                                }
-                            }
-                        }
-                    }
-                }else{
-                    // Retourne la page index.tpl
-                    $this->template->display('list.tpl');
-                }
-            }
-        }
+	public function run()
+	{
+		if (self::install_table() == true) {
+			if (self::upgrade_version() === true) {
+				if (isset($this->getlang)) {
+					$this->translation->addConfigFile(array('country/tools'), array('country_iso_'), false);
+
+					if ($this->tab == 'about') {
+						$this->template->display('about.tpl');
+					}
+					elseif ($this->tab == 'address') {
+						if (isset($this->action)) {
+							switch ($this->action) {
+								case 'add':
+								case 'edit':
+									if(isset($this->address) && !empty($this->address)) {
+										$data = $this->keysToParams($this->address);
+										$data[':lang'] = $this->getlang;
+
+										$config = array(
+											'type' => 'address',
+											'data' => $data
+										);
+
+										(isset($this->address['id']) && !empty($this->address['id'])) ? $this->upd($config) : $this->add($config);
+									}
+									else {
+										if($this->action === 'edit' && isset($this->edit)) {
+											$this->getItems('address',$this->edit);
+										}
+										$this->template->assign('countryTools', $this->country->setItemsData());
+										$this->template->assign('edit',($this->action === 'edit' ? true : false));
+										$this->template->display('address.tpl');
+									}
+									break;
+
+								case 'delete':
+									if(isset($this->id) && !empty($this->id)) {
+										$this->del(
+											array(
+												'type' => 'address',
+												'data' => array(
+													':id' => $this->id,
+													':lang' => $this->getlang
+												)
+											)
+										);
+									}
+									break;
+
+								case 'order':
+									if (isset($this->address)) {
+										$this->update_order();
+									}
+									break;
+
+								case 'list':
+									$this->getItems('addresses');
+									$this->template->display('list.tpl');
+									break;
+							}
+						}
+						else {
+							$this->getItems('addresses');
+							$this->template->display('list.tpl');
+						}
+					}
+					elseif ($this->tab == 'config') {
+						if (isset($this->config) && !empty($this->config)) {
+							$this->upd(array(
+								'type' => 'config',
+								'data' => $this->keysToParams($this->config)
+							));
+						} else {
+							$this->setConfigData();
+							$this->findMarker();
+							$this->template->display('config.tpl');
+						}
+					}
+					elseif ($this->tab == 'content') {
+						if (isset($this->action)) {
+							if(isset($this->page) && !empty($this->page)) {
+								$config = array(
+									'type' => 'page',
+									'data' => $this->keysToParams($this->page)
+								);
+
+								!empty($this->page['id']) ? $this->upd($config) : $this->add($config);
+							}
+							else {
+								$this->getItems('page',null,'one');
+								$this->template->display('content.tpl');
+							}
+						}
+						else {
+							$this->template->display('content.tpl');
+						}
+					}
+					else {
+						$this->template->display('list.tpl');
+					}
+				}
+				else {
+					$this->template->display('index.tpl');
+				}
+			}
+		}
 	}
+
 	/**
 	 * @access public
 	 * Options de reecriture des métas
 	 */
-	public function seo_options(){
+	public function seo_options()
+	{
 		return $options_string = array(
-			'plugins'=>true
+			'plugins' => true
 		);
 	}
-    //Set icon pour le menu
-    /*public function set_icon(){
-        $icon = array(
-            'type'=>'image',
-            'name'=>'icon.png'
-        );
-        return $icon;
-    }*/
-    public function setConfig(){
-        return array(
-            'url'=> array(
-                'lang'=>'list',
-                'action'=>'list'
-            )
-        );
-    }
-	//SITEMAP
-	private function lastmod_dateFormat(){
+
+	/**
+	 * Set icon for the admin sidebar menu
+	 * @return array
+	 */
+	/*public function set_icon(){
+		$icon = array(
+			'type'=>'image',
+			'name'=>'icon.png'
+		);
+		return $icon;
+	}*/
+
+	public function setConfig()
+	{
+		return array(
+			'url' => array(
+				'lang' => 'list'
+			)
+		);
+	}
+
+	/**
+	 * Sitemap
+	 * @return string
+	 */
+	private function lastmod_dateFormat()
+	{
 		$dateformat = new magixglobal_model_dateformat();
 		return $dateformat->sitemap_lastmod_dateFormat();
 	}
+
 	/**
 	 * @access public
 	 * Options de reecriture des sitemaps NEWS
 	 */
-	public function sitemap_rewrite_options(){
+	public function sitemap_rewrite_options()
+	{
 		return $options_string = array(
-			'index'=>true,
-			'level1'=>false,
-			'level2'=>false,
-			'records'=>false
+			'index' => true,
+			'level1' => false,
+			'level2' => false,
+			'records' => false
 		);
 	}
 
-    /**
-     * URL index du module suivant la langue
-     * @param $idlang
-     */
-    public function sitemap_uri_index($idlang){
-        $sitemap = new magixcjquery_xml_sitemap();
-        // Table des langues
-        $lang = new backend_db_block_lang();
-        // Retourne le code ISO
-        $db = $lang->s_data_iso($idlang);
-        if($db != null){
-            $sitemap->writeMakeNode(
-                magixcjquery_html_helpersHtml::getUrl().magixglobal_model_rewrite::filter_plugins_root_url(
-                    $db['iso'],
-                    'gmap',
-                    true)
-                ,
-                $this->lastmod_dateFormat(),
-                'always',
-                0.7
-            );
-        }
-    }
-}
-class database_plugins_gmap{
 	/**
-	 * Vérifie si les tables du plugin sont installé
-	 * @access protected
-	 * return integer
+	 * URL index du module suivant la langue
+	 * @param $idlang
 	 */
-	protected function c_show_table(){
-		$table = 'mc_plugins_gmap';
-		return magixglobal_model_db::layerDB()->showTable($table);
+	public function sitemap_uri_index($idlang)
+	{
+		$sitemap = new magixcjquery_xml_sitemap();
+		// Table des langues
+		$lang = new backend_db_block_lang();
+		// Retourne le code ISO
+		$db = $lang->s_data_iso($idlang);
+		if ($db != null) {
+			$sitemap->writeMakeNode(
+				magixcjquery_html_helpersHtml::getUrl() . magixglobal_model_rewrite::filter_plugins_root_url(
+					$db['iso'],
+					'gmap',
+					true)
+				,
+				$this->lastmod_dateFormat(),
+				'always',
+				0.7
+			);
+		}
 	}
-
-    /**
-     * fetch Data
-     * @param $data
-     * @return array
-     */
-    protected function fetch($data){
-        if(is_array($data)){
-            if($data['context'] === 'all'){
-                if(($data['type'] === 'config')){
-                    $sql = 'SELECT conf.* FROM mc_plugins_gmap_config AS conf';
-                    return magixglobal_model_db::layerDB()->select($sql);
-                }
-                elseif(($data['type'] === 'page')){
-                    //Selectionne les cartes dans la langue
-                    $sql = 'SELECT map.*,lang.iso
-                FROM mc_plugins_gmap AS map
-                JOIN mc_lang AS lang ON ( map.idlang = lang.idlang )
-                WHERE map.idlang = :idlang';
-                    return magixglobal_model_db::layerDB()->select($sql,array(
-                        ':idlang'=>$data['idlang']
-                    ));
-                }
-                elseif(($data['type'] === 'address')){
-                    $sql = 'SELECT addr.* FROM mc_plugins_gmap_adress AS addr
-		            WHERE addr.idgmap = :idgmap';
-                    return magixglobal_model_db::layerDB()->select($sql,array(
-                        ':idgmap'=>$data['idgmap']
-                    ));
-                }
-                elseif($data['type'] === 'lastPage'){
-                    $sql = 'SELECT map.*,lang.iso
-                FROM mc_plugins_gmap AS map
-                JOIN mc_lang AS lang ON ( map.idlang = lang.idlang )
-                WHERE map.idlang = :idlang ORDER BY idgmap DESC LIMIT 0,1';
-                    return magixglobal_model_db::layerDB()->select($sql,array(
-                        ':idlang'=>$data['idlang']
-                    ));
-                }
-                elseif($data['type'] === 'lastAddress'){
-                    $sql = 'SELECT addr.* FROM mc_plugins_gmap_adress AS addr
-		            WHERE addr.idgmap = :idgmap ORDER BY id_adress DESC LIMIT 0,1';
-                    return magixglobal_model_db::layerDB()->select($sql,array(
-                        ':idgmap'=>$data['idgmap']
-                    ));
-                }
-
-            }elseif($data['context'] === 'one'){
-                if($data['type'] === 'page'){
-                    //Selectionne la carte pour édition
-                    $sql = 'SELECT map.* FROM mc_plugins_gmap AS map
-		            WHERE map.idgmap = :edit';
-                    return magixglobal_model_db::layerDB()->selectOne($sql,array(
-                        ':edit'	=>	$data['edit']
-                    ));
-                }elseif(($data['type'] === 'config')){
-                    $sql ='SELECT conf.* FROM mc_plugins_gmap_config AS conf
-		            WHERE config_id = :config_id';
-                    return magixglobal_model_db::layerDB()->selectOne($sql,array(
-                        ':config_id'=>$data['id']
-                    ));
-                }elseif(($data['type'] === 'address')){
-                    $sql ='SELECT addr.* FROM mc_plugins_gmap_adress AS addr
-		            WHERE addr.id_adress = :id';
-                    return magixglobal_model_db::layerDB()->selectOne($sql,array(
-                        ':id'=> $data['id']
-                    ));
-                }
-            }
-        }
-    }
-
-    /**
-     * Ajoute un enregistrement
-     * @param $data
-     */
-    protected function add($data){
-        if(is_array($data)) {
-            if (($data['type'] === 'page')) {
-                $sql = 'INSERT INTO mc_plugins_gmap (idlang,name_map,content_map) 
-		        VALUE(:idlang,:name_map,:content_map)';
-                magixglobal_model_db::layerDB()->insert($sql,array(
-                    ':idlang'		=>	$data['idlang'],
-                    ':name_map'		=>	$data['name'],
-                    ':content_map'	=>	$data['content']
-                ));
-            }elseif($data['type'] === 'address'){
-                $sql = 'INSERT INTO mc_plugins_gmap_adress (society_ga,adress_ga,postcode_ga,city_ga,country_ga,lat_ga,lng_ga,link_ga,idgmap)
-		        VALUE(:society_ga,:adress_ga,:postcode_ga,:city_ga,:country_ga,:lat_ga,:lng_ga,:link_ga,:edit)';
-                magixglobal_model_db::layerDB()->insert($sql,array(
-                    ':edit'		    =>	$data['edit'],
-                    ':society_ga'	=>	$data['society'],
-                    ':adress_ga'	=>	$data['address'],
-                    ':postcode_ga'	=>	$data['postcode'],
-                    ':city_ga'		=>	$data['city'],
-                    ':country_ga'	=>	$data['country'],
-                    ':lat_ga'		=>	$data['lat'],
-                    ':lng_ga'		=>	$data['lng'],
-                    ':link_ga'		=>	$data['link']
-                ));
-            }
-        }
-    }
-
-    /**
-     * Mise a jour des données
-     * @param $data
-     */
-    protected function update($data){
-        if(is_array($data)) {
-            if (($data['type'] === 'page')) {
-                $sql = 'UPDATE mc_plugins_gmap 
-                SET name_map=:name_map,content_map=:content_map
-		        WHERE idgmap = :edit';
-                magixglobal_model_db::layerDB()->update($sql,array(
-                    ':edit'		    =>	$data['edit'],
-                    ':name_map'		=>	$data['name'],
-                    ':content_map'	=>	$data['content']
-                ));
-            }elseif($data['type'] === 'config'){
-                $sql=array(
-                    'UPDATE mc_plugins_gmap_config 
-			SET config_value="'.$data['society'].'" WHERE config_id = "society_map"',
-                    'UPDATE mc_plugins_gmap_config 
-			SET config_value="'.$data['address'].'" WHERE config_id = "adress_map"',
-                    'UPDATE mc_plugins_gmap_config  
-			SET config_value="'.$data['postcode'].'" WHERE config_id = "postcode_map"',
-                    'UPDATE mc_plugins_gmap_config 
-			SET config_value="'.$data['city'].'" WHERE config_id = "city_map"',
-                    'UPDATE mc_plugins_gmap_config 
-			SET config_value="'.$data['country'].'" WHERE config_id = "country_map"',
-                    'UPDATE mc_plugins_gmap_config 
-			SET config_value="'.$data['multi'].'" WHERE config_id = "multi_marker"',
-                    'UPDATE mc_plugins_gmap_config 
-			SET config_value="'.$data['marker'].'" WHERE config_id = "marker"',
-                    'UPDATE mc_plugins_gmap_config 
-			SET config_value="'.$data['route'].'" WHERE config_id = "route_map"',
-                    'UPDATE mc_plugins_gmap_config 
-			SET config_value="'.$data['api'].'" WHERE config_id = "api_key"',
-                    'UPDATE mc_plugins_gmap_config 
-			SET config_value="'.$data['lat'].'" WHERE config_id = "lat_map"',
-                    'UPDATE mc_plugins_gmap_config 
-			SET config_value="'.$data['lng'].'" WHERE config_id = "lng_map"',
-                    'UPDATE mc_plugins_gmap_config 
-			SET config_value="'.$data['link'].'" WHERE config_id = "link_map"'
-                );
-                magixglobal_model_db::layerDB()->transaction($sql);
-            }elseif($data['type'] === 'address'){
-                $sql = 'UPDATE mc_plugins_gmap_adress 
-                SET society_ga=:society_ga,adress_ga=:adress_ga,postcode_ga=:postcode_ga,city_ga=:city_ga,country_ga=:country_ga,lat_ga=:lat_ga,lng_ga=:lng_ga,link_ga=:link_ga
-		        WHERE id_adress = :id';
-                magixglobal_model_db::layerDB()->update($sql,array(
-                    ':id'		    =>	$data['id'],
-                    ':society_ga'	=>	$data['society'],
-                    ':adress_ga'	=>	$data['address'],
-                    ':postcode_ga'	=>	$data['postcode'],
-                    ':city_ga'		=>	$data['city'],
-                    ':country_ga'	=>	$data['country'],
-                    ':lat_ga'		=>	$data['lat'],
-                    ':lng_ga'		=>	$data['lng'],
-                    ':link_ga'		=>	$data['link']
-                ));
-            }
-        }
-    }
-
-    /**
-     * @param $data
-     */
-	protected function remove($data){
-        if(is_array($data)){
-            if(($data['type'] === 'page')){
-                $sql = 'DELETE FROM mc_plugins_gmap WHERE idgmap = :id';
-                magixglobal_model_db::layerDB()->delete($sql,
-                    array(
-                        ':id'=>$data['id']
-                    )
-                );
-            }elseif(($data['type'] === 'address')){
-                $sql = 'DELETE FROM mc_plugins_gmap_adress WHERE id_adress = :id';
-                magixglobal_model_db::layerDB()->delete($sql,
-                    array(
-                        ':id'=>$data['id']
-                    )
-                );
-            }
-        }
-    }
 }

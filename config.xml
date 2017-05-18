@@ -25,11 +25,17 @@
 							<website href="http://gmap3.net" />
 						</link>
 					</author>
+					<author>
+						<name>Salvatore di Salvo</name>
+						<link>
+							<website href="http://www.disalvo-infographiste.be" />
+						</link>
+					</author>
 				</authors>
                 <version>
                     <date_create>21/01/2012</date_create>
-                    <date_update>23/01/2017</date_update>
-                    <number>2.8</number>
+                    <date_update>12/05/2017</date_update>
+                    <number>4.0</number>
                     <phase>Stable</phase>
                     <support>
                         <ticket href="https://github.com/gtraxx/gmap/issues"></ticket>

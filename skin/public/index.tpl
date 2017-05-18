@@ -8,7 +8,7 @@
 {block name='body:id'}gmap{/block}
 {block name="main"}
     <div class="container">
-        {$getMapConfig}
+        {include file="gmap/map.tpl"}
     </div>
 {/block}
 {block name="foot" append}

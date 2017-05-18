@@ -21,19 +21,19 @@ var gmap = (function ($, undefined) {
     	var self = this;
     	self.config = config;
 
-        if(config.link_map === '' || config.link_map === null){
-            var society_map = config.society_map;
-        }else{
-            var society_map = '<a href="'+config.link_map+'">'+config.society_map+'</a>';
+        if(config.markers[0].link === '' || config.markers[0].link === null) {
+            var company = config.markers[0].company;
+        } else {
+            var company = '<a href="'+config.markers[0].link+'">'+config.markers[0].company+'</a>';
 		}
 
         self.origin = {
-            OriginContent : society_map,
-            OriginAddress : config.adress_map,
-            OriginCity : config.postcode_map + ' ' + config.city_map,
-            OriginCountry : config.country_map,
-            OriginPosition : [config.lat_map, config.lng_map],
-            OriginRoute: config.route_map,
+            OriginContent : config.markers[0].company,
+            OriginAddress : config.markers[0].address,
+            OriginCity : config.markers[0].postcode + ' ' + config.markers[0].city,
+            OriginCountry : config.markers[0].country,
+            OriginPosition : [config.markers[0].lat, config.markers[0].lng],
+            OriginRoute: 1,
             OriginMarker: config.marker
         };
 
@@ -52,37 +52,45 @@ var gmap = (function ($, undefined) {
 			streetViewControl: true
 		};
 
-        self.marker = {
-			position: self.origin.OriginPosition,
-			//address: OriginAddress,
-			icon: "/plugins/gmap/markers/"+self.origin.OriginMarker,
-			content: self.origin.OriginContent+'<br />'+self.origin.OriginAddress+'<br />'+self.origin.OriginCity+', '+self.origin.OriginCountry
-		};
-		self.markers.push(self.marker);
+        if(config.markers.length > 1) {
+			var labels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+			var labelIndex = 0;
 
-        if(config.multi_marker) {
-			/*$.when(loadDataMultiMarker(iso,options)).then(
-				function (markers) {*/
-					$.each(config.markers, function(key, val){
-						var latLng = [val.latLng[0], val.latLng[1]];
-						if(val.data.link === '' || val.data.link === null){
-                            var society = val.data.society;
-						}else{
-                            var society = '<a href="'+val.data.link+'">'+val.data.society+'</a>';
-						}
-						var content = society+'<br />'+val.data.adress+'<br />'+val.data.postcode+' '+val.data.city+', '+val.data.country;
-						self.markers.push({
-							position: latLng,
-							//address: val.data.adress+', '+val.data.country,
-							icon: "http://maps.google.com/mapfiles/marker_grey.png",
-							content: content
-						});
-					});
-					//loadMap(options);
-				/*}
-			);*/
-
+			$.each(config.markers, function(key, val) {
+				var latLng = [val.lat, val.lng];
+				if(val.link === '' || val.link === null) {
+					var company = val.company;
+				} else {
+					var company = '<a href="'+val.link+'">'+val.company+'</a>';
+				}
+				var content = company+'<br />'+val.address+'<br />'+val.postcode+' '+val.city+', '+val.country;
+				self.markers.push({
+					position: latLng,
+					icon: {
+						url: "/plugins/gmap/markers/dotless/"+self.origin.OriginMarker+"-dotless.png",
+						labelOrigin: {x:11, y:12}
+					},
+					label: labels[labelIndex++ % labels.length],
+					content: content
+				});
+			});
 		}
+		else {
+        	var val = config.markers[0];
+			var latLng = [val.lat, val.lng];
+			if(val.link === '' || val.link === null) {
+				var company = val.company;
+			} else {
+				var company = '<a href="'+val.link+'">'+val.company+'</a>';
+			}
+			var content = company+'<br />'+val.address+'<br />'+val.postcode+' '+val.city+', '+val.country;
+			self.markers.push({
+				position: latLng,
+				icon: "/plugins/gmap/markers/"+self.origin.OriginMarker+".png",
+				content: content
+			});
+		}
+
 		loadMap(options);
     }
 
@@ -157,6 +165,16 @@ var gmap = (function ($, undefined) {
 						$('#address .country').text(content.country);
 					});
 				});
+				$('.select-marker').on('click', function(e) {
+					e.preventDefault();
+					var i = $(this).data('marker');
+					infowindow[i].open(map, self.markers[i]);
+					self.goTo = infowindow[i];
+					var content = getAddressInfos(self.goTo.content);
+					$('#address .address').text(content.address);
+					$('#address .city').text(content.city);
+					$('#address .country').text(content.country);
+				})
 				if(self.origin.OriginRoute) {
 					if(self.goTo != null) { getDirection(); }
 				}

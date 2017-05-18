@@ -1,3 +1,12 @@
+Version 4.0
+* Redesign of the admin interface
+* Separation of configuration and main address
+* Configuration simplified
+* Management of the content of the page simplified
+* Add coordinate information by address
+* Possibility of ordering addresses
+* New markers based on the google maps default marker
+
 Version 3.0
 * Add link in config and related address
 * Add update for related address

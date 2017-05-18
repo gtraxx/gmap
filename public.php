@@ -13,13 +13,16 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-
+#
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 # -- END LICENSE BLOCK -----------------------------------
-class plugins_gmap_public extends database_plugins_gmap{
-    protected $template;
+
+require_once('db/gmap.php');
+
+class plugins_gmap_public extends database_plugins_gmap {
+    protected $template, $getlang;
 	/**
 	 * 
 	 * paramètre pour la requête JSON
@@ -32,18 +35,44 @@ class plugins_gmap_public extends database_plugins_gmap{
 	 */
 	function __construct() {
 	    $this->template = new frontend_controller_plugins();
-		if(magixcjquery_filter_request::isGet('json_multi_data')){
-			$this->json_multi_data = (string) magixcjquery_form_helpersforms::inputClean($_GET['json_multi_data']);
+
+		$currentLang = parent::getLangId($this->template->getLanguage());
+		$this->getlang = $currentLang['idlang'];
+
+		if($this->getlang == null) {
+			$default = parent::getDefaultLang();
+			$this->getlang = $default['idlang'];
 		}
 	}
 
+	/**
+	 * Retrieve and return the data
+	 * @param string $context
+	 * @param string $type
+	 * @param string|int|null $id
+	 * @return mixed
+	 */
+	private function getItems($type, $id = null, $context = 'all') {
+		$params = array(':lang' => $this->getlang);
+
+		if($id) {
+			$params[':id'] = $id;
+			$context = 'one';
+		}
+
+		$data = parent::fetchData(array('context'=>$context,'type'=>$type),$params);
+		$this->template->assign($type,$data);
+		return $data;
+	}
+
     /**
+	 * Load map data
      * @access private
-     * Chargement des données de la carte
-     * @param void $setData
      */
-	private function setMapConfig($setData) {
-		$config = parent::fetch(array('type' => 'config'));
+	private function setMapConfig() {
+		$addresses = $this->getItems('addresses');
+		$config = parent::fetchData(array('context' => 'all','type' => 'config'));
+
         $configId = '';
         $configValue = '';
         foreach($config as $key){
@@ -51,29 +80,21 @@ class plugins_gmap_public extends database_plugins_gmap{
             $configValue[] = $key['config_value'];
         }
         $setConfig = array_combine($configId,$configValue);
-		$setConfig['name_map'] = $setData['name_map'];
-		$setConfig['content_map'] = $setData['content_map'];
-		$this->template->assign('config_map',$setConfig);
 
-		if($setConfig['multi_marker']) {
-			$setAddress = parent::fetch(array(
-				'type'      =>  'address',
-				'id'    =>  $setData['idgmap']
-			));
-
-			if($setAddress != null) {
-				$map = [];
-				foreach ($setAddress as $s){
-					$map[]= '{"latLng":['.$s['lat_ga'].','.$s['lng_ga'].']'.
-						',"data":'.'{'.'"society":'.json_encode($s['society_ga']).',"link":'.json_encode($s['link_ga']).
-						',"country":'.json_encode($s['country_ga']).',"city":'.json_encode($s['city_ga']).',"postcode":'.json_encode($s['postcode_ga']).',"adress":'
-						.json_encode($s['adress_ga']).'}}';
+		if($addresses != null) {
+			$map = [];
+			foreach ($addresses as $addr){
+				$mark = '{';
+				foreach ($addr as $k => $v) {
+					$mark .= '"'.$k.'":'.json_encode($v).',';
 				}
-				$setConfig['markers'] = '['.implode(',',$map).']';
+				$mark = substr($mark, 0, -1).'}';
+				$map[] = $mark;
 			}
-			else {
-				$setConfig['markers'] = '[{"lat":null,"lng":null,"data":{"society":null,"country":null,"city":null,"adress":null}}]';
-			}
+			$setConfig['markers'] = '['.implode(',',$map).']';
+		}
+		else {
+			$setConfig['markers'] = '[]';
 		}
 
 		$config = [];
@@ -90,66 +111,16 @@ class plugins_gmap_public extends database_plugins_gmap{
 	 * Execute le plugin dans la partie public
 	 */
 	public function run() {
-        $this->template->assign('plugin_status',parent::c_show_table());
+        $this->template->assign('plugin_status',parent::c_show_tables());
 		$this->template->configLoad();
 
-		if(parent::c_show_table() != 0) {
-			$setData = parent::fetch(array(
-                'type'      =>  'page',
-                'iso'    =>  $this->template->getLanguage()
-            ));
-			$this->setMapConfig($setData);
-			$getMapConfig = $this->template->fetch('map.tpl');
-			$this->template->assign('getMapConfig',$getMapConfig);
+		if(parent::c_show_tables()) {
+			$this->getItems('page',null,'one');
+			$this->setMapConfig();
 			$this->template->display('index.tpl');
 		}
 		else {
-            $getMapConfig = $this->template->fetch('map.tpl');
-            $this->template->assign('getMapConfig',$getMapConfig);
             $this->template->display('index.tpl');
 		}
-    }
-}
-class database_plugins_gmap
-{
-    /**
-     * Vérifie si les tables du plugin sont installé
-     * @access protected
-     * return integer
-     */
-    protected function c_show_table()
-    {
-        $table = 'mc_plugins_gmap';
-        return magixglobal_model_db::layerDB()->showTable($table);
-    }
-
-    /**
-     * fetch Data
-     * @param $data
-     * @return array
-     */
-    protected function fetch($data)
-    {
-        if (is_array($data)) {
-            if (($data['type'] === 'config')) {
-
-                $sql = 'SELECT conf.* FROM mc_plugins_gmap_config AS conf';
-                return magixglobal_model_db::layerDB()->select($sql);
-
-            } elseif ($data['type'] === 'page') {
-
-                $sql = 'SELECT map.* FROM mc_plugins_gmap AS map
-                JOIN mc_lang AS lang ON ( map.idlang = lang.idlang )
-                WHERE lang.iso = :iso';
-
-                return magixglobal_model_db::layerDB()->selectOne($sql, array(':iso' => $data['iso']));
-            } elseif ($data['type'] === 'address') {
-
-                $sql = 'SELECT addr.* FROM mc_plugins_gmap_adress AS addr
-		        WHERE addr.idgmap = :idgmap';
-
-                return magixglobal_model_db::layerDB()->select($sql, array(':idgmap' => $data['id']));
-            }
-        }
     }
 }
