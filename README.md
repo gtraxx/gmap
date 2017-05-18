@@ -27,9 +27,8 @@
  * Une fois dans le plugin, laisser faire l'auto update
  
 #### Configuration
-![magixcms-gmap-3 0-config](https://cloud.githubusercontent.com/assets/356674/24237713/b10ae8ca-0fa7-11e7-92a9-be465a3805e7.png)
-#### Gestion de la page
-![Page du plugin gmap dans Magix CMS](https://cloud.githubusercontent.com/assets/356674/12264693/c1c4292c-b938-11e5-8cbb-02795b026ff0.png "Page du plugin gmap dans Magix CMS")
+![gmap-address-v4](https://cloud.githubusercontent.com/assets/356674/26194349/664e5410-3bb8-11e7-8b7b-c840d17d2dc6.png)
+
 #### Plan d'accès
 ![magixcms-gmap-3 0-plan](https://cloud.githubusercontent.com/assets/356674/24237808/16e0fb80-0fa8-11e7-8257-aa066320e56d.png)
 
