@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS `mc_plugins_gmap_config` (
 
 CREATE TABLE IF NOT EXISTS `mc_plugins_gmap_address` (
   `id_address` SMALLINT(4) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `idgmap` SMALLINT(3) NOT NULL,
+  `idlang` SMALLINT(3) NOT NULL,
   `company` VARCHAR(50) NOT NULL,
   `about` TEXT NULL,
   `address` VARCHAR(175) NOT NULL,
