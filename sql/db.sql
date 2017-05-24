@@ -37,5 +37,7 @@ CREATE TABLE IF NOT EXISTS `mc_plugins_gmap_address` (
 
 INSERT INTO `mc_plugins_gmap_config` (`idgmapconfig`, `config_id`, `config_value`) VALUES
 (NULL, 'marker', 'red-spot'),
-(NULL, 'gmap_version', '4.0'),
+(NULL, 'gmap_version', '4.1'),
 (NULL, 'api_key', NULL);
+
+INSERT INTO `mc_config_size_img` VALUES (null, 6, 'gmap', 480, 360, 'medium', 'adaptive');

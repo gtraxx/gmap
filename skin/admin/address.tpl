@@ -10,6 +10,9 @@
 
     {include file="forms/address.tpl" edit=$edit}
 {/block}
+{block name="modal"}
+    {include file="modal/delete-img.tpl"}
+{/block}
 {block name='javascript'}
     {include file="js.tpl"}
 {/block}

@@ -3,7 +3,7 @@
 {else}
 <h1>{#add_adress#}</h1>
 {/if}
-<form method="post" action="{$pluginUrl}&amp;getlang={$smarty.get.getlang}&amp;tab=address&amp;action=add" class="validate_form{if !$edit} add_form{/if}">
+<form method="post" action="{$pluginUrl}&amp;getlang={$smarty.get.getlang}&amp;tab=address&amp;action=add" class="validate_form{if !$edit} add_form{else} edit_form{/if}">
     <p class="help-block">
         Tous les champs marqué d'un * sont obligatoire
     </p>
@@ -93,6 +93,30 @@
         <div class="form-group">
             <label for="link">{#link#}</label>
             <input id="link" type="text" class="form-control" name="address[link]" placeholder="{#ph_link#}" {if isset($address)} value="{$address.link}"{/if}/>
+        </div>
+        <div class="form-group">
+            <label for="img">{#img#}</label>
+            <input type="hidden" name="MAX_FILE_SIZE" value="2048576" />
+            <input type="file" id="img" name="img" class="inputfile inputimg" />
+            <div class="input">
+                <label for="img">
+                    <figure>
+                    <span class="dashed-square">
+                      <span class="fa fa-picture-o"></span>
+                    </span>
+                        <div class="preview-img">
+                            {if isset($address.img) && !empty($address.img)}
+                                <img id="preview" src="/upload/gmap/address/{$address.img}" alt="Photo de l'adresse" class="preview-img" />
+                            {else}
+                                <img id="preview" src="#" alt="Photo de l'adresse" class="no-img" />
+                            {/if}
+                        </div>
+                    </figure>
+                    <span id="input-label">Choisissez une image&hellip;</span>
+                    <a class="toggleModal {if !$edit || (!isset($address.img) || empty($address.img))}hide{/if}" data-toggle="modal" data-target="#delete_img_modal" href="#{$addr.id_address}">{#delete#|ucfirst} <span class="fa fa-times"></span></a>
+                    <a href="#" class="resetImg hide">{#delete#|ucfirst} <span class="fa fa-times"></span></a>
+                </label>
+            </div>
         </div>
     </fieldset>
     <fieldset>

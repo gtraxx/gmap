@@ -1,3 +1,7 @@
+Version 4.1
+* Possibility to add an image for each address
+* Listing of the addresses on the access plan page
+
 Version 4.0
 * Redesign of the admin interface
 * Separation of configuration and main address

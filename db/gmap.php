@@ -9,7 +9,7 @@ class database_plugins_gmap{
 		$tables = array(
 			'mc_plugins_gmap',
 			'mc_plugins_gmap_config',
-			'mc_plugins_gmap_adress'
+			'mc_plugins_gmap_address'
 		);
 
 		$i = 0;
@@ -84,6 +84,11 @@ class database_plugins_gmap{
 						$params = $data;
 						break;
 
+					case 'img':
+						$sql = "SELECT img FROM mc_plugins_gmap_address WHERE idlang = :lang AND id_address = :id";
+						$params = $data;
+						break;
+
 					case 'page':
 						$sql = "SELECT * FROM mc_plugins_gmap WHERE idlang = :lang";
 						$params = $data;
@@ -106,8 +111,8 @@ class database_plugins_gmap{
 
 			switch ($config['type']) {
 				case 'address':
-					$sql = "INSERT INTO mc_plugins_gmap_address (idlang,company,about,address,postcode,city,country,phone,mobile,fax,email,link,lat,lng,order_addr)
-							SELECT :lang,:company,:about,:address,:postcode,:city,:country,:phone,:mobile,:fax,:email,:link,:lat,:lng,COUNT(id_address) + 1 FROM mc_plugins_gmap_address";
+					$sql = "INSERT INTO mc_plugins_gmap_address (idlang,company,about,address,postcode,city,country,phone,mobile,fax,email,link,img,lat,lng,order_addr)
+							SELECT :lang,:company,:about,:address,:postcode,:city,:country,:phone,:mobile,:fax,:email,:link,:img,:lat,:lng,COUNT(id_address) + 1 FROM mc_plugins_gmap_address";
 					break;
 
 				case 'page':
@@ -144,10 +149,15 @@ class database_plugins_gmap{
 								fax = :fax,
 								email = :email,
 								link = :link,
+								img = :img,
 								lat = :lat,
 								lng = :lng
 							WHERE id_address = :id
 							AND idlang = :lang";
+					break;
+
+				case 'img':
+					$sql = 'UPDATE mc_plugins_gmap_address SET img = NULL WHERE id_address = :id';
 					break;
 
 				case 'order':

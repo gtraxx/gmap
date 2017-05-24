@@ -10,7 +10,7 @@
             </h1>
             {if isset($page.content) && !empty($page.content)}
                 <div class="gmap-content container">
-                {$page.content}
+                    {$page.content}
                 </div>
             {/if}
         {/if}
@@ -58,15 +58,31 @@
         <div id="addresses" class="container">
             <div class="row">
                 {foreach $addresses as $addr}
-                    <div class="col-xs-12 col-sm-6">
-                        <ul>
-                            <li>{$addr.company}</li>
-                            <li>{$addr.address}, {$addr.postcode} {$addr.city}, {$addr.country}</li>
-                            <li>{$addr.link}</li>
-                        </ul>
-                        <p>
-                            <a href="#" class="select-marker" data-marker="{$addr@index}">See on map</a>
-                        </p>
+                    <div class="col-ph-12 col-sm-6 col-md-4 col-lg-6">
+                        {if !empty($addr.img)}
+                            <div class="row">
+                                <div class="col-ph-12 col-xs-6 col-sm-12 col-lg-6">
+                                    <img class="img-responsive" src="{geturl}/upload/gmap/address/{$addr.img}" alt="{$addr.company}">
+                                </div>
+                                <div class="col-ph-12 col-xs-6 col-sm-12 col-lg-6">
+                                    <h3>{$addr.company}</h3>
+                                    <p>{$addr.address}, {$addr.postcode} {$addr.city}, {$addr.country}</p>
+                                    {if $addr.about}<p>{$addr.about}</p>{/if}
+                                    {if $addr.link}<p><a href="{$addr.link}">{$addr.link}</a></p>{/if}
+                                    <p>
+                                        <a href="#" class="btn btn-box btn-invert btn-main-theme select-marker" data-marker="{$addr@index}">{#see_on_map#}</a>
+                                    </p>
+                                </div>
+                            </div>
+                        {else}
+                            <h3>{$addr.company}</h3>
+                            <p>{$addr.address}, {$addr.postcode} {$addr.city}, {$addr.country}</p>
+                            {if $addr.about}<p>{$addr.about}</p>{/if}
+                            {if $addr.link}<p><a href="{$addr.link}" class="targetblank">{$addr.link}</a></p>{/if}
+                            <p>
+                                <a href="#" class="btn btn-box btn-invert btn-main-theme select-marker" data-marker="{$addr@index}">{#see_on_map#}</a>
+                            </p>
+                        {/if}
                     </div>
                 {/foreach}
             </div>

@@ -1,4 +1,20 @@
 var MC_plugins_gmap = (function ($, undefined) {
+	/**
+	 * @param input
+	 */
+	function readURL(input) {
+		if (input.files && input.files[0]) {
+			var reader = new FileReader();
+
+			reader.onload = function (e) {
+				$('#preview').attr('src', e.target.result);
+			}
+
+			reader.readAsDataURL(input.files[0]);
+			$('#preview').removeClass('no-img').addClass('preview');
+		}
+	}
+
     /**
      * updateTimer
      * @param ts
@@ -113,20 +129,43 @@ var MC_plugins_gmap = (function ($, undefined) {
 		if($(f).hasClass('add_form')) {
 			options.resetform = true;
 		}
-		else if($(f).hasClass('delete_form')) {
-			options.resetform = true;
+		else if($(f).hasClass('edit_form')) {
 			options.successParams = function (d) {
-				$('#delete_modal').modal('hide');
 				removeLoader(f, false);
 				if(d.debug !== undefined && d.debug !== '') {
 					initAlert(d.debug);
 				}
 				else if(d.notify !== undefined && d.notify !== '') {
 					initAlert(d.notify,4000);
-					$('#address_' + d.result.id).remove();
-					var nbr = $('#table_adress').find('tr').length;
-					if(nbr < 2) {
-						$('#no-entry').removeClass('hide');
+					if($('#img').val() !== '' && $('#img').val() !== null) {
+						$('.toggleModal').removeClass('hide');
+						$('.resetImg').addClass('hide');
+					}
+				}
+			}
+		}
+		else if($(f).hasClass('delete_form')) {
+			options.resetform = true;
+			options.beforeParams = function (d) {};
+			options.successParams = function (d) {
+				$('#delete_modal').modal('hide');
+				$('#delete_img_modal').modal('hide');
+				if(d.debug !== undefined && d.debug !== '') {
+					initAlert(d.debug);
+				}
+				else if(d.notify !== undefined && d.notify !== '') {
+					initAlert(d.notify,4000);
+					if($(f).attr('id') === 'delete_img_form') {
+						$("#img").val('');
+						$('#preview').attr('src', '#').addClass('no-img').removeClass('preview');
+						$('.toggleModal').addClass('hide');
+					}
+					else {
+						$('#address_' + d.result.id).remove();
+						var nbr = $('#table_adress').find('tr').length;
+						if(nbr < 2) {
+							$('#no-entry').removeClass('hide');
+						}
 					}
 				}
 			}
@@ -203,6 +242,47 @@ var MC_plugins_gmap = (function ($, undefined) {
 				watch($('#city'));
 				watch($('#postcode'));
 			}
+
+			var defaultLabel = $('span#input-label').text();
+			$('.inputfile').each(function() {
+				var label	 = $('span#input-label'),
+					labelVal = label.innerHTML;
+
+				$(this).on( 'change', function( e )
+				{
+					var fileName = e.target.value;
+
+					if( fileName != '' ) {
+						label.text(fileName);
+						if($(this).hasClass('inputpdf')) {
+							$(this).next('label').addClass('filled').find('.fa-inverse').toggleClass('fa-upload').toggleClass('fa-file-pdf-o');
+						}
+					}
+					else {
+						label.text(labelVal);
+					}
+				});
+
+				// Firefox bug fix
+				$(this).on( 'focus', function(){ $(this).addClass( 'has-focus' ); });
+				$(this).on( 'blur', function(){ $(this).removeClass( 'has-focus' ); });
+			});
+
+			$("#img").change(function(){
+				readURL(this);
+				if(typeof $('.resetImg') !== 'undefined') {
+					$('.resetImg').removeClass('hide');
+				}
+			});
+
+			$('.resetImg').click(function(e){
+				e.preventDefault();
+				$(this).addClass('hide');
+				$("#img").val('');
+				$('#preview').attr('src', '#').addClass('no-img').removeClass('preview');
+				$( 'span#input-label' ).text(defaultLabel);
+				return false;
+			});
 		},
 		initMapConfig: function () {
 			loadMapConfig();
