@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `mc_plugins_gmap_address` (
   `company` VARCHAR(50) NOT NULL,
   `about` TEXT NULL,
   `address` VARCHAR(175) NOT NULL,
-  `poscode` VARCHAR(12) NOT NULL,
+  `postcode` VARCHAR(12) NOT NULL,
   `country` VARCHAR(30) NOT NULL,
   `city` VARCHAR(40) NOT NULL,
   `phone` VARCHAR(45) NULL,

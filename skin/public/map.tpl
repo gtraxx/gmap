@@ -1,18 +1,20 @@
 {if $plugin_status != 0}
     {if !empty($addresses)}
         {if isset($page) && !empty($page)}
-            <h1{if empty($page.content)} class="sr-only"{/if}>
-                {if isset($page.title) && !empty($page.title)}
-                    {$page.title}
-                {else}
-                    {#access_plan#}
+            <div class="container">
+                <h1 class="text-center {if empty($page.content)} sr-only{/if}">
+                    {if isset($page.title) && !empty($page.title)}
+                        {$page.title}
+                    {else}
+                        {#access_plan#}
+                    {/if}
+                </h1>
+                {if isset($page.content) && !empty($page.content)}
+                    <div class="gmap-content">
+                        {$page.content}
+                    </div>
                 {/if}
-            </h1>
-            {if isset($page.content) && !empty($page.content)}
-                <div class="gmap-content container">
-                    {$page.content}
-                </div>
-            {/if}
+            </div>
         {/if}
         <div class="map">
             <div>
@@ -35,9 +37,15 @@
                     <a id="showform" class="btn btn-lg pull-right collapsed" type="button" data-toggle="collapse" data-target="#searchdir" aria-expanded="false" aria-controls="searchdir">
                         <span class="fa fa-arrow-circle-right"></span>
                     </a>
-                    <button id="hidepanel" class="btn btn-default btn-box">
-                        <span class="fa fa-caret-left"></span>
-                    </button>
+                    {if isset($mobileBrowser) && $mobileBrowser}
+                        <button class="btn btn-default btn-box hidepanel ups">
+                            <span class="fa fa-caret-up"></span>
+                        </button>
+                    {else}
+                        <button class="btn btn-default btn-box hidepanel left">
+                            <span class="fa fa-caret-left"></span>
+                        </button>
+                    {/if}
                     <meta itemprop="name" content="{$addresses[0].company}" />
                     <div id="address" itemprop="address" itemscope itemtype="http://schema.org/PostalAddress">
                         <span class="fa fa-map-marker"></span>
@@ -55,38 +63,41 @@
             </div>
         </div>
 
-        <div id="addresses" class="container">
-            <div class="row">
+        {if count($addresses) > 1}
+            <div id="addresses" class="container">
                 {foreach $addresses as $addr}
+                    {if ($addr@index)%2 == 0}
+                        <div class="row">
+                    {/if}
                     <div class="col-ph-12 col-sm-6 col-md-4 col-lg-6">
+                        {capture name="content"}
+                            <h3>{$addr.company}</h3>
+                            <p>{$addr.address}, {$addr.postcode} {$addr.city}, {$addr.country}</p>
+                            {if $addr.about}<p>{$addr.about}</p>{/if}
+                            <p>
+                                {if $addr.link}<a href="{$addr.link}" class="btn btn-box btn-invert btn-main-theme"">{#more_infos#}</a>{/if}
+                                <a href="#" class="btn btn-box btn-invert btn-main-theme select-marker" data-marker="{$addr@index}">{#see_on_map#}</a>
+                            </p>
+                        {/capture}
                         {if !empty($addr.img)}
                             <div class="row">
                                 <div class="col-ph-12 col-xs-6 col-sm-12 col-lg-6">
                                     <img class="img-responsive" src="{geturl}/upload/gmap/address/{$addr.img}" alt="{$addr.company}">
                                 </div>
                                 <div class="col-ph-12 col-xs-6 col-sm-12 col-lg-6">
-                                    <h3>{$addr.company}</h3>
-                                    <p>{$addr.address}, {$addr.postcode} {$addr.city}, {$addr.country}</p>
-                                    {if $addr.about}<p>{$addr.about}</p>{/if}
-                                    {if $addr.link}<p><a href="{$addr.link}">{$addr.link}</a></p>{/if}
-                                    <p>
-                                        <a href="#" class="btn btn-box btn-invert btn-main-theme select-marker" data-marker="{$addr@index}">{#see_on_map#}</a>
-                                    </p>
+                                    {$smarty.capture.content}
                                 </div>
                             </div>
                         {else}
-                            <h3>{$addr.company}</h3>
-                            <p>{$addr.address}, {$addr.postcode} {$addr.city}, {$addr.country}</p>
-                            {if $addr.about}<p>{$addr.about}</p>{/if}
-                            {if $addr.link}<p><a href="{$addr.link}" class="targetblank">{$addr.link}</a></p>{/if}
-                            <p>
-                                <a href="#" class="btn btn-box btn-invert btn-main-theme select-marker" data-marker="{$addr@index}">{#see_on_map#}</a>
-                            </p>
+                            {$smarty.capture.content}
                         {/if}
                     </div>
+                    {if ($addr@index +1)%2 == 0 || {$addr@last}}
+                        </div>
+                    {/if}
                 {/foreach}
             </div>
-        </div>
+        {/if}
     {else}
         <div class="container">
             <div class="mc-message clearfix">

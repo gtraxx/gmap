@@ -167,7 +167,7 @@ class database_plugins_gmap{
 				case 'page':
 					$sql = "UPDATE mc_plugins_gmap 
 							SET title=:title, content=:content
-							WHERE idgmap = :id";
+							WHERE idgmap = :id AND idlang = :lang";
 					break;
 
 				case 'config':

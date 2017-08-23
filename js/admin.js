@@ -137,10 +137,14 @@ var MC_plugins_gmap = (function ($, undefined) {
 				}
 				else if(d.notify !== undefined && d.notify !== '') {
 					initAlert(d.notify,4000);
-					if($('#img').val() !== '' && $('#img').val() !== null) {
-						$('.toggleModal').removeClass('hide');
-						$('.resetImg').addClass('hide');
-					}
+                    if($(f).attr('id') === 'edit_content_form') {
+                    	if(d.result !== null) $('#page_id').val(d.result.id);
+                    } else {
+						if($('#img').val() !== '' && $('#img').val() !== null) {
+							$('.toggleModal').removeClass('hide');
+							$('.resetImg').addClass('hide');
+						}
+                    }
 				}
 			}
 		}

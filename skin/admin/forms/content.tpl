@@ -1,4 +1,4 @@
-<form method="post" action="{$pluginUrl}&amp;getlang={$smarty.get.getlang}&amp;tab=content&amp;action=edit" class="validate_form">
+<form id="edit_content_form" method="post" action="{$pluginUrl}&amp;getlang={$smarty.get.getlang}&amp;tab=content&amp;action=edit" class="validate_form edit_form">
     <fieldset>
         <legend>Contenu de la page</legend>
         <div class="form-group">
@@ -12,7 +12,8 @@
     </fieldset>
     <fieldset>
         <legend>Enregistrer</legend>
-        <input type="hidden" name="page[id]" value="{$page.idgmap}">
+        <input type="hidden" name="page[lang]" value="{$smarty.get.getlang}">
+        <input type="hidden" id="page_id" name="page[id]" value="{$page.idgmap}">
         <input type="submit" class="btn btn-primary" value="{#save#|ucfirst}" />
     </fieldset>
 </form>

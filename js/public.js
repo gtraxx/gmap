@@ -303,16 +303,30 @@ var gmap = (function ($, undefined) {
             setDirection();
         });
 
-		$('#hidepanel').on('click',function(){
-			if($('#hidepanel > span.fa').hasClass('fa-caret-left'))
+		$('.hidepanel').on('click',function(){
+			var icon = $('span.fa', this),
+				bloc = $('#gmap-address');
+
+			if(icon.hasClass('fa-caret-left'))
 			{
-				$('#gmap-address').css('left', -($('#gmap-address').width()));
-				$($('#hidepanel > span.fa')).removeClass('fa-caret-left').addClass('fa-caret-right');
+				bloc.css('left', -(bloc.width()));
+				icon.removeClass('fa-caret-left').addClass('fa-caret-right');
 			}
-			else {
-				$('#gmap-address').css('left', '0');
-				$($('#hidepanel > span.fa')).removeClass('fa-caret-right').addClass('fa-caret-left');
+			else if(icon.hasClass('fa-caret-right')) {
+				bloc.css('left', '0');
+				icon.removeClass('fa-caret-right').addClass('fa-caret-left');
 			}
+
+
+            if(icon.hasClass('fa-caret-up'))
+            {
+                bloc.css('top', -(bloc.height()));
+                icon.removeClass('fa-caret-up').addClass('fa-caret-down');
+            }
+            else if(icon.hasClass('fa-caret-down')) {
+                bloc.css('top', '0');
+                icon.removeClass('fa-caret-down').addClass('fa-caret-up');
+            }
 		});
 
 		$('#showform').on('click',function(){

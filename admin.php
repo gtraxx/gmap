@@ -419,10 +419,16 @@ class plugins_gmap_admin extends database_plugins_gmap
 	{
 		switch ($config['type']) {
 			case 'address':
-			case 'page':
 				parent::insert($config);
 				$this->header->set_json_headers();
 				$this->message->json_post_response(true,'save',null, self::$notify);
+				break;
+
+			case 'page':
+				parent::insert($config);
+				$page = parent::fetchData(array('context' => 'one', 'type' => 'page'),array(':lang' => $config['data'][':lang']));
+				$this->header->set_json_headers();
+				$this->message->json_post_response(true,'save',array('id' => $page['idgmap']), self::$notify);
 				break;
 		}
 	}
@@ -612,12 +618,14 @@ class plugins_gmap_admin extends database_plugins_gmap
 					elseif ($this->tab == 'content') {
 						if (isset($this->action)) {
 							if(isset($this->page) && !empty($this->page)) {
+								if(empty($this->page['id'])) unset($this->page['id']);
+
 								$config = array(
 									'type' => 'page',
 									'data' => $this->keysToParams($this->page)
 								);
 
-								!empty($this->page['id']) ? $this->upd($config) : $this->add($config);
+								isset($this->page['id']) ? $this->upd($config) : $this->add($config);
 							}
 							else {
 								$this->getItems('page',null,'one');
@@ -629,7 +637,7 @@ class plugins_gmap_admin extends database_plugins_gmap
 						}
 					}
 					else {
-                        $this->getItems('addresses');
+						$this->getItems('addresses');
 						$this->template->display('list.tpl');
 					}
 				}
